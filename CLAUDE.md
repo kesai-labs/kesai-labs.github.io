@@ -1,0 +1,1 @@
+Use Next.js with Tailwind CSS and Framer Motion

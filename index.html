@@ -1,60 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KE:SAI - Kyutai ELLIS Scalable Autonomous Intelligence</title>
-    <style>
-        body { 
-            margin: 0; 
-            padding: 0;
-            background-color: #000000; /* Pure Black */
-            display: flex; 
-            flex-direction: column; /* Stacks logo and text vertically */
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-            overflow: hidden;
-            /* Updated to Option B: Inter-first local stack */
-            font-family: "Inter", "Inter var", system-ui, -apple-system, sans-serif;
-        }
-
-        .logo {
-            display: block;
-            height: auto;
-            width: 50%; /* 50% width on desktop */
-            margin-bottom: 30px; /* Space between logo and text */
-        }
-
-        .tagline {
-            color: #aaaaaa; /* Clean light grey */
-            font-weight: 300;
-            font-size: 2rem;
-            letter-spacing: 0.2rem; /* Spacious, modern feel */
-            text-transform: uppercase;
-            text-align: center;
-            max-width: 90%;
-        }
-
-        /* Mobile Adjustments */
-        @media (max-width: 768px) {
-            .logo {
-                width: 80%; /* 80% width on mobile */
-            }
-            .tagline {
-                font-size: 0.85rem;
-                letter-spacing: 0.1rem;
-            }
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KE:SAI — Open Science Autonomy Lab</title>
+  <meta name="description" content="KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence.">
+  <script src="/site.js" defer></script>
 </head>
 <body>
 
-    <img src="kesai.png" alt="KE:SAI Logo" class="logo">
+  <header id="site-header"></header>
 
-    <div class="tagline">
-        Kyutai ELLIS Scalable Autonomous Intelligence
+  <main>
+    <section class="hero">
+      <div class="hero-logo">
+        <img src="/assets/logos/kesai_tagline_long.png" alt="KE:SAI — Open Science Autonomy Lab">
+      </div>
+    </section>
+
+  <section class="page-content founders-section">
+    <h2 class="founders-title">Founders</h2>
+    <div class="team-grid">
+
+      <article class="team-card">
+        <div class="team-photo">
+          <img src="/assets/team/andreas-geiger.jpg" alt="Andreas Geiger" onerror="this.style.display='none'">
+        </div>
+        <div class="team-info">
+          <span class="team-name">Andreas Geiger</span>
+          <span class="team-title">Chief Executive Officer</span>
+          <span class="team-role">Co-Founder</span>
+          <div class="team-links">
+            <a href="https://www.cvlibs.net/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
+            </a>
+            <a href="https://scholar.google.com/citations?user=SrVnrPcAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="team-card">
+        <div class="team-photo">
+          <img src="/assets/team/kashyap-chitta.jpg" alt="Kashyap Chitta" onerror="this.style.display='none'">
+        </div>
+        <div class="team-info">
+          <span class="team-name">Kashyap Chitta</span>
+          <span class="team-title">Chief Technology Officer</span>
+          <span class="team-role">Co-Founder</span>
+          <div class="team-links">
+            <a href="https://kashyap7x.github.io/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
+            </a>
+            <a href="https://scholar.google.com/citations?user=vX5i2CcAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="team-card">
+        <div class="team-photo">
+          <img src="/assets/team/bernhard-schoelkopf.jpg" alt="Bernhard Schölkopf" onerror="this.style.display='none'">
+        </div>
+        <div class="team-info">
+          <span class="team-name">Bernhard Schölkopf</span>
+          <span class="team-title">Chief Causality Officer</span>
+          <span class="team-role">Co-Founder</span>
+          <div class="team-links">
+            <a href="https://is.mpg.de/ei/person/bs" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
+            </a>
+            <a href="https://scholar.google.com/citations?user=DZ-fHPgAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="team-card">
+        <div class="team-photo">
+          <img src="/assets/team/bernhard-jaeger.jpg" alt="Bernhard Jaeger" onerror="this.style.display='none'">
+        </div>
+        <div class="team-info">
+          <span class="team-name">Bernhard Jaeger</span>
+          <span class="team-title">Technical Staff</span>
+          <span class="team-role">Co-Founder</span>
+          <div class="team-links">
+            <a href="https://kait0.github.io/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
+            </a>
+            <a href="https://scholar.google.com/citations?user=JpceFvgAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
+      <article class="team-card">
+        <div class="team-photo">
+          <img src="/assets/team/daniel-dauner.jpg" alt="Daniel Dauner" onerror="this.style.display='none'">
+        </div>
+        <div class="team-info">
+          <span class="team-name">Daniel Dauner</span>
+          <span class="team-title">Technical Staff</span>
+          <span class="team-role">Co-Founder</span>
+          <div class="team-links">
+            <a href="https://danieldauner.github.io/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
+            </a>
+            <a href="https://scholar.google.com/citations?user=tZqIYDcAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
+              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
+            </a>
+          </div>
+        </div>
+      </article>
+
     </div>
+  </section>
+  </main>
+
+  <footer id="site-footer"></footer>
 
 </body>
 </html>
