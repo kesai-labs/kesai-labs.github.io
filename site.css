@@ -62,6 +62,9 @@ img { display: block; }
 main { flex: 1 0 auto; padding-bottom: 3rem; }
 
 /* ── Header ─────────────────────────────────────────────────── */
+/* Reserve header height before site.js injects its content, preventing layout jump */
+header { min-height: var(--nav-h); }
+
 .site-header {
   position: sticky;
   top: 0; left: 0; right: 0;
