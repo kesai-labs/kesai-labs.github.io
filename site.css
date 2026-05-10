@@ -38,6 +38,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* Non-homogeneous fixed gradient background */
@@ -242,13 +243,15 @@ main { flex: 1 0 auto; padding-bottom: 3rem; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: calc(var(--nav-h) + 6rem) var(--pad-x) 6rem;
+  min-height: 100svh;
+  padding: 0 var(--pad-x) calc(3 * var(--nav-h));
   text-align: center;
 }
 
 .hero-logo {
   width: 100%;
-  max-width: 340px;
+  max-width: 500px;
+  padding: 5%;
 }
 .hero-logo img {
   width: 100%;
@@ -580,9 +583,35 @@ main { flex: 1 0 auto; padding-bottom: 3rem; }
 /* Disable scroll during hero animation */
 html.scroll-locked { overflow: hidden; }
 
-/* Pre-hide below-hero content to prevent FOUC during hero animation */
+/* Scroll hint — all screen sizes, starts hidden */
+.scroll-hint {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: none;
+  border: none;
+  color: var(--secondary);
+  font-size: 1.4rem;
+  cursor: pointer;
+  z-index: 40;
+  opacity: 0;
+  animation: scrollHintBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes scrollHintBounce {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%       { transform: translateX(-50%) translateY(7px); }
+}
+
+/* Pre-hide all animated hero content to prevent FOUC during hero animation */
 html.hero-animating main > section:not(.hero),
-html.hero-animating main > section:not(.hero) * {
+html.hero-animating main > section:not(.hero) *,
+html.hero-animating .hero-logo,
+html.hero-animating .hero-slogan {
   opacity: 0 !important;
   transition: none !important;
   animation: none !important;
@@ -935,13 +964,22 @@ html.hero-animating main > section:not(.hero) * {
 @media (max-width: 640px) {
   :root { --pad-x: 1.25rem; }
 
+  /* Fixed header — stays visible regardless of mobile browser chrome changes */
+  .site-header { position: fixed; width: 100%; }
+
   .site-nav   { display: none; }
   .nav-toggle { display: flex; }
 
-  .hero-logo  { max-width: 320px; }
+  /* Fixed header not in flow: equal padding centers content at true 50svh */
+  .hero { padding: var(--nav-h) var(--pad-x) var(--nav-h); }
+  .hero-logo  { max-width: 260px; }
 
   .footer-inner { flex-direction: column; gap: 2.5rem; align-items: stretch; }
   .footer-cols  { flex-direction: column; gap: 1.25rem; }
+  .footer-partner-logos { flex-direction: column; align-items: stretch; gap: 1.25rem; }
+  .footer-partner-logos a { display: block; }
+  .footer-partner-logos a:first-child { width: 50%; align-self: center; }
+  .footer-partner-logos img { width: 100%; height: auto; }
   .donor-logos  { grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
 
   .team-grid    { grid-template-columns: repeat(3, 1fr); gap: 1rem .75rem; }

@@ -43,6 +43,49 @@ document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') document.querySelectorAll('.pub-bibtex-modal.open').forEach(m => m.classList.remove('open'));
 });
 
+// ── Scroll hint (mobile) ──────────────────────────────────────
+(function () {
+  const hint = document.getElementById('scroll-hint');
+  if (!hint) return;
+
+  // Expose a function so the animation sequence can fade it in at the right moment
+  const _nt = performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type;
+  const _willAnimate = (_nt === 'reload' || !sessionStorage.getItem('heroAnimated')) && !!document.querySelector('.hero-logo');
+  window._showScrollHint = function () {
+    hint.style.transition = 'opacity 0.7s ease';
+    hint.style.opacity = '1';
+    setTimeout(() => { hint.style.transition = ''; }, 700);
+  };
+  if (!_willAnimate) window._showScrollHint(); // show immediately on logo-click navigation
+
+  // Fade out proportionally as user scrolls
+  window.addEventListener('scroll', () => {
+    const opacity = Math.max(0, 1 - window.scrollY / 120);
+    hint.style.opacity = opacity;
+    hint.style.pointerEvents = opacity < 0.05 ? 'none' : 'auto';
+  }, { passive: true });
+
+  // Smooth scroll to first section in 250ms
+  hint.addEventListener('click', () => {
+    const target = document.querySelector('.lp-section');
+    if (!target) return;
+    const start = window.scrollY;
+    const end   = target.getBoundingClientRect().top + window.scrollY;
+    const duration = 500;
+    const t0 = performance.now();
+    // Disable CSS smooth scroll so it doesn't fight the JS animation
+    document.documentElement.style.scrollBehavior = 'auto';
+    function step(now) {
+      const p = Math.min((now - t0) / duration, 1);
+      const ease = p < 0.5 ? 2 * p * p : -1 + (4 - 2 * p) * p;
+      window.scrollTo(0, start + (end - start) * ease);
+      if (p < 1) requestAnimationFrame(step);
+      else document.documentElement.style.scrollBehavior = '';
+    }
+    requestAnimationFrame(step);
+  });
+})();
+
 // ── Scroll position save/restore ──────────────────────────────
 (function () {
   const key = 'scrollY:' + location.pathname;
@@ -306,6 +349,7 @@ document.querySelectorAll('.mobile-nav a').forEach(a => {
           siteHeader.classList.remove('header-hidden');
           siteHeader.classList.add('header-visible');
         }
+        if (window._showScrollHint) window._showScrollHint();
       }, 3200); // BOOKMARK 2
     }, 200);
   }
