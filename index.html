@@ -3,8 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KE:SAI — Open Science Autonomy Lab</title>
+  <title>KE:SAI Open Science Autonomy Lab</title>
   <meta name="description" content="KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence.">
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <link rel="stylesheet" href="/site.css">
+  <style>html{background:#0a0a0a}</style>
+  <script>
+    history.scrollRestoration = 'manual';
+    // Always pre-hide below-hero sections on landing page; deferred JS decides whether to animate
+    document.documentElement.classList.add('hero-animating');
+  </script>
   <script src="/site.js" defer></script>
 </head>
 <body>
@@ -12,113 +24,111 @@
   <header id="site-header"></header>
 
   <main>
+
     <section class="hero">
       <div class="hero-logo">
-        <img src="/assets/logos/kesai_tagline_long.png" alt="KE:SAI — Open Science Autonomy Lab">
+        <img src="/assets/logos/kesai_small_transparent.png" alt="KE:SAI — Open Science Autonomy Lab">
+      </div>
+      <p class="hero-slogan">Robot learning is <span class="hl">bottlenecked</span> by the cost of physical interaction. Our mission is to advance the <span class="hl">efficiency frontier</span> of robust &amp; safe <span class="hl">physical AI</span> through fully <span class="hl">open and reproducible</span> research.</p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">About KE:SAI</p>
+      <h2 class="section-title">A Franco-German Partnership for Open Science</h2>
+      <p class="section-body">
+        KE:SAI &mdash; <span class="hl">Kyutai ELLIS Scalable Artificial Intelligence</span> &mdash; is a non-profit frontier AI research lab co-founded by kyutai and the ELLIS Institute Tübingen. Co-located in Tübingen and Paris, this Franco-German collaboration merges kyutai’s open science ethos and foundation model expertise with ELLIS’s talent attraction and foundational research excellence in 3D computer vision, data-driven simulation, causality and physical AI to pioneer world-leading research in <span class="hl">world models and autonomy</span>.
+      </p>
+      <img src="/assets/tuebingen_paris.jpg" alt="KE:SAI is co-located in Tübingen and Paris" class="founders-photo">
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Challenge</p>
+      <h2 class="section-title">Physical AI is Inefficient and Closed</h2>
+      <p class="section-body">
+        Physical AI is the next frontier of AI research. However, today's artificial intelligence is orders of magnitude less sample efficient than human intelligence, requiring very large datasets and compute resources for training. As robot learning is <span class="hl">bottlenecked by the cost of physical interaction</span>, Physical AI research is currently dominated by few proprietary silos with closed code, models and data. This <span class="hl">hinders progress</span> for the research field as a whole.
+      </p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Opportunity</p>
+      <h2 class="section-title">Advancing the Research Frontier with Open Science</h2>
+      <p class="section-body">The open-source movement has been one of the most powerful forces in modern AI research. The release of models, datasets, and training recipes for large language models has triggered an <span class="hl">explosion of innovation</span> — compressing years of progress into months and enabling researchers worldwide to build on each other's work rather than starting from scratch. Physical AI has yet to benefit from this flywheel: robotic learning remains fragmented, with results that are difficult to reproduce, hardware-specific, and rarely shared in full. KE:SAI mission is to <span class="hl">democratize physical AI research</span> — by developing fully open stacks together with the research community. We are a small team of talented researchers, razor focused on a single mission. All our code and models will be released under permissive licenses that allow <span class="hl">civil commercial use.</span></p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Technology</p>
+      <h2 class="section-title">World Foundation Models</h2>
+      <p class="section-body">
+        We pioneer data- and compute-efficient methods to build foundation models for physical and interventional AI. In contrast to current data-driven approaches, we focus on <span class="hl">massively parallelizable learned simulations: hybrid, causal and latent world models.</span> The hybrid nature of these world models allows for ingesting information from a variety of sources, including real-world data, simulations, and common sense knowledge from large language models. Expressive and physically grounded latent spaces enable data- and compute-efficient <span class="hl">closed-loop training of robot policies</span> using (self-)supervised, reinforcement learning and self-play objectives. Sim2Real techniques allow for integrating synthetic with real data. Our goal is to train policies that generalize effectively across a wide variety of embodiments and environments.
+      </p>
+      <img src="/assets/earth.jpg" alt="KE:SAI develops efficient and open world foundation models" class="founders-photo">
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">Applications</p>
+      <h2 class="section-title">A Fully Open Self-Driving Stack</h2>
+      <p class="section-body">        
+        Self-driving is the epitome of physical AI, covering multi-modal perception, planning in safety-critical situations, and control in highly dynamic multi-agent environments. Therefore, KE:SAI will first demonstrate the capabilities of the developed models by <span class="hl">training self-driving policies using significantly less data and compute</span> than typically required while reaching infraction rates competitive with frontier systems. Based on this foundation, KE:SAI will extend its effort to <span class="hl">other areas of robotics.</span>
+      </p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Team</p>
+      <h2 class="section-title">Meet the Founders</h2>
+      <img src="/assets/founders.jpg" alt="KE:SAI founders: Kashyap Chitta, Daniel Dauner, Andreas Geiger, Bernhard Schölkopf, Bernhard Jaeger" class="founders-photo">
+      <p class="photo-caption">From left-to-right: Kashyap Chitta, Daniel Dauner, Andreas Geiger, Bernhard Schölkopf and Bernhard Jaeger</p>
+      <p class="section-body">We are a team of <span class="hl">world-leading researchers</span> with a <span class="hl">proven track record</span> of attracting talent. We</p>
+      <ul class="track-record-list">
+        <li>Received <span class="hl">27 best paper awards</span> at the leading vision, learning and robotics conferences</li>
+        <li>Introduced the <span class="hl">KITTI benchmarks</span> which transformed vision &amp; robotics (&gt;10M downloads)</li>
+        <li>Achieved <span class="hl">top places</span> at international self-driving competitions (nuPlan, CARLA, Waymo)</li>
+        <li>Open-sourced the <span class="hl">two largest (1700h+) driving datasets</span> (OpenDV, PhysicalAI-AV)</li>
+        <li>Developed the <span class="hl">first reinforcement learning planner</span> with state-of-the-art driving (CaRL)</li>
+        <li>Open-sourced the <span class="hl">first large-scale video world model</span> for driving (Vista)</li>
+        <li>Developed the <span class="hl">first generative simulator</span> for vectorized driving environments (SLEDGE)</li>
+        <li>Introduced <span class="hl">pseudo-simulation</span> for efficient closed-loop benchmarking (NAVSIM)</li>
+        <li>Pioneered methods for <span class="hl">causal discovery</span> from observational data</li>
+        <li>Triggered a <span class="hl">paradigm shift</span> in vision and graphics through work on implicit models</li>
+        <li>Established <span class="hl">ELLIS</span> and the most successful <span class="hl">AI PhD program in Europe</span></li>
+        <li>Attracted top talent: former lab members co-founded <span class="hl">Black Forest Labs</span>, <span class="hl">Mirelo AI</span> and <span class="hl">SpAItial AI</span></li>
+      </ul>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">Thank You</p>
+      <h2 class="section-title">Our Donors</h2>
+      <p class="section-body">
+        KE:SAI would not exist without the vision and generosity of kyutai and its donors. Their belief in open science as a force for good — and their willingness to invest in long-horizon, fundamental research — makes our work possible. We are deeply grateful for their continued trust and support.
+      </p>
+      <div class="donor-logos">
+        <img src="/assets/logos/kyutai.png" alt="Kyutai">
+        <img src="/assets/logos/iliad.png" alt="Iliad">
+        <img src="/assets/logos/cma_cgm.svg" alt="CMA CGM">
+        <img src="/assets/logos/schmidt_sciences.png" alt="Schmidt Sciences">
       </div>
     </section>
 
-  <section class="page-content founders-section">
-    <h2 class="founders-title">Founders</h2>
-    <div class="team-grid">
+    <section class="lp-section">
+      <p class="section-eyebrow">Learn More</p>
+      <h2 class="section-title">Follow our research, collaborate or join us!</h2>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <h3 class="feature-card-title">Publications</h3>
+          <p class="feature-card-body">Explore our peer-reviewed research on world models, autonomous driving and causal AI. Visit our <a href="/publications/">publications page</a> for the full list of papers.</p>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card-title">Blog</h3>
+          <p class="feature-card-body">We share updates on our research, open releases and scientific insights. Head over to our <a href="/blog/">blog</a> to stay up to date with our latest work.</p>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card-title">Join Us</h3>
+          <p class="feature-card-body">Collaborate with us, or join us on our mission to move the efficiency frontier of physical AI! Visit our <a href="/join/">applications page</a> to find out more..</p>
+        </article>
+      </div>
+    </section>
 
-      <article class="team-card">
-        <div class="team-photo">
-          <img src="/assets/team/andreas-geiger.jpg" alt="Andreas Geiger" onerror="this.style.display='none'">
-        </div>
-        <div class="team-info">
-          <span class="team-name">Andreas Geiger</span>
-          <span class="team-title">Chief Executive Officer</span>
-          <span class="team-role">Co-Founder</span>
-          <div class="team-links">
-            <a href="https://www.cvlibs.net/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
-            </a>
-            <a href="https://scholar.google.com/citations?user=SrVnrPcAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
-            </a>
-          </div>
-        </div>
-      </article>
 
-      <article class="team-card">
-        <div class="team-photo">
-          <img src="/assets/team/kashyap-chitta.jpg" alt="Kashyap Chitta" onerror="this.style.display='none'">
-        </div>
-        <div class="team-info">
-          <span class="team-name">Kashyap Chitta</span>
-          <span class="team-title">Chief Technology Officer</span>
-          <span class="team-role">Co-Founder</span>
-          <div class="team-links">
-            <a href="https://kashyap7x.github.io/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
-            </a>
-            <a href="https://scholar.google.com/citations?user=vX5i2CcAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
-            </a>
-          </div>
-        </div>
-      </article>
 
-      <article class="team-card">
-        <div class="team-photo">
-          <img src="/assets/team/bernhard-schoelkopf.jpg" alt="Bernhard Schölkopf" onerror="this.style.display='none'">
-        </div>
-        <div class="team-info">
-          <span class="team-name">Bernhard Schölkopf</span>
-          <span class="team-title">Chief Causality Officer</span>
-          <span class="team-role">Co-Founder</span>
-          <div class="team-links">
-            <a href="https://is.mpg.de/ei/person/bs" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
-            </a>
-            <a href="https://scholar.google.com/citations?user=DZ-fHPgAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
-            </a>
-          </div>
-        </div>
-      </article>
-
-      <article class="team-card">
-        <div class="team-photo">
-          <img src="/assets/team/bernhard-jaeger.jpg" alt="Bernhard Jaeger" onerror="this.style.display='none'">
-        </div>
-        <div class="team-info">
-          <span class="team-name">Bernhard Jaeger</span>
-          <span class="team-title">Technical Staff</span>
-          <span class="team-role">Co-Founder</span>
-          <div class="team-links">
-            <a href="https://kait0.github.io/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
-            </a>
-            <a href="https://scholar.google.com/citations?user=JpceFvgAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
-            </a>
-          </div>
-        </div>
-      </article>
-
-      <article class="team-card">
-        <div class="team-photo">
-          <img src="/assets/team/daniel-dauner.jpg" alt="Daniel Dauner" onerror="this.style.display='none'">
-        </div>
-        <div class="team-info">
-          <span class="team-name">Daniel Dauner</span>
-          <span class="team-title">Technical Staff</span>
-          <span class="team-role">Co-Founder</span>
-          <div class="team-links">
-            <a href="https://danieldauner.github.io/" class="team-link" title="Website" aria-label="Website" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-website"/></svg>
-            </a>
-            <a href="https://scholar.google.com/citations?user=tZqIYDcAAAAJ" class="team-link" title="Google Scholar" aria-label="Google Scholar" target="_blank" rel="noopener">
-              <svg aria-hidden="true"><use href="/icons.svg#icon-scholar"/></svg>
-            </a>
-          </div>
-        </div>
-      </article>
-
-    </div>
-  </section>
   </main>
 
   <footer id="site-footer"></footer>
