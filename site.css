@@ -409,6 +409,8 @@ header { min-height: var(--nav-h); }
   margin-top: 2.5rem;
 }
 
+.feature-grid--2col { grid-template-columns: repeat(2, 1fr); }
+
 .feature-card {
   padding: 1.5rem 1.5rem 1.5rem 1.75rem;
   border-left: 2px solid rgba(245, 166, 35, 0.45);
