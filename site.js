@@ -160,7 +160,6 @@ const FOOTER = `
 
       <div class="footer-col">
         <span class="footer-col-heading">Community</span>
-        <a href="#">X / Twitter</a>
         <a href="#">LinkedIn</a>
         <!--<a href="#">Newsletter</a>-->
       </div>
