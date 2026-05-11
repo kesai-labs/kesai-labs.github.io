@@ -153,7 +153,7 @@ const FOOTER = `
         <a href="https://ellis.eu/research/sites/institute-tubingen" target="_blank"><img src="/assets/logos/ellis_tuebingen.png" alt="ELLIS Institute Tübingen"></a>
       </div>
       <p class="footer-tagline">KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence, co-founded by kyutai and the ELLIS Institute Tübingen.</p>
-      <p class="footer-tagline">© 2026 KE:SAI &mdash; Kyutai ELLIS Scalable Artificial Intelligence</p>
+      <p class="footer-tagline">© 2026 KE:SAI &mdash; Kyutai ELLIS Scalable Autonomous Intelligence</p>
     </div>
 
     <div class="footer-cols">
