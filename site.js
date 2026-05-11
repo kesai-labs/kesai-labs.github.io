@@ -161,6 +161,7 @@ const FOOTER = `
       <div class="footer-col">
         <span class="footer-col-heading">Community</span>
         <a href="#">LinkedIn</a>
+        <a href="#">Bluesky</a>
         <!--<a href="#">Newsletter</a>-->
       </div>
 
