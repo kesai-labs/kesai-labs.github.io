@@ -975,6 +975,10 @@ html.hero-animating .hero-slogan {
   .site-nav   { display: none; }
   .nav-toggle { display: flex; }
 
+  main > .lp-section:first-child {
+    padding-top: calc(3rem + var(--nav-h));
+  }
+
   /* Fixed header not in flow: equal padding centers content at true 50svh */
   .hero { padding: var(--nav-h) var(--pad-x) var(--nav-h); }
   .hero-logo  { max-width: 260px; }
