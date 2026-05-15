@@ -154,6 +154,7 @@ const FOOTER = `
       </div>
       <p class="footer-tagline">KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence, co-founded by kyutai and the ELLIS Institute Tübingen.</p>
       <p class="footer-tagline">© 2026 KE:SAI &mdash; Kyutai ELLIS Scalable Autonomous Intelligence</p>
+      <p class="footer-tagline"><a href="/imprint/" style="color:inherit;text-decoration:none">Imprint</a> &nbsp;·&nbsp; <a href="/privacy/" style="color:inherit;text-decoration:none">Privacy Policy</a></p>
     </div>
 
     <div class="footer-cols">
@@ -178,6 +179,7 @@ const FOOTER = `
         <a href="/join">Join Us</a>
         <a href="/team">Team</a>
         <a href="mailto:press@kesai.eu">Press</a>
+        <a href="mailto:info@kesai.eu">Contact</a>
       </div>
 
     </div>
