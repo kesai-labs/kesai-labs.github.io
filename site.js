@@ -1,44 +1,57 @@
-// ── Publication helpers ────────────────────────────────────────
-window.toggleAbstract = function (btn) {
-  const wrap = btn.closest('.pub-body').querySelector('.pub-abstract-wrap');
-  const el   = wrap.querySelector('.pub-abstract');
-  const expanding = !wrap.classList.contains('expanded');
+// ── Refactoring #12: Cache navigation entry at top ────────────
+const _navEntry = (performance.getEntriesByType && performance.getEntriesByType('navigation')[0]) || null;
+const _navType  = _navEntry?.type || '';
 
-  if (expanding) {
-    const full = el.scrollHeight;
-    el.style.maxHeight = full + 'px';
-    el.addEventListener('transitionend', () => { el.style.maxHeight = 'none'; el.style.overflow = 'visible'; }, { once: true });
-    wrap.classList.add('expanded');
-  } else {
-    el.style.overflow = 'hidden';
-    el.style.maxHeight = el.scrollHeight + 'px';
-    el.offsetHeight; // force reflow
-    el.style.maxHeight = '5.95rem';
-    wrap.classList.remove('expanded');
+// ── Refactoring #1: Compute hero-will-animate once ────────────
+// true on hard reload or true first visit; false when navigating via link within the session
+const _animKey      = 'heroAnimated';
+const heroWillAnimate = (_navType === 'reload' || !sessionStorage.getItem(_animKey)) && !!document.querySelector('.hero-logo');
+
+// ── Refactoring #6: Event-delegated publication handlers ──────
+document.addEventListener('click', function (e) {
+  const btn = e.target.closest('[data-action]');
+  if (btn) {
+    const action = btn.dataset.action;
+
+    if (action === 'toggle-abstract') {
+      const wrap = btn.closest('.pub-body').querySelector('.pub-abstract-wrap');
+      const el   = wrap.querySelector('.pub-abstract');
+      const expanding = !wrap.classList.contains('expanded');
+
+      if (expanding) {
+        const full = el.scrollHeight;
+        el.style.maxHeight = full + 'px';
+        el.addEventListener('transitionend', () => { el.style.maxHeight = 'none'; el.style.overflow = 'visible'; }, { once: true });
+        wrap.classList.add('expanded');
+      } else {
+        el.style.overflow = 'hidden';
+        el.style.maxHeight = el.scrollHeight + 'px';
+        el.offsetHeight; // force reflow
+        el.style.maxHeight = '5.95rem';
+        wrap.classList.remove('expanded');
+      }
+
+      btn.innerHTML = expanding
+        ? 'Read less <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>'
+        : 'Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
+
+    } else if (action === 'open-bibtex') {
+      btn.closest('.pub-action-row').closest('.pub-body').querySelector('.pub-bibtex-modal').classList.add('open');
+
+    } else if (action === 'copy-bibtex') {
+      const code = btn.nextElementSibling.textContent;
+      navigator.clipboard.writeText(code).then(() => {
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
+      });
+    }
+    return;
   }
 
-  btn.innerHTML = expanding
-    ? 'Read less <i class="fa-solid fa-chevron-up" aria-hidden="true"></i>'
-    : 'Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>';
-};
-
-window.openBibtex = function (btn) {
-  btn.closest('.pub-action-row').closest('.pub-body').querySelector('.pub-bibtex-modal').classList.add('open');
-};
-
-
-window.copyBibtex = function (btn) {
-  const code = btn.nextElementSibling.textContent;
-  navigator.clipboard.writeText(code).then(() => {
-    btn.textContent = 'Copied!';
-    setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
-  });
-};
-
-// Close bibtex modal on backdrop click or Escape
-document.addEventListener('click', function (e) {
+  // Close bibtex modal on backdrop click
   if (e.target.classList.contains('pub-bibtex-modal')) e.target.classList.remove('open');
 });
+
 document.addEventListener('keydown', function (e) {
   if (e.key === 'Escape') document.querySelectorAll('.pub-bibtex-modal.open').forEach(m => m.classList.remove('open'));
 });
@@ -48,15 +61,13 @@ document.addEventListener('keydown', function (e) {
   const hint = document.getElementById('scroll-hint');
   if (!hint) return;
 
-  // Expose a function so the animation sequence can fade it in at the right moment
-  const _nt = performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type;
-  const _willAnimate = (_nt === 'reload' || !sessionStorage.getItem('heroAnimated')) && !!document.querySelector('.hero-logo');
-  window._showScrollHint = function () {
+  // Show immediately when no animation will play (logo-click navigation)
+  if (!heroWillAnimate) {
     hint.style.transition = 'opacity 0.7s ease';
     hint.style.opacity = '1';
     setTimeout(() => { hint.style.transition = ''; }, 700);
-  };
-  if (!_willAnimate) window._showScrollHint(); // show immediately on logo-click navigation
+  }
+  // Delayed show is handled inline in the reveal IIFE at REVEAL_START
 
   // Fade out proportionally as user scrolls
   window.addEventListener('scroll', () => {
@@ -88,20 +99,16 @@ document.addEventListener('keydown', function (e) {
 
 // ── Scroll position save/restore ──────────────────────────────
 (function () {
-  const key = 'scrollY:' + location.pathname;
+  const key   = 'scrollY:' + location.pathname;
   const saved = sessionStorage.getItem(key);
 
-  // Don't restore scroll when hero animation will play — start at top
-  const _nt = performance.getEntriesByType && performance.getEntriesByType('navigation')[0]?.type;
-  const willAnimate = _nt === 'reload' || !sessionStorage.getItem('heroAnimated');
-
-  if (saved && !willAnimate) {
+  if (saved && !heroWillAnimate) {
     document.documentElement.style.scrollBehavior = 'auto';
     window.scrollTo(0, +saved);
     requestAnimationFrame(() => document.documentElement.style.scrollBehavior = '');
   }
   // Always clear saved position when animating (so no stale restore after animation)
-  if (willAnimate) sessionStorage.removeItem(key);
+  if (heroWillAnimate) sessionStorage.removeItem(key);
 
   window.addEventListener('beforeunload', () => sessionStorage.setItem(key, window.scrollY));
 })();
@@ -193,9 +200,7 @@ document.getElementById('site-footer').outerHTML = FOOTER;
 
 // Determine whether to play hero animation:
 // yes on hard reload or true first visit; no when navigating via link within the session
-const _navType = performance.getEntriesByType('navigation')[0]?.type;
-const _animKey  = 'heroAnimated';
-const showHeroAnimation = _navType === 'reload' || !sessionStorage.getItem(_animKey);
+const showHeroAnimation = heroWillAnimate;
 if (showHeroAnimation) sessionStorage.setItem(_animKey, '1');
 
 // If no animation (logo click), lift the pre-hide immediately
@@ -293,10 +298,13 @@ document.querySelectorAll('.mobile-nav a').forEach(a => {
     el.style.transitionDelay = (i * 40) + 'ms';
     candidates.push(el);
   });
+  document.querySelectorAll('.pub-card').forEach(el => candidates.push(el));
 
   const landingInView = [];
   const teamInView    = [];
+  const pubInView     = [];
   const isTeamPage    = !isLandingPage && !!document.querySelector('.team-grid');
+  const isPubPage     = !isLandingPage && !!document.querySelector('.pub-list');
 
   candidates.forEach(el => {
     if (el === heroLogo || el === heroSlogan) {
@@ -313,6 +321,8 @@ document.querySelectorAll('.mobile-nav a').forEach(a => {
     } else if (isTeamPage && inViewport && el.classList.contains('team-card')) {
       // Team page: stagger team cards in on load; other elements stay immediately visible
       teamInView.push(el);
+    } else if (isPubPage && inViewport && el.classList.contains('pub-card')) {
+      pubInView.push(el);
     } else if (!inViewport) {
       // Off-screen on any page: scroll reveal
       el.classList.add('reveal');
@@ -339,11 +349,31 @@ document.querySelectorAll('.mobile-nav a').forEach(a => {
     teamInView.forEach((el, i) => setTimeout(() => el.classList.add('is-visible'), 80 + i * 80));
   }
 
+  if (isPubPage) {
+    if (pubInView.length) {
+      pubInView.forEach(el => {
+        el.style.transition = 'none';
+        el.classList.add('reveal');
+      });
+      pubInView[0].offsetHeight;
+      document.documentElement.classList.remove('pub-loading');
+      pubInView.forEach(el => { el.style.transition = ''; });
+      pubInView.forEach((el, i) => setTimeout(() => el.classList.add('is-visible'), 80 + i * 120));
+    } else {
+      document.documentElement.classList.remove('pub-loading');
+    }
+  }
+
   if (isLandingPage && showHeroAnimation) {
+    // ── Refactoring #8: Named timing constants ─────────────────
+    const ANIM_BASE    = 200;   // ms before first animation frame
+    const SLOGAN_START = 800;   // ms after base before slogan starts
+    const REVEAL_START = 3200;  // ms after base before sections/header reveal
+
     document.documentElement.classList.add('scroll-locked');
     setTimeout(() => {
       heroLogo.classList.add('is-visible');
-      setTimeout(() => heroSlogan.classList.add('is-visible'), 800);
+      setTimeout(() => heroSlogan.classList.add('is-visible'), SLOGAN_START);
       setTimeout(() => {
         document.documentElement.classList.remove('scroll-locked');
         landingInView.forEach((el, i) => setTimeout(() => el.classList.add('is-visible'), i * 100));
@@ -351,8 +381,14 @@ document.querySelectorAll('.mobile-nav a').forEach(a => {
           siteHeader.classList.remove('header-hidden');
           siteHeader.classList.add('header-visible');
         }
-        if (window._showScrollHint) window._showScrollHint();
-      }, 3200); // BOOKMARK 2
-    }, 200);
+        // ── Refactoring #9: Inline scroll hint fade (no window._showScrollHint) ──
+        const hint = document.getElementById('scroll-hint');
+        if (hint) {
+          hint.style.transition = 'opacity 0.7s ease';
+          hint.style.opacity = '1';
+          setTimeout(() => { hint.style.transition = ''; }, 700);
+        }
+      }, REVEAL_START);
+    }, ANIM_BASE);
   }
 })();

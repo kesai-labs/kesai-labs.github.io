@@ -5,9 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>KE:SAI Publications</title>
   <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">  <link rel="stylesheet" href="/assets/fonts/google/fonts.css">
-  <link rel="stylesheet" href="/assets/fonts/fontawesome/css/all.min.css">
+  <link rel="stylesheet" href="/assets/fonts/fontawesome/css/solid.min.css">
   <link rel="stylesheet" href="/site.css">
   <style>html{background:#0a0a0a}</style>
+  <script>document.documentElement.classList.add('pub-loading');</script>
   <script src="/site.js" defer></script>
 </head>
 <body>
@@ -17,9 +18,9 @@
   <main>
     <section class="lp-section">
       <h1 class="section-title">Publications</h1>
-      <ul class="pub-list">
+      <div class="pub-list">
 
-        <li class="pub-card">
+        <article class="pub-card">
 
           <a href="https://opendrivelab.com/WorldEngine/" target="_blank" rel="noopener" class="pub-thumb-link">
             <img src="/assets/publications/Li2026ARXIV.jpg" alt="World Engine: Towards the Era of Post-Training for Physical AI" class="pub-thumb">
@@ -42,14 +43,14 @@
             </div>
 
             <div class="pub-action-row">
-              <button class="pub-abstract-btn" onclick="toggleAbstract(this)">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+              <button class="pub-abstract-btn" data-action="toggle-abstract">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
               <a href="https://github.com/OpenDriveLab/WorldEngine" target="_blank" rel="noopener" class="pub-link-btn">Project</a>
-              <button class="pub-abstract-btn" onclick="openBibtex(this)">BibTeX</button>
+              <button class="pub-abstract-btn" data-action="open-bibtex">BibTeX</button>
             </div>
 
             <div class="pub-bibtex-modal" role="dialog" aria-modal="true" aria-label="BibTeX">
               <div class="pub-bibtex-modal-box">
-                <button class="pub-copy-btn" onclick="copyBibtex(this)">Copy</button>
+                <button class="pub-copy-btn" data-action="copy-bibtex">Copy</button>
                 <pre class="pub-bibtex-code">@article{Li2026WorldEngine,
   title    = {World Engine: Towards the Era of Post-Training for Physical AI},
   author   = {Tianyu Li and Li Chen and Hongyang Li and Caojun Wang and Haochen Liu and Kashyap Chitta and Yuhang Lu and Naisheng Ye and Yufei Wang and Jiaxin Peng and Jin Pan and Zhaoyu Su and Peng Su and Andrei Bursuc and Shengbo Eben Li and Andreas Geiger and Honglin Bian},
@@ -61,10 +62,10 @@
             </div>
 
           </div>
-        </li>
+        </article>
 
 
-        <li class="pub-card">
+        <article class="pub-card">
 
           <a href="https://arxiv.org/abs/2605.08084" target="_blank" rel="noopener" class="pub-thumb-link">
             <img src="/assets/publications/Dauner2026ARXIV.jpg" alt="123D: Unifying Multi-Modal Autonomous Driving Data at Scale" class="pub-thumb">
@@ -87,15 +88,15 @@
             </div>
 
             <div class="pub-action-row">
-              <button class="pub-abstract-btn" onclick="toggleAbstract(this)">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+              <button class="pub-abstract-btn" data-action="toggle-abstract">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
               <a href="https://arxiv.org/abs/2605.08084" target="_blank" rel="noopener" class="pub-link-btn">arXiv</a>
               <a href="https://github.com/kesai-labs/py123d" target="_blank" rel="noopener" class="pub-link-btn">Project</a>
-              <button class="pub-abstract-btn" onclick="openBibtex(this)">BibTeX</button>
+              <button class="pub-abstract-btn" data-action="open-bibtex">BibTeX</button>
             </div>
 
             <div class="pub-bibtex-modal" role="dialog" aria-modal="true" aria-label="BibTeX">
               <div class="pub-bibtex-modal-box">
-                <button class="pub-copy-btn" onclick="copyBibtex(this)">Copy</button>
+                <button class="pub-copy-btn" data-action="copy-bibtex">Copy</button>
                 <pre class="pub-bibtex-code">@article{Dauner202612D,
   title    = {123D: Unifying Multi-Modal Autonomous Driving Data at Scale},
   author   = {Daniel Dauner and Valentin Charraut and Bastian Berle and Tianyu Li and Long Nguyen and Jiabao Wang and Changhui Jing and Maximilian Igl and Holger Caesar and Boris Ivanovic and Yiyi Liao and Andreas Geiger and Kashyap Chitta},
@@ -107,8 +108,8 @@
             </div>
 
           </div>
-        </li>
-        <li class="pub-card">
+        </article>
+        <article class="pub-card">
 
           <a href="https://arxiv.org/abs/2510.08575" target="_blank" rel="noopener" class="pub-thumb-link">
             <img src="/assets/publications/Xu2026ARXIV.jpg" alt="ReSplat: Learning Recurrent Gaussian Splatting" class="pub-thumb">
@@ -131,15 +132,15 @@
             </div>
 
             <div class="pub-action-row">
-              <button class="pub-abstract-btn" onclick="toggleAbstract(this)">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+              <button class="pub-abstract-btn" data-action="toggle-abstract">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
               <a href="https://arxiv.org/abs/2510.08575" target="_blank" rel="noopener" class="pub-link-btn">arXiv</a>
               <a href="https://haofeixu.github.io/resplat/" target="_blank" rel="noopener" class="pub-link-btn">Project</a>
-              <button class="pub-abstract-btn" onclick="openBibtex(this)">BibTeX</button>
+              <button class="pub-abstract-btn" data-action="open-bibtex">BibTeX</button>
             </div>
 
             <div class="pub-bibtex-modal" role="dialog" aria-modal="true" aria-label="BibTeX">
               <div class="pub-bibtex-modal-box">
-                <button class="pub-copy-btn" onclick="copyBibtex(this)">Copy</button>
+                <button class="pub-copy-btn" data-action="copy-bibtex">Copy</button>
                 <pre class="pub-bibtex-code">@article{Xu2025ReSplat,
   title    = {ReSplat: Learning Recurrent Gaussian Splatting},
   author   = {Haofei Xu and Daniel Barath and Andreas Geiger and Marc Pollefeys},
@@ -151,8 +152,8 @@
             </div>
 
           </div>
-        </li>
-        <li class="pub-card">
+        </article>
+        <article class="pub-card">
 
           <a href="https://arxiv.org/abs/2512.20563" target="_blank" rel="noopener" class="pub-thumb-link">
             <img src="/assets/publications/Nguyen2026CVPR.jpg" alt="LEAD: Minimizing Learner-Expert Asymmetry in End-to-End Driving" class="pub-thumb">
@@ -175,15 +176,15 @@
             </div>
 
             <div class="pub-action-row">
-              <button class="pub-abstract-btn" onclick="toggleAbstract(this)">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+              <button class="pub-abstract-btn" data-action="toggle-abstract">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
               <a href="https://arxiv.org/abs/2512.20563" target="_blank" rel="noopener" class="pub-link-btn">arXiv</a>
               <a href="https://ln2697.github.io/lead/" target="_blank" rel="noopener" class="pub-link-btn">Project</a>
-              <button class="pub-abstract-btn" onclick="openBibtex(this)">BibTeX</button>
+              <button class="pub-abstract-btn" data-action="open-bibtex">BibTeX</button>
             </div>
 
             <div class="pub-bibtex-modal" role="dialog" aria-modal="true" aria-label="BibTeX">
               <div class="pub-bibtex-modal-box">
-                <button class="pub-copy-btn" onclick="copyBibtex(this)">Copy</button>
+                <button class="pub-copy-btn" data-action="copy-bibtex">Copy</button>
                 <pre class="pub-bibtex-code">@inproceedings{Nguyen2026CVPR,
   title     = {LEAD: Minimizing Learner-Expert Asymmetry in End-to-End Driving},
   author    = {Long Nguyen and Micha Fauth and Bernhard Jaeger and Daniel Dauner and Maximilian Igl and Andreas Geiger and Kashyap Chitta},
@@ -196,8 +197,8 @@
             </div>
 
           </div>
-        </li>
-        <li class="pub-card">
+        </article>
+        <article class="pub-card">
 
           <a href="https://arxiv.org/abs/2506.19117" target="_blank" rel="noopener" class="pub-thumb-link">
             <img src="/assets/publications/Tze2026CVPR.jpg" alt="PrITTI: 3D urban scene generation using primitive-based representation" class="pub-thumb">
@@ -220,15 +221,15 @@
             </div>
 
             <div class="pub-action-row">
-              <button class="pub-abstract-btn" onclick="toggleAbstract(this)">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
+              <button class="pub-abstract-btn" data-action="toggle-abstract">Read more <i class="fa-solid fa-chevron-down" aria-hidden="true"></i></button>
               <a href="https://arxiv.org/abs/2506.19117" target="_blank" rel="noopener" class="pub-link-btn">arXiv</a>
               <a href="https://raniatze.github.io/pritti/" target="_blank" rel="noopener" class="pub-link-btn">Project</a>
-              <button class="pub-abstract-btn" onclick="openBibtex(this)">BibTeX</button>
+              <button class="pub-abstract-btn" data-action="open-bibtex">BibTeX</button>
             </div>
 
             <div class="pub-bibtex-modal" role="dialog" aria-modal="true" aria-label="BibTeX">
               <div class="pub-bibtex-modal-box">
-                <button class="pub-copy-btn" onclick="copyBibtex(this)">Copy</button>
+                <button class="pub-copy-btn" data-action="copy-bibtex">Copy</button>
                 <pre class="pub-bibtex-code">@inproceedings{Tze2026CVPR,
   title     = {PrITTI: Primitive-based Generation of Controllable and Editable 3D Semantic Urban Scenes},
   author    = {Christina Ourania Tze and Daniel Dauner and Yiyi Liao and Dzmitry Tsishkou and Andreas Geiger},
@@ -241,10 +242,10 @@
             </div>
 
           </div>
-        </li>
+        </article>
         <!-- ═══════════════════════════════════════════════════════ -->
 
-      </ul>
+      </div>
     </section>
   </main>
 
