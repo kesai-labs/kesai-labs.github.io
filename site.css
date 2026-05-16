@@ -198,7 +198,7 @@ header { min-height: var(--nav-h); }
   font-weight: 500;
   letter-spacing: .02em;
   text-transform: none;
-  color: var(--muted);
+  color: var(--secondary);
   padding-top: .25rem;
 }
 
