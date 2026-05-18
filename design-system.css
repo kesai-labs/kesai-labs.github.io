@@ -13,10 +13,10 @@
 /* ─── Design Tokens (CSS Custom Properties) ────────────────── */
 :root {
   /* --- Brand Colors --- */
-  --color-amber-500: #F5A623;   /* primary brand accent */
-  --color-amber-400: #F9AA34;
-  --color-amber-600: #D4880A;
-  --color-amber-glow: rgba(245, 166, 35, 0.30);
+  --color-amber-500: #FFBE27;   /* primary brand accent */
+  --color-amber-400: #FFC84A;
+  --color-amber-600: #D99B00;
+  --color-amber-glow: rgba(255, 190, 39, 0.30);
 
   /* --- Backgrounds / Surfaces --- */
   --color-bg:           #000000;   /* page background — pure black */
@@ -95,7 +95,7 @@
   --shadow-card:       0 1px 3px rgba(0,0,0,0.6), 0 1px 2px rgba(0,0,0,0.8);
   --shadow-card-hover: 0 4px 12px rgba(0,0,0,0.7);
   --shadow-glow-amber: 0 0 20px var(--color-amber-glow);
-  --shadow-glow-amber-lg: 0 0 40px rgba(245, 166, 35, 0.25);
+  --shadow-glow-amber-lg: 0 0 40px rgba(255, 190, 39, 0.25);
 
   /* --- Transitions --- */
   --transition-fast:   150ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -238,7 +238,7 @@ code, .text-mono {
 }
 .card:hover {
   box-shadow: var(--shadow-card-hover);
-  border-color: rgba(245, 166, 35, 0.3);
+  border-color: rgba(255, 190, 39, 0.3);
 }
 
 /* --- Buttons --- */
@@ -280,7 +280,7 @@ code, .text-mono {
   border: 1px solid var(--color-primary);
 }
 .btn-secondary:hover {
-  background-color: rgba(245, 166, 35, 0.08);
+  background-color: rgba(255, 190, 39, 0.08);
   box-shadow: var(--shadow-glow-amber);
   color: var(--color-primary-hover);
 }
@@ -307,9 +307,9 @@ code, .text-mono {
   text-transform: uppercase;
   padding: var(--space-1) var(--space-3);
   border-radius: var(--radius-sm);
-  background-color: rgba(245, 166, 35, 0.12);
+  background-color: rgba(255, 190, 39, 0.12);
   color: var(--color-primary);
-  border: 1px solid rgba(245, 166, 35, 0.25);
+  border: 1px solid rgba(255, 190, 39, 0.25);
 }
 
 /* --- Divider --- */
@@ -379,8 +379,8 @@ code, .text-mono {
 }
 
 @keyframes pulse-amber {
-  0%, 100% { box-shadow: 0 0 12px rgba(245, 166, 35, 0.3); }
-  50%       { box-shadow: 0 0 28px rgba(245, 166, 35, 0.6); }
+  0%, 100% { box-shadow: 0 0 12px rgba(255, 190, 39, 0.3); }
+  50%       { box-shadow: 0 0 28px rgba(255, 190, 39, 0.6); }
 }
 
 .animate-fade-up    { animation: fade-up 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }

@@ -168,17 +168,18 @@ const FOOTER = `
 
       <div class="footer-col">
         <span class="footer-col-heading">Community</span>
-        <a href="#">LinkedIn</a>
-        <a href="#">Bluesky</a>
+        <a href="https://www.linkedin.com/company/kesai-labs" target="_blank">LinkedIn</a>
+        <a href="https://x.com/kesai_labs" target="_blank">X</a>
+        <a href="https://bsky.app/profile/kesai.eu" target="_blank">Bluesky</a>
         <!--<a href="#">Newsletter</a>-->
       </div>
 
       <div class="footer-col">
         <span class="footer-col-heading">Resources</span>
         <a href="/blog">Blog</a>
-        <a href="https://github.com/kesai-labs/">GitHub</a>
-        <a href="https://huggingface.co/kesai-labs">Hugging Face</a>
         <a href="/publications">Publications</a>
+        <a href="https://github.com/kesai-labs/" target="_blank">GitHub</a>
+        <a href="https://huggingface.co/kesai-labs" target="_blank">Hugging Face</a>
       </div>
 
       <div class="footer-col">
