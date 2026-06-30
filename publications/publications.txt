@@ -1,0 +1,8 @@
+x World Engine -> Science
+x 123D -> Neurips
+x DriveJudge -> Neurips
+x ReSplat -> ECCV
+OMEGA -> ECCV
+PointDiT -> ICML
+x LEAD -> CVPR
+x Pritti -> CVPR

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KE:SAI Open Science Autonomy Lab</title>
+  <meta name="description" content="KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence.">
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="KE:SAI">
+  <meta property="og:url"         content="https://kesai.eu/">
+  <meta property="og:title"       content="KE:SAI — Open Science Autonomy Lab">
+  <meta property="og:description" content="KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence.">
+  <meta property="og:image"       content="https://kesai.eu/assets/og-image.jpg">
+  <meta name="twitter:card"       content="summary_large_image">
+  <meta name="twitter:title"      content="KE:SAI — Open Science Autonomy Lab">
+  <meta name="twitter:description" content="KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence.">
+  <meta name="twitter:image"      content="https://kesai.eu/assets/og-image.jpg">
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">  <link rel="stylesheet" href="/assets/fonts/google/fonts.css">
+  <link rel="stylesheet" href="/assets/fonts/fontawesome/css/solid.min.css">
+  <link rel="stylesheet" href="/site.css">
+  <style>html{background:#0a0a0a}</style>
+  <script>
+    history.scrollRestoration = 'manual';
+    // Always pre-hide below-hero sections on landing page; deferred JS decides whether to animate
+    document.documentElement.classList.add('hero-animating');
+  </script>
+  <script src="/site.js" defer></script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ResearchOrganization",
+    "name": "KE:SAI",
+    "alternateName": "Kyutai ELLIS Scalable Autonomous Intelligence",
+    "url": "https://kesai.eu/",
+    "logo": "https://kesai.eu/assets/logos/kesai.png",
+    "image": "https://kesai.eu/assets/og-image.jpg",
+    "description": "KE:SAI is a Franco-German non-profit frontier AI research lab advancing the efficiency frontier of robust and safe physical AI through fully open and reproducible research.",
+    "location": [
+      {"@type": "Place", "name": "Tübingen, Germany"},
+      {"@type": "Place", "name": "Paris, France"}
+    ],
+    "parentOrganization": [
+      {"@type": "Organization", "name": "Kyutai", "url": "https://kyutai.org/"},
+      {"@type": "Organization", "name": "ELLIS Institute Tübingen", "url": "https://ellis.eu/"}
+    ],
+    "knowsAbout": ["Physical AI", "World Models", "Autonomous Driving", "Robot Learning", "Causal AI", "3D Computer Vision", "Gaussian Splatting"]
+  }
+  </script>
+</head>
+<body>
+
+  <header id="site-header"></header>
+  <button id="skip-intro" class="skip-intro-btn">Skip intro</button>
+
+  <main>
+
+    <section class="hero">
+      <div class="hero-logo">
+        <img src="/assets/logos/kesai_small_transparent_cropped.png" alt="KE:SAI — Open Science Autonomy Lab">
+      </div>
+      <p class="hero-slogan">Robot learning is <span class="hl">bottlenecked</span> by the cost of physical interaction. Our mission is to advance the <span class="hl">efficiency frontier</span> of robust &amp; safe <span class="hl">physical AI</span> through fully <span class="hl">open and reproducible</span> research.</p>
+    </section>
+
+    <button class="scroll-hint" id="scroll-hint" aria-label="Scroll to content">
+      <i class="fa-solid fa-chevron-down" aria-hidden="true"></i>
+    </button>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">About KE:SAI</p>
+      <h2 class="section-title">A Franco-German Partnership for Open Science</h2>
+      <p class="section-body">
+        KE:SAI &mdash; <span class="hl">Kyutai ELLIS Scalable Autonomous Intelligence</span> &mdash; is a non-profit frontier AI research lab co-founded by kyutai and the ELLIS Institute Tübingen. Co-located in Tübingen and Paris, this Franco-German collaboration merges kyutai’s open science ethos and foundation model expertise with ELLIS’s talent attraction and foundational research excellence in 3D computer vision, data-driven simulation, causality and physical AI to pioneer world-leading research in <span class="hl">world models and autonomy</span>.
+      </p>
+      <img src="/assets/tuebingen_paris.jpg" alt="KE:SAI is co-located in Tübingen and Paris" class="founders-photo">
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Challenge</p>
+      <h2 class="section-title">Physical AI is Inefficient and Closed</h2>
+      <p class="section-body">
+        Physical AI is the next frontier of AI research. However, today's artificial intelligence is orders of magnitude less sample efficient than human intelligence, requiring very large datasets and compute resources for training. As robot learning is <span class="hl">bottlenecked by the cost of physical interaction</span>, Physical AI research is currently dominated by few proprietary silos with closed code, models and data. This <span class="hl">hinders progress</span> for the research field as a whole.
+      </p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Opportunity</p>
+      <h2 class="section-title">Advancing the Research Frontier with Open Science</h2>
+      <p class="section-body">The open-source movement has been one of the most powerful forces in modern AI research. The release of models, datasets, and training recipes for large language models has triggered an <span class="hl">explosion of innovation</span> — compressing years of progress into months and enabling researchers worldwide to build on each other's work rather than starting from scratch. Physical AI has yet to benefit from this flywheel: robotic learning remains fragmented, with results that are difficult to reproduce, hardware-specific, and rarely shared in full. KE:SAI's mission is to <span class="hl">democratize physical AI research</span> by developing fully open stacks together with the research community. We are a small team of talented researchers, focused on this single mission. All our code and models will be released under permissive licenses that allow <span class="hl">civil commercial use.</span></p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Technology</p>
+      <h2 class="section-title">Causal World Models</h2>
+      <p class="section-body">
+        Our goal is to train policies that generalize effectively across a wide variety of embodiments and environments. To this end, we pioneer data- and compute-efficient methods to build foundation models for physical and causal AI. In contrast to current data-driven imitation learning approaches, we focus on <span class="hl">hybrid, causal and latent world models</span>, as well as Sim2Real techniques for integrating synthetic with real data. The hybrid nature of these world models allows for ingesting information from a variety of sources, including real-world data, simulations, and common sense knowledge from existing foundation models. Expressive and causally grounded latent spaces enable data- and compute-efficient <span class="hl">closed-loop training of robot policies</span> using (self-)supervised, reinforcement learning and self-play objectives. 
+      </p>
+      <img src="/assets/earth.jpg" alt="KE:SAI develops efficient and open foundation models" class="founders-photo">
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">Applications</p>
+      <h2 class="section-title">A Fully Open Self-Driving Stack</h2>
+      <p class="section-body">
+        Self-driving is the epitome of physical AI, covering multi-modal perception, planning in safety-critical situations, and control in highly dynamic multi-agent environments. Therefore, KE:SAI will first demonstrate the capabilities of the developed models by <span class="hl">training self-driving policies using significantly less data and compute</span> than typically required while reaching infraction rates competitive with frontier systems. Based on this foundation, KE:SAI will extend its effort to <span class="hl">other areas of robotics.</span>
+      </p>
+      <img src="/assets/vehicle.jpg" alt="KE:SAI self-driving vehicle" class="founders-photo">
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">The Team</p>
+      <h2 class="section-title">Meet the Founders</h2>
+      <p class="section-body">We are a team of <span class="hl">world-leading researchers</span> with a <span class="hl">proven track record</span> of attracting talent. We</p>
+      <ul class="track-record-list">
+        <li>Received <span class="hl">27 best paper awards</span> at leading vision, learning and robotics conferences</li>
+        <li>Introduced the <a href="https://www.cvlibs.net/datasets/kitti/" target="_blank" rel="noopener"><span class="hl">KITTI benchmarks</span></a> which transformed vision &amp; robotics (&gt;10M downloads)</li>
+        <li>Achieved <span class="hl">top places</span> at international self-driving competitions (nuPlan, CARLA, Waymo)</li>
+        <li>Open-sourced the <span class="hl">two largest (1700h+) driving datasets</span> (<a href="https://github.com/opendrivelab/driveagi" target="_blank" rel="noopener">OpenDV</a>, <a href="https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles" target="_blank" rel="noopener">PhysicalAI-AV</a>)</li>
+        <li>Developed the <span class="hl">first reinforcement learning planner</span> with state-of-the-art driving (<a href="https://github.com/autonomousvision/CaRL" target="_blank" rel="noopener">CaRL</a>)</li>
+        <li>Open-sourced the <span class="hl">first large-scale video world model</span> for driving (<a href="https://github.com/OpenDriveLab/Vista" target="_blank" rel="noopener">Vista</a>)</li>
+        <li>Developed the <span class="hl">first generative simulator</span> for vectorized driving environments (<a href="https://github.com/autonomousvision/sledge" target="_blank" rel="noopener">SLEDGE</a>)</li>
+        <li>Introduced <span class="hl">pseudo-simulation</span> for efficient closed-loop benchmarking (<a href="https://github.com/autonomousvision/navsim" target="_blank" rel="noopener">NAVSIM</a>)</li>
+        <li>Pioneered methods for <span class="hl">causal discovery</span> from observational data</li>
+        <li>Triggered a <span class="hl">paradigm shift</span> in vision and graphics through work on <a href="https://github.com/autonomousvision/occupancy_networks" target="_blank" rel="noopener">implicit models</a></li>
+        <li>Established <a href="https://ellis.eu/" target="_blank" rel="noopener"><span class="hl">ELLIS</span></a> and the most successful <a href="https://ellis.eu/research/phd-postdoc" target="_blank" rel="noopener"><span class="hl">AI PhD program in Europe</span></a></li>
+        <li>Attracted top talent: former lab members co-founded <a href="https://bfl.ai/" target="_blank" rel="noopener"><span class="hl">Black Forest Labs</span></a>, <a href="https://www.mirelo.ai/" target="_blank" rel="noopener"><span class="hl">Mirelo AI</span></a> and <a href="https://spaitial.ai/" target="_blank" rel="noopener"><span class="hl">SpAItial AI</span></a></li>
+      </ul>
+      <img src="/assets/founders.jpg" alt="KE:SAI founders: Kashyap Chitta, Daniel Dauner, Andreas Geiger, Bernhard Schölkopf, Bernhard Jaeger" class="founders-photo">
+      <p class="photo-caption">From left-to-right: Kashyap Chitta, Daniel Dauner, Andreas Geiger, Bernhard Schölkopf and Bernhard Jaeger</p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">Thank You</p>
+      <h2 class="section-title">Our Donors</h2>
+      <p class="section-body">
+        KE:SAI would not exist without the vision and generosity of kyutai and its donors: the iliad Group, CMA CGM and Eric and Wendy Schmidt's philanthropy. Their belief in open science as a force for good — and their willingness to invest in long-horizon, fundamental research — makes our work possible. We are deeply grateful for their continued trust and support.
+      </p>
+    </section>
+
+    <section class="lp-section">
+      <p class="section-eyebrow">Learn More</p>
+      <h2 class="section-title">Follow our research, collaborate or join us!</h2>
+      <div class="feature-grid">
+        <article class="feature-card">
+          <h3 class="feature-card-title">Publications</h3>
+          <p class="feature-card-body">Explore our research on world models, autonomous driving and causal AI. Visit our <a href="/publications/">publications page</a> for the full list of papers.</p>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card-title">Blog</h3>
+          <p class="feature-card-body">We share updates on our research, open releases and scientific insights. Head over to our <a href="/blog/">blog</a> to stay up to date with our latest work.</p>
+        </article>
+        <article class="feature-card">
+          <h3 class="feature-card-title">Join Us</h3>
+          <p class="feature-card-body">Collaborate with us, or join us on our mission to move the efficiency frontier of physical AI! Visit our <a href="/join/">applications page</a> to find out more.</p>
+        </article>
+      </div>
+    </section>
+
+
+
+  </main>
+
+  <footer id="site-footer"></footer>
+
+</body>
+</html>

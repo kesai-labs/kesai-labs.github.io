@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>No More Shortcuts: Closed-Loop Driving Without the Target Point Bias</title>
+  <meta name="description"
+    content="A retrospective on LEAD (CVPR 2026): three structural mismatches between privileged experts and sensor-based students in imitation learning for driving, why they matter more than model size, and the questions they leave open." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="KE:SAI" />
+  <meta property="og:url" content="https://kesai.eu/blog/2026-06-26-lead/" />
+  <meta property="og:title"
+    content="No More Shortcuts: Closed-Loop Driving Without Target Point Bias" />
+  <meta property="og:description"
+    content="Looking back at LEAD: closed-loop driving struggles less for lack of model capacity than because of what the expert quietly teaches. Three fixes, and the doors they open." />
+  <meta property="og:image" content="https://kesai.eu/assets/publications/Nguyen2026CVPR.jpg" />
+  <meta property="article:published_time" content="2026-06-26" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title"
+    content="No More Shortcuts: Closed-Loop Driving Without Target Point Bias" />
+  <meta name="twitter:description"
+    content="Three mismatches that quietly cap imitation learning performance in self-driving, and what to do about them." />
+  <meta name="twitter:image" content="https://kesai.eu/assets/publications/Nguyen2026CVPR.jpg" />
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" /><link rel="stylesheet" href="/assets/fonts/google/fonts.css" /> <link rel="stylesheet" href="/site.css" /> <link rel="stylesheet" href="post.css" /> <script>document.documentElement.classList.add('blog-loading');</script> <script src="/site.js" defer></script> <script src="post.js" defer></script> </head>  <body> <header id="site-header"></header>  <main> <article class="lp-section"> <div class="blog-post-top"> <a href="/blog/" class="blog-back">&larr; Back to Blog</a> <div style="display:flex;gap:1rem"><a href="https://ln2697.github.io/lead/" class="blog-back" target="_blank" rel="noopener">Project Page</a><a href="https://github.com/kesai-labs/lead" class="blog-back" target="_blank" rel="noopener">Code</a><a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Nguyen_LEAD_Minimizing_Learner-Expert_Asymmetry_in_End-to-End_Driving_CVPR_2026_paper.pdf" class="blog-back" target="_blank" rel="noopener">Paper</a></div> </div>  <p class="section-eyebrow"> Research &nbsp;&middot;&nbsp; June 26, 2026</p>
+      <h1 class="section-title">No More Shortcuts: Closed-Loop Driving Without Target Point Bias</h1>
+      <p class="blog-dateline">T&Uuml;BINGEN &ndash; June 26, 2026</p>
+
+      <div class="blog-body">
+        <p>For years, the target point bias was an open secret in the CARLA<sup><a href="#ref1" id="cite1">[1]</a></sup> end-to-end driving community: the best driving policies scored well in part by steering toward the next GPS waypoint rather than by understanding the traffic and road layout around them<sup><a href="#ref2" id="cite2">[2]</a></sup>. CARLA, the most established simulator for autonomous driving, has long served as the initial proving ground where new self-driving research ideas are validated before the industry takes them up. However, the target point, which is intended as a proxy for a coarse GPS-based navigation system in simulation, is in practice implemented as a precise location coordinate along the lane center. This practically noise-free signal, far cleaner and more expensive than what a level 5<sup><a href="#ref3" id="cite3">[3]</a></sup> driving stack could afford, is provided as an input to end-to-end driving policies, enabling shortcut learning<sup><a href="#ref4" id="cite4">[4]</a></sup>. Our CVPR 2026 paper <a href="https://cvpr.thecvf.com/virtual/2026/poster/39450" target="_blank" rel="noopener">LEAD</a> helps to address this problem.</p>
+
+        <p>To understand where the shortcut comes from, we need to look at how these policies are trained. Virtually all top CARLA models learn by imitation, as <a class="fig-ref" href="#fig2">Figure 1</a> shows: a privileged expert drives the vehicle and collects a dataset, after which the model is trained to mimic the expert's actions. The expert has access to the true world state and the path to follow, hence it must only solve the simpler problem of choosing an appropriate speed. The student must then solve a harder problem: it learns to predict both the path and the speed from actual sensor data, i.e. camera, LiDAR and radar. However, the student also has access to the accurate target locations, usually spaced several tens of meters apart along the desired path.</p>
+
+        <!-- Privileged expert vs TFv6 student architecture -->
+        <figure class="lead-chart" id="fig2">
+          <div class="lead-chart-card">
+            <img src="lbc.png"
+              alt="Side-by-side diagram. Left: the rule-based privileged expert reads the true world state and a dense path and outputs a target speed. Right: the TransFuser v6 student encodes cameras, LiDAR, and radar through a perception encoder into sensor tokens, and target points through a separate encoder into target point tokens; a motion planning decoder reads both, driven by learnable queries, and predicts a dense path and a target speed." />
+          </div>
+          <figcaption><strong>Figure 1.</strong> A typical imitation learning pipeline for driving where the student imitates a teacher (expert). In the real world, the teacher would be a human driver, whereas in simulation, using a privileged expert is more common.</figcaption>
+        </figure>
+
+        <p>CARLA has long been known for routes that stretch for kilometers, the kind of long-horizon closed-loop benchmarking that much more closely resembles the real world than experiments on static datasets as evidenced by prior research<sup><a href="#ref5" id="cite5">[5]</a><a href="#ref6" id="cite6">[6]</a></sup>. While GPS target points make kilometer-long routes tractable, they also open the door to the target point bias. For steering, the target point provides almost all the information a driving policy needs: since all points lie near the (known) true path, a policy can produce reasonable motion planning simply by driving directly towards the next point.
+        <a class="fig-ref" href="#fig3">Figure 2</a> makes the bias tangible: drag the target point off the road, and a policy that relies on it heavily will follow the point, while a policy trained to depend on it less results in a sensible path.</p>
+
+        <!-- Interactive Intent Asymmetry Widget -->
+        <figure class="lead-widget" id="fig3">
+          <div class="lead-widget-grid">
+            <div class="lead-widget-col">
+              <div class="lead-widget-badge lead-widget-badge--bad">
+                Strong target point reliance
+              </div>
+              <div id="misaligned-container" class="lead-widget-stage">
+                <img src="intent_alignment.png" alt="Trajectory of a policy with strong target point reliance" draggable="false" />
+                <canvas id="misaligned-canvas"></canvas>
+              </div>
+            </div>
+            <div class="lead-widget-col">
+              <div class="lead-widget-badge lead-widget-badge--good">
+                Weak target point reliance
+              </div>
+              <div id="aligned-container" class="lead-widget-stage">
+                <img src="intent_alignment.png" alt="Trajectory of a policy with weak target point reliance" draggable="false" />
+                <canvas id="aligned-canvas"></canvas>
+              </div>
+            </div>
+          </div>
+          <figcaption><strong>Figure 2.</strong> Click anywhere to place the target point. The amber trajectory illustrates each policy&rsquo;s planned motion for that same point.</figcaption>
+        </figure>
+
+        <!-- SOTA development plot (ported from the LEAD project page, Figure 7) -->
+        <!-- Commented out for now: reads as too self-congratulatory. Re-enable by uncommenting; the canvas id="sotaChart" is required by post.js to render the chart.
+        <figure class="lead-chart lead-chart--float" id="fig1">
+          <div class="lead-chart-card">
+            <canvas id="sotaChart"></canvas>
+          </div>
+          <figcaption><strong>Figure 3.</strong> Published state of the art on Bench2Drive over time.</figcaption>
+        </figure>
+        -->
+
+        <p class="section-eyebrow" style="margin-top: 2rem">Undoing Shortcut Learning</p>
+
+        <p>How can we close the gap between the privileged expert and the student that imitates it? One of the main gaps lies in navigation, where the expert follows a dense route while the student steers based on a single target point as input: Our prior work TransFuser v5<sup><a href="#ref7" id="cite7">[7]</a></sup> (<a class="fig-ref" href="#fig8">Figure 3</a>, left) feeds the single target point as input to a Gated Recurrent Unit (GRU) that predicts the dense path. This simplifies shortcut learning as only few layers separate the input from the output and hence leads to strong target point reliance  (<a class="fig-ref" href="#fig3">Figure 2</a>, left). TransFuser v6, our new student architecture proposed in <a href="https://cvpr.thecvf.com/virtual/2026/poster/39450" target="_blank" rel="noopener">LEAD</a> (<a class="fig-ref" href="#fig8">Figure 3</a>, right), treats the target points as ordinary tokens read by the transformer decoder alongside the sensor tokens. This allows the TransFuser v6 model to consider multiple target points at once. Moreover, the induced architectural inductive bias weighs these navigation cues against the visual evidence. This reduces reliance on the target point (<a class="fig-ref" href="#fig3">Figure 2</a>, right).</p>
+
+        <figure class="lead-chart" id="fig8">
+          <div class="lead-chart-card">
+            <img src="transfuser_tp_conditioning.png"
+              alt="Diagram of how TransFuser v6 conditions its trajectory planning on the target point." />
+          </div>
+          <figcaption><strong>Figure 3.</strong> The evolution from TransFuser v5 to TransFuser v6 which provides multiple target points as input to the decoder.</figcaption>
+        </figure>
+
+        <p> Closing the navigation gap through both the architecture above as well as higher-quality training data weakens the target point bias significantly and contributes to safer driving. In particular, our experiments demonstrate that the weaker target point bias makes TransFuser v6 steadier when the GPS is unreliable, as is often the case in the real world, as shown in <a class="fig-ref" href="#fig5">Video 1</a>. Within the same driving conditions, TransFuser v5's motion is more sensitive to localization noise in the target point and demonstrates weaker perception of surrounding traffic than TransFuser v6.</p>
+
+        <!-- Bench2Drive qualitative driving video -->
+        <figure class="lead-video" id="fig5">
+          <div class="lead-video-embed">
+            <video
+              src="https://huggingface.co/datasets/ln2697/videos/resolve/main/LEAD%20Bench2Drive_faststart.mp4"
+              title="Bench2Drive qualitative driving video" controls playsinline muted preload="metadata"></video>
+          </div>
+          <figcaption><strong>Video 1.</strong> Mitigating the target point bias in TransFuser v6 improves safety.</figcaption>
+        </figure>
+        <!-- End Bench2Drive video -->
+
+        <p> However, we also discovered an interesting limitation: On the driving benchmark Longest6 v2<sup><a href="#ref8" id="cite8">[8]</a></sup> with up to 3 km long routes, every individual infraction type improves except route deviations (<a class="fig-ref" href="#fig4">Figure 4</a>) which occur when the vehicle leaves the road and enters the non-drivable area (e.g. sidewalk).</p>
+
+        <figure class="lead-chart" id="fig4">
+          <div class="lead-chart-card">
+            <canvas id="submetricsChart"></canvas>
+          </div>
+          <figcaption><strong>Figure 4.</strong> Infractions per 100&thinsp;km on Longest6 v2. Lower is better.</figcaption>
+        </figure>
+
+        <p>Note that driving off-route is a classical sign of a driving policy operating outside its training distribution, a long-standing weakness of imitation learning<sup><a href="#ref9" id="cite9">[9]</a></sup>. As the expert driver does not collect such data, the student policy never learns to recover once it deviates far from the intended route. This reveals an interesting insight: The unreasonable effectiveness of existing self-driving policies learned with imitation learning in the CARLA simulator has largely been caused by the target point bias and the resulting opportunity for the model to exploit shortcuts. While in-distribution (i.e. in CARLA) such policies can achieve high scores. However, they are brittle and fail to generalize to out-of-distribution scenarios with ambiguities or less accurate conditioning signals.</p>
+
+        <p class="section-eyebrow" style="margin-top: 2rem">Testing the generalization boundaries</p>
+
+        <p><a class="fig-ref" href="#fig6">Video 2</a> demonstrates a failure case caused by the absence of the learned shortcut: the policy misreads the scene and drifts off the lane, with the target point no longer providing a strong enough force to pull it back towards the route.</p>
+
+        <!-- Combined failure video -->
+        <figure class="lead-video" id="fig6">
+          <div class="lead-video-embed">
+            <video
+              src="https://huggingface.co/datasets/ln2697/videos/resolve/main/LEAD%20Town13%20%26%20Longest6_faststart.mp4"
+              title="Longest6 and Town13 failures" controls playsinline muted preload="metadata"></video>
+          </div>
+          <figcaption><strong>Video 2.</strong> Two failures from route deviation and reduced reliance on target points.</figcaption>
+        </figure>
+        <!-- End combined video -->
+
+        <!-- End Widget -->
+
+        <p>These failures took little to provoke, only a traffic situation slightly outside the training distribution. If shifts this small produce failures, how does the policy hold up under distribution shift more broadly?</p>
+
+        <p>Fail2Drive&thinsp;<sup><a href="#ref10" id="cite10">[10]</a></sup> answers this. Each of its 100 scenarios pairs an in-distribution route with an out-of-distribution variant where a single element changes: a traffic sign, an agent&rsquo;s behavior, or an obstacle&rsquo;s position. Any gap between the two halves of the benchmark is attributable to that one shift. Despite the limitations outlined above, our policy ranks first at time of publication, scoring 91% on in-distribution and 75% on out-of-distribution scenarios. To understand these failures better, <a class="fig-ref" href="#fig7">Video 3</a> illustrates the model&rsquo;s auxiliary outputs: a bird&rsquo;s-eye-view segmentation as well as 3D bounding boxes, which provide a better understanding of the model's internal representation.</p>
+
+        <p>Most failures can be split into two different kinds: Either perception breaks down, e.g. the model fails to recognize a crossing elephant as an obstacle. Or planning fails, e.g. the model does not correctly steer around a parked car whose orientation is slightly outside the training distribution. The auxiliary outputs also reveal a rare third kind of failure case: the model's perception fails, yet it still completes the route, because the obstacle resembles a training example closely enough to trigger the right trajectory by accident. The perception error never surfaces in the score. This means that successful driving does not necessarily mean the policy understood what it saw. Hence the 16% gap above understates the true problem: many of the runs counted as successes may have passed for the wrong reasons.</p>
+
+        <!-- Fail2Drive qualitative driving video: failures + auxiliary outputs -->
+        <figure class="lead-video" id="fig7">
+          <div class="lead-video-embed">
+            <video
+              src="https://huggingface.co/datasets/ln2697/videos/resolve/main/LEAD%20Fail2Drive%20Failures_faststart.mp4"
+              title="Fail2Drive out-of-distribution failures with auxiliary outputs" controls playsinline muted
+              preload="metadata"></video>
+          </div>
+          <figcaption><strong>Video 3.</strong> Out-of-distribution failures of TransFuser v6 on Fail2Drive.</figcaption>
+        </figure>
+        <!-- End Fail2Drive failures video -->
+
+        <p class="section-eyebrow" style="margin-top: 2rem">Moving forward</p>
+
+        <p>Are CARLA benchmarks no longer useful now that the leaderboards are nearly saturated? Not quite. Rather, we believe that they have only begun to surface genuinely interesting failures stemming from distribution shift, in both perception and planning. Solving these problems requires advances along multiple dimensions, in particular:</p>
+
+        <p><strong>1. Encoder robustness.</strong> Several failures trace back to the encoder, which turns raw sensor input into the model's representation of the scene. While internet-data trained foundation models are popular for robust camera encoding today, they have not provided significant benefits related to benchmarks like CARLA so far. Another promising lever is the auxiliary task the encoder learns alongside driving. Semantic labels (car, lane marking) only include categories present already in the training set, hence transferring poorly to new ones. A more suitable auxiliary task might include generic occupancy prediction which is agnostic to the semantic category of the object. Moreover, we could teach the encoder to more explicitly rely on geometric information from LiDAR and radar in such situations which are often ignored for rare events.</p>
+
+        <p><strong>2. Decoder robustness.</strong> The planning decoder learns to drive by imitating logged trajectories, hence it memorizes the routes it trained on and generalizes badly outside the training distribution. The most direct remedy is closed-loop training, where the policy learns from the consequences of its own actions as it drives, rather than imitating fixed driving logs. </p>
+
+        <p class="section-eyebrow" style="margin-top: 2rem">Conclusion</p>
+
+        <p><a href="https://cvpr.thecvf.com/virtual/2026/poster/39450" target="_blank" rel="noopener">LEAD</a> tackles the target point shortcut. However, once a policy no longer relies on following target points, its real weaknesses are revealed: a limited ability to recover from off-route drift, and fragile perception under distribution shift. These weaknesses were there all along; the target point bias only hid them on most benchmarks.</p>
+        <p>Our blog post focused on one contribution of the <a href="https://cvpr.thecvf.com/virtual/2026/poster/39450" target="_blank" rel="noopener">LEAD</a> paper: addressing intent asymmetry between the student and teacher. Readers interested in learning more can refer to the paper for discussions on visibility and uncertainty asymmetries which are also contributing to TransFuser v6's state-of-the-art performance. Beyond CARLA, the paper conducts experiments on real datasets. TransFuser v6 has since become a standard baseline architecture in neural simulators such as AlpaSim<sup><a href="#ref11" id="cite11">[11]</a></sup>.</p>
+        <p>Distribution shift is, we believe, the central unsolved problem for both closed-loop driving in simulation and the real world. We believe that solving this problem requires a concerted effort from the community, which is why every piece of this work is open, and we hope other researchers will build on it. Our paper, code, datasets, and trained models are available at <a href="https://github.com/kesai-labs/lead" target="_blank" rel="noopener">github.com/kesai-labs/lead</a>.</p>
+      </div>
+
+      <!-- Trailing overview video temporarily removed
+      <div class="blog-body"><p class="section-eyebrow" style="margin-top: 2rem">Video</p></div>
+      <figure class="lead-video">
+        <div class="lead-video-embed">
+          <iframe src="https://www.youtube.com/embed/HLotr2BwnlA?rel=0&amp;modestbranding=1" title="LEAD video"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>
+      </figure>
+      -->
+
+      <div class="blog-body"><p class="section-eyebrow" style="margin-top: 2rem">Citation</p></div>
+      <div class="pub-bibtex-wrap" style="margin-top: 0.5rem">
+        <div class="pub-bibtex-modal-box" style="width: 100%">
+          <button class="pub-copy-btn" data-action="copy-bibtex">Copy</button>
+          <pre class="pub-bibtex-code">@inproceedings{<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Nguyen_LEAD_Minimizing_Learner-Expert_Asymmetry_in_End-to-End_Driving_CVPR_2026_paper.pdf" target="_blank" rel="noopener">Nguyen2026CVPR</a>,
+	author = {Long Nguyen and Micha Fauth and Bernhard Jaeger and Daniel Dauner and Maximilian Igl and Andreas Geiger and Kashyap Chitta},
+	title = {LEAD: Minimizing Learner-Expert Asymmetry in End-to-End Driving},
+	booktitle = {Conference on Computer Vision and Pattern Recognition (CVPR)},
+	year = {2026},
+}</pre>
+        </div>
+      </div>
+
+      <div class="blog-body"><p class="section-eyebrow" style="margin-top: 2rem">References</p></div>
+      <ol class="blog-references">
+        <li id="ref1">A. Dosovitskiy, G. Ros, F. Codevilla, A. Lopez, V. Koltun. &ldquo;CARLA: An Open Urban Driving Simulator.&rdquo; <em>CoRL</em>, <a href="https://arxiv.org/abs/1711.03938" target="_blank" rel="noopener">arXiv:1711.03938</a>, 2017.</li>
+        <li id="ref2">B. Jaeger, K. Chitta, A. Geiger. &ldquo;Hidden Biases of End-to-End Driving Models.&rdquo; <em>ICCV</em>, <a href="https://arxiv.org/abs/2306.07957" target="_blank" rel="noopener">arXiv:2306.07957</a>, 2023.</li>
+        <li id="ref3">SAE International. &ldquo;Taxonomy and Definitions for Terms Related to Driving Automation Systems for On-Road Motor Vehicles.&rdquo; <em>SAE Recommended Practice J3016</em>, <a href="https://www.sae.org/standards/content/j3016_202104/" target="_blank" rel="noopener">J3016_202104</a>, 2021.</li>
+        <li id="ref4">R. Geirhos, J.-H. Jacobsen, C. Michaelis, R. Zemel, W. Brendel, M. Bethge, F. A. Wichmann. &ldquo;Shortcut Learning in Deep Neural Networks.&rdquo; <em>Nature Machine Intelligence</em>, <a href="https://arxiv.org/abs/2004.07780" target="_blank" rel="noopener">arXiv:2004.07780</a>, 2020.</li>
+        <li id="ref5">Z. Li, Z. Yu, S. Lan, J. Li, J. Kautz, T. Lu, J. M. Alvarez. &ldquo;Is Ego Status All You Need for Open-Loop End-to-End Autonomous Driving?&rdquo; <em>CVPR</em>, <a href="https://arxiv.org/abs/2312.03031" target="_blank" rel="noopener">arXiv:2312.03031</a>, 2024.</li>
+        <li id="ref6">F. Codevilla, A. M. L&oacute;pez, V. Koltun, A. Dosovitskiy. &ldquo;On Offline Evaluation of Vision-based Driving Models.&rdquo; <em>ECCV</em>, <a href="https://arxiv.org/abs/1809.04843" target="_blank" rel="noopener">arXiv:1809.04843</a>, 2018.</li>
+        <li id="ref7">J. Zimmerlin, J. Bei&szlig;wenger, B. Jaeger, A. Geiger, K. Chitta. &ldquo;Hidden Biases of End-to-End Driving Datasets.&rdquo; <em>CVPR Workshop on Foundation Models for Autonomous Systems</em>, <a href="https://arxiv.org/abs/2412.09602" target="_blank" rel="noopener">arXiv:2412.09602</a>, 2024.</li>
+        <li id="ref8">B. Jaeger, D. Dauner, J. Bei&szlig;wenger, S. Gerstenecker, K. Chitta, A. Geiger. &ldquo;CaRL: Learning Scalable Planning Policies with Simple Rewards.&rdquo; <em>CoRL</em>, <a href="https://arxiv.org/abs/2504.17838" target="_blank" rel="noopener">arXiv:2504.17838</a>, 2025.</li>
+        <li id="ref9">S. Ross, G. J. Gordon, J. A. Bagnell. &ldquo;A Reduction of Imitation Learning and Structured Prediction to No-Regret Online Learning.&rdquo; <em>AISTATS</em>, <a href="https://arxiv.org/abs/1011.0686" target="_blank" rel="noopener">arXiv:1011.0686</a>, 2011.</li>
+        <li id="ref10">S. Gerstenecker, A. Geiger, K. Renz. &ldquo;Fail2Drive: Benchmarking Closed-Loop Driving Generalization.&rdquo; <a href="https://arxiv.org/abs/2604.08535" target="_blank" rel="noopener">arXiv:2604.08535</a>, 2026.</li>
+        <li id="ref11">NVIDIA. &ldquo;AlpaSim: A Modular, Lightweight, and Data-Driven Research Simulator for Autonomous Driving.&rdquo; <a href="https://github.com/NVlabs/alpasim" target="_blank" rel="noopener">github.com/NVlabs/alpasim</a>, 2025.</li>
+      </ol>
+    </article>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+  <!-- SOTA development plot: Chart.js + datalabels (ported from the LEAD project page) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+  <!-- Auto-play blog videos when fully on-screen, pause when scrolled out of view -->
+  <script>
+    (function () {
+      var videos = document.querySelectorAll('.lead-video video');
+      if (!videos.length || !('IntersectionObserver' in window)) return;
+
+      // Treat a video as "fully visible" when it is entirely within the viewport.
+      // For videos taller than the viewport, threshold 1.0 can never fire, so we
+      // fall back to "as visible as it can be" by also watching lower ratios.
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          var video = entry.target;
+          var fitsInViewport = entry.boundingClientRect.height <= window.innerHeight;
+          var fullyVisible = fitsInViewport
+            ? entry.intersectionRatio >= 0.99
+            : entry.intersectionRatio >= 0.85;
+
+          if (fullyVisible) {
+            var p = video.play();
+            if (p && typeof p.catch === 'function') p.catch(function () {});
+          } else if (!video.paused) {
+            video.pause(); // pauses in place, keeping the current position
+          }
+        });
+      }, { threshold: [0, 0.25, 0.5, 0.85, 0.99, 1] });
+
+      videos.forEach(function (video) { observer.observe(video); });
+    })();
+  </script>
+</body>
+
+</html>

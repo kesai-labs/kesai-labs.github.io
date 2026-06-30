@@ -1,0 +1,375 @@
+.blog-references {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+}
+
+.blog-references li {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--secondary);
+  margin-bottom: .5rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.blog-references a {
+  color: var(--amber);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 190, 39, 0.4);
+  text-underline-offset: 3px;
+  transition: text-decoration-color .15s;
+}
+.blog-references a:hover { text-decoration-color: var(--amber); }
+
+/* Citation superscripts: amber to match the brand accent. */
+.blog-body sup a {
+  color: var(--amber);
+  text-decoration: none;
+}
+.blog-body sup a:hover {
+  color: var(--amber);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* In-text figure references: styled like every other in-body link. */
+.fig-ref {
+  color: var(--amber);
+  font-weight: inherit;
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 190, 39, 0.4);
+  text-underline-offset: 3px;
+  transition: text-decoration-color .15s;
+}
+.fig-ref:hover {
+  text-decoration-color: var(--amber);
+}
+
+/* In-body content list: matches the surrounding .blog-body p typography */
+.blog-list {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin: 0 0 1.5rem;
+}
+
+.blog-list li {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--secondary);
+  line-height: 1.8;
+  margin-bottom: 1rem;
+}
+
+.blog-list li:last-child {
+  margin-bottom: 0;
+}
+
+html {
+  background: #0a0a0a;
+}
+
+/* Section headings styled to match the main title (section-title) but smaller.
+   .blog-body p wins on specificity, so we need .blog-body .section-eyebrow here. */
+.blog-body .section-eyebrow {
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: clamp(1.3rem, 2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  text-transform: none;
+  line-height: 1.15;
+}
+
+.lead-widget {
+  margin: 2.5rem 0;
+  padding: 1.25rem;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+.lead-widget-grid {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.lead-widget-col {
+  flex: 1 1 0;
+  min-width: 240px;
+}
+
+.lead-widget-badge {
+  display: block;
+  width: max-content;
+  margin: 0 auto 0.75rem;
+  padding: 0.4rem 1.25rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  border-radius: 20px;
+}
+
+/* Match the figure palette: v5 reads quiet (white outline), v6 carries the
+   amber the rest of the post uses for our model. */
+.lead-widget-badge--bad {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.lead-widget-badge--good {
+  background: var(--amber);
+  border: 1px solid var(--amber);
+  color: #0a0a0a;
+}
+
+.lead-widget-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  cursor: crosshair;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.lead-widget-stage img {
+  width: 100%;
+  height: 133.33%;
+  display: block;
+  user-select: none;
+  pointer-events: none;
+  object-fit: cover;
+  object-position: center;
+  margin-top: -16.67%;
+}
+
+.lead-widget-stage canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.lead-widget figcaption {
+  margin-top: 1.25rem;
+  text-align: center;
+  font-size: 0.92rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+@media (max-width: 640px) {
+  .lead-widget-grid {
+    flex-direction: column;
+  }
+}
+
+.lead-video {
+  margin: 2rem 0;
+}
+
+.lead-video-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: repeating-linear-gradient(45deg,
+      #141414,
+      #141414 12px,
+      #181818 12px,
+      #181818 24px);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.lead-video-embed {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+/* Custom centered play button: the native player only exposes a tiny control
+   in the bottom-left corner, so we overlay a large, brand-amber button that
+   calls video.play(). It fades out during playback and returns on pause. */
+.lead-video-play {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 76px;
+  height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 190, 39, 0.92);
+  color: #0a0a0a;
+  cursor: pointer;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  transition: opacity .2s ease, transform .2s ease, background .2s ease;
+}
+
+.lead-video-play svg {
+  width: 36px;
+  height: 36px;
+  margin-left: 4px; /* optically center the triangle */
+}
+
+.lead-video-play:hover {
+  background: var(--amber);
+  transform: scale(1.08);
+}
+
+.lead-video-embed.is-playing .lead-video-play {
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+
+.lead-video-embed iframe,
+.lead-video-embed video {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+.lead-video-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 1.1rem;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.lead-video figcaption {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.92rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.lead-chart {
+  margin: 2rem 0;
+  padding: 1rem;
+  background: #111;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+}
+
+/* Each body paragraph pairs with the figure beneath it. Pull the figure toward
+   the paragraph that introduces it (less space above) and push it away from the
+   next paragraph (more space below), so each paragraph-and-figure reads as a unit. */
+.blog-body p + .lead-chart,
+.blog-body p + .lead-video,
+.blog-body p + .lead-widget {
+  margin-top: 1.25rem;
+}
+.blog-body .lead-chart + p,
+.blog-body .lead-video + p,
+.blog-body .lead-widget + p {
+  margin-top: 3.5rem;
+}
+
+/* Anchored figures land below the fixed header when jumped to from a fig-ref. */
+.lead-chart,
+.lead-video,
+.lead-widget {
+  scroll-margin-top: 90px;
+}
+
+.lead-chart-card {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.lead-chart-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+}
+
+.lead-chart figcaption {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Pop the "Figure N." label so the caption reads as a labelled anchor. */
+.lead-chart figcaption > strong:first-child,
+.lead-video figcaption > strong:first-child,
+.lead-widget figcaption > strong:first-child {
+  color: var(--amber);
+  font-weight: 700;
+  letter-spacing: 0.3px;
+}
+
+.lead-formula {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.6em;
+  font-family: monospace;
+  font-size: 1.2rem;
+  color: var(--text);
+  margin: 1.75rem 0;
+  letter-spacing: 0.5px;
+}
+
+.lead-formula__result {
+  color: var(--amber);
+}
+
+.lead-formula__term {
+  color: var(--text);
+}
+
+.lead-formula__op {
+  color: var(--muted);
+}
+
+.lead-chart--float {
+  float: right;
+  width: 52%;
+  max-width: 520px;
+  margin: 0.35rem 0 1rem 1.6rem;
+}
+
+.lead-chart--float.reveal {
+  transform: none;
+}
+
+.lead-widget {
+  clear: both;
+}
+
+@media (max-width: 640px) {
+  .lead-chart--float {
+    float: none;
+    width: 100%;
+    max-width: none;
+    margin: 1.5rem 0;
+  }
+}
