@@ -1,0 +1,68 @@
+{
+  "blog/2026-05-20-kesai-launch/index.html": {
+    "title": "Kyutai and ELLIS Tübingen launch KE:SAI: A Premier Franco-German Partnership for Open Science in Physical AI",
+    "description": "Kyutai and ELLIS Tübingen announce the official launch of KE:SAI – Kyutai ELLIS Scalable Autonomous Intelligence, a non-profit open science lab for physical AI.",
+    "overrides": {
+      "twitter:title": "Kyutai and ELLIS Tübingen launch KE:SAI",
+      "title": "KE:SAI Launch — A Premier Franco-German Partnership for Open Science in Physical AI"
+    }
+  },
+  "blog/2026-06-26-lead/index.html": {
+    "title": "No More Shortcuts: Closed-Loop Driving Without Target Point Bias",
+    "description": "A retrospective on LEAD (CVPR 2026): three structural mismatches between privileged experts and sensor-based students in imitation learning for driving, why they matter more than model size, and the questions they leave open.",
+    "overrides": {
+      "og:description": "Looking back at LEAD: closed-loop driving struggles less for lack of model capacity than because of what the expert quietly teaches. Three fixes, and the doors they open.",
+      "twitter:description": "Three mismatches that quietly cap imitation learning performance in self-driving, and what to do about them."
+    }
+  },
+  "blog/2026-07-17-vehicle-premiere/index.html": {
+    "title": "It’s Getting Real",
+    "description": "After more than a decade of building driving benchmarks and closed-loop policies in simulation, KE:SAI takes delivery of its own sensor-equipped VW ID.7 research vehicle. Here is what is on it, and what we plan to do with it.",
+    "overrides": {
+      "og:title": "It’s Getting Real: Our Research Vehicle Has Arrived",
+      "twitter:title": "It’s Getting Real: Our Research Vehicle Has Arrived",
+      "og:description": "We have spent years pushing closed-loop driving in simulation. Our new research vehicle brings that work back to the physical world.",
+      "twitter:description": "We have spent years pushing closed-loop driving in simulation. Our new research vehicle brings that work back to the physical world.",
+      "title": "It’s Getting Real: Our Research Vehicle Has Arrived"
+    }
+  },
+  "blog/2026-09-08-common-task-framework/index.html": {
+    "title": "Making Progress Measurable: A Common Task Framework for Autonomous Driving with AlpaSim",
+    "description": "KE:SAI, NVIDIA, and OpenDriveLab are organizing the AlpaSim challenge with shared evaluation suites, neural simulation, and developer kits.",
+    "abstract_from_opening": true
+  },
+  "blog/index.html": {
+    "title": "KE:SAI Blog — Physical AI Research Insights",
+    "description": "News, insights, and updates from the KE:SAI open science lab on physical AI, world models, and autonomous driving research."
+  },
+  "imprint/index.html": {
+    "title": "Imprint — KE:SAI"
+  },
+  "index.html": {
+    "title": "KE:SAI Open Science Autonomy Lab",
+    "description": "KE:SAI is a Franco-German non-profit open science lab for scalable autonomous intelligence.",
+    "overrides": {
+      "og:title": "KE:SAI — Open Science Autonomy Lab",
+      "twitter:title": "KE:SAI — Open Science Autonomy Lab"
+    }
+  },
+  "join/index.html": {
+    "title": "KE:SAI — Open Positions at Our AI Research Lab",
+    "description": "Join KE:SAI, a Franco-German non-profit AI research lab co-located in Tübingen and Paris. Open positions for researchers in physical AI and autonomous systems."
+  },
+  "privacy/index.html": {
+    "title": "Privacy Policy — KE:SAI"
+  },
+  "publications/index.html": {
+    "title": "KE:SAI Publications — Research on Physical AI and Autonomous Driving",
+    "description": "Research from KE:SAI on autonomous driving, world models, Gaussian splatting, and 3D scene understanding.",
+    "overrides": {
+      "og:description": "Peer-reviewed research from KE:SAI on autonomous driving, world models, Gaussian splatting, and 3D scene understanding.",
+      "twitter:description": "Peer-reviewed research from KE:SAI on autonomous driving, world models, Gaussian splatting, and 3D scene understanding."
+    }
+  },
+  "team/index.html": {
+    "title": "KE:SAI Team — Open Science Physical AI Researchers",
+    "description": "Meet the KE:SAI research team — scientists advancing open-science physical AI, world models, and autonomous driving from Tübingen and Paris."
+  }
+}
