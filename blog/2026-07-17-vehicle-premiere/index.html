@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>It’s Getting Real: Our Research Vehicle Has Arrived</title>
+  <meta name="description"
+    content="After more than a decade of building driving benchmarks and closed-loop policies in simulation, KE:SAI takes delivery of its own sensor-equipped VW ID.7 research vehicle. Here is what is on it, and what we plan to do with it." />
+  <meta property="og:type" content="article" />
+  <meta property="og:site_name" content="KE:SAI" />
+  <meta property="og:url" content="https://kesai.eu/blog/2026-07-17-vehicle-premiere/" />
+  <meta property="og:title" content="It’s Getting Real: Our Research Vehicle Has Arrived" />
+  <meta property="og:description"
+    content="We have spent years pushing closed-loop driving in simulation. Our new research vehicle brings that work back to the physical world." />
+  <meta property="og:image" content="https://kesai.eu/blog/2026-07-17-vehicle-premiere/vehicle_side.jpg" />
+  <meta property="article:published_time" content="2026-07-17" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="It’s Getting Real: Our Research Vehicle Has Arrived" />
+  <meta name="twitter:description"
+    content="We have spent years pushing closed-loop driving in simulation. Our new research vehicle brings that work back to the physical world." />
+  <meta name="twitter:image" content="https://kesai.eu/blog/2026-07-17-vehicle-premiere/vehicle_side.jpg" />
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon" />
+  <link rel="stylesheet" href="/assets/fonts/google/fonts.css" />
+  <link rel="stylesheet" href="/site.css?v=blog-typography-2" />
+  <link rel="stylesheet" href="post.css" />
+  <script>document.documentElement.classList.add('blog-loading');</script>
+  <script src="/site.js" defer></script>
+  <script src="post.js" defer></script>
+</head>
+
+<body>
+  <header id="site-header"></header>
+
+  <main>
+    <article class="lp-section">
+      <div class="blog-post-top">
+        <a href="/blog/" class="blog-back">&larr; Back to Blog</a>
+      </div>
+
+      <p class="section-eyebrow"> News &nbsp;&middot;&nbsp; July 17, 2026</p>
+      <h1 class="section-title">It’s Getting Real</h1>
+      <p class="blog-dateline">T&Uuml;BINGEN &ndash; July 17, 2026</p>
+
+      <div class="blog-body">
+        <p>Full self-driving is still unsolved. We have been working on this problem for more than fifteen years, and for the last decade most of that work has happened in simulation. Today that changes: our research vehicle arrived, and we can start testing our ideas where they actually have to hold, in the physical world.</p>
+
+        <!-- Vehicle premiere video -->
+        <figure class="lead-video" id="fig1">
+          <div class="lead-video-embed">
+            <video src="https://huggingface.co/datasets/kesai-labs/videos/resolve/main/vehicle_premiere.mp4"
+              title="The KE:SAI research vehicle on its first drive" poster="poster.jpg" controls playsinline
+              preload="metadata"></video>
+          </div>
+        </figure>
+        <!-- End vehicle premiere video -->
+
+        <p class="section-eyebrow" style="margin-top: 2rem">From a station wagon in Karlsruhe to the CARLA leaderboard</p>
+
+        <p>In 2012, we equipped a station wagon in Karlsruhe with cameras, a laser scanner and a GPS/IMU unit, and drove around the city to record what became famously known as the <a href="https://www.cvlibs.net/datasets/kitti/" target="_blank" rel="noopener">KITTI dataset</a><sup><a href="#ref1" id="cite1">[1]</a><a href="#ref2" id="cite2">[2]</a></sup>. At the time, computer vision datasets were mostly assembled by downloading and annotating images from the internet. That practice does not model what a vision system actually sees when it operates on a physical platform, so we built the platform and collected the data ourselves. Inspired by the PASCAL VOC challenges, we set up an online evaluation server which allowed the community to compare methods systematically and fairly on real data. KITTI became the standard benchmark for stereo, optical flow, scene flow and visual odometry as well as many tasks which have been added over the years, contributed by the research community itself. Its successor <a href="https://www.cvlibs.net/datasets/kitti-360/" target="_blank" rel="noopener">KITTI-360</a><sup><a href="#ref3" id="cite3">[3]</a></sup> added richer modalities and dense semantic annotations. Today these benchmarks are used by more than 100,000 researchers worldwide.</p>
+
+        <p>KITTI evaluates perception modules on static data. Driving, however, is a closed loop: a policy acts, the world responds, and the next observation depends on what the policy just did. We were among the first groups to anticipate the shift from modular AV 1.0 stacks, in which perception, prediction and planning are typically considered separate components, to end-to-end AV 2.0 stacks that are trained as a whole on a single loss function. Our end-to-end work started in 2018 with <a href="https://autonomousvision.github.io/conditional-affordance-learning/" target="_blank" rel="noopener">Conditional Affordance Learning</a><sup><a href="#ref4" id="cite4">[4]</a></sup>, which mapped video directly to a small set of driving-relevant quantities instead of a full scene reconstruction. <a href="https://github.com/autonomousvision/transfuser" target="_blank" rel="noopener">TransFuser</a><sup><a href="#ref5" id="cite5">[5]</a></sup> fused camera and LiDAR with transformers, and most recently <a href="https://ln2697.github.io/lead/" target="_blank" rel="noopener">LEAD</a><sup><a href="#ref6" id="cite6">[6]</a></sup> removed the target point shortcut that had quietly inflated results across the field. Our works continuously pushed the CARLA, NAVSIM and nuPlan leaderboard scores.</p>
+
+        <p>All of this, though, happened in simulation, mostly in <a href="https://carla.org" target="_blank" rel="noopener">CARLA</a><sup><a href="#ref7" id="cite7">[7]</a></sup>. Simulation is what made closed-loop evaluation affordable and reproducible, and we have pushed those benchmarks about as far as they go. However, what a simulation cannot tell us is whether a policy really survives contact with the chaotic and messy real world.</p>
+
+        <p class="section-eyebrow" style="margin-top: 2rem">Getting real again</p>
+
+        <p>At KE:SAI we have the unique opportunity to take these advances back to the physical world and test which ideas transfer, scale and generalize - and which do not. Today has been an exciting day for us: We received our first research vehicle, a VW ID.7 custom built for us by <a href="https://www.safead.de" target="_blank" rel="noopener">SafeAD</a>, who equipped it with a rich sensor suite, the power system and a powerful onboard computer.</p>
+
+        <figure class="lead-chart" id="fig2">
+          <div class="lead-chart-card">
+            <img src="vehicle_side.jpg"
+              alt="Side view of the KE:SAI research vehicle, a light blue VW ID.7 Tourer with an aluminum sensor rack on the roof carrying cameras and a 360 degree lidar on a raised tower." />
+          </div>
+          <figcaption><strong>Figure 1.</strong> The vehicle carries a modular aluminum profile rack on the roof. A 360&deg; LiDAR is located on a tower above the other sensors, kept below 1.95&thinsp;m so the car still fits into most garages. 10 cameras, and 4 120&deg; LiDARs are mounted onto the rack. 6 radars are located inside the body.</figcaption>
+        </figure>
+
+        <p>For now, the car can only perceive. It records, but it does not yet steer: the gateway that lets a policy send control signals to the actuators will be installed later this summer, and the certification that allows us to drive autonomously on public roads (with a safety driver behind the wheel) is expected to be granted by the end of the year. Until then we drive our vehicle manually to collect data as well as on private roads once the gateway is installed.</p>
+
+        <figure class="lead-chart" id="fig3">
+          <div class="lead-figure-grid">
+            <div class="lead-chart-card">
+              <img src="vehicle_front.jpg" alt="Front view of the research vehicle showing the roof rack, the forward cameras and the radars integrated into the front bumper." />
+            </div>
+            <div class="lead-chart-card">
+              <img src="vehicle_back.jpg" alt="Rear view of the research vehicle showing the roof rack from behind and the radars integrated into the rear bumper." />
+            </div>
+          </div>
+          <figcaption><strong>Figure 2.</strong> Front and rear view of our VW ID.7 test vehicle. All 6 radars are integrated into the body at the same height as the production radars.</figcaption>
+        </figure>
+
+        <p class="section-eyebrow" style="margin-top: 2rem">What is on the car</p>
+
+        <p>We have deliberately overequipped the vehicle. A production car would not carry this many sensors. However, we want to develop and test world models and policies that generalize across embodiments, and we want to measure what each sensor actually contributes rather than assume it. With the full set onboard we can ablate any subset in post-processing, on the same drive. Here is an overview of the installed sensor suite:</p>
+
+        <figure class="lead-chart" id="tab1">
+          <div class="lead-table-wrap">
+            <table class="lead-table">
+              <thead>
+                <tr>
+                  <th>Sensor</th>
+                  <th>Type</th>
+                  <th>Qty</th>
+                  <th>Mounting</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>Seyond Falcon</td><td>LiDAR, 120&deg;, 500&thinsp;m</td><td>4</td><td>Roof</td></tr>
+                <tr><td>RoboSense Ruby Plus</td><td>LiDAR, 360&deg;, 250&thinsp;m</td><td>1</td><td>Roof</td></tr>
+                <tr><td>Aumovio FSC300 120&deg; camera</td><td>Camera, 120&deg;, 4K, heated lens</td><td>6</td><td>Roof</td></tr>
+                <tr><td>Aumovio FSC300 70&deg; camera</td><td>Camera, 70&deg;, 4K, heated lens</td><td>2</td><td>Roof</td></tr>
+                <tr><td>Aumovio FSC300 30&deg; camera</td><td>Camera, 30&deg;, 4K, heated lens</td><td>2</td><td>Roof</td></tr>
+                <tr><td>Aumovio SRR 630</td><td>Radar, 150&deg;, 200&thinsp;m</td><td>4</td><td>Body</td></tr>
+                <tr><td>Aumovio ARS 540</td><td>Radar, 120&deg;, 300&thinsp;m</td><td>2</td><td>Body</td></tr>
+                <tr><td>u-blox ZED-X20P</td><td>GNSS, RTK, all-band</td><td>1</td><td>Roof &amp; trunk</td></tr>
+                <tr><td>InertialSense IMX-5</td><td>IMU, tactical grade</td><td>1</td><td>Trunk</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 1.</strong> The sensors on the vehicle. 10 cameras, 5 LiDARs and 6 radars, plus RTK GNSS and a tactical-grade IMU.</figcaption>
+        </figure>
+
+        <figure class="lead-chart" id="fig4">
+          <div class="lead-chart-card">
+            <img src="sensors_overview.jpg"
+              alt="Top-down schematic of the vehicle showing the fields of view of the roof sensors: four 120 degree lidars in red, two 70 degree and 120 degree camera cones in green, 30 degree cameras in blue, a 360 degree lidar in the center, and radars mounted around the body." />
+          </div>
+          <figcaption><strong>Figure 3.</strong> Sensor layout and full 360&deg; surround field of view. The cameras, LiDARs and radars are calibrated to the rear axle.</figcaption>
+        </figure>
+
+        <p>Our cameras sit on ball joints so they can be aimed precisely. The long-range LiDARs use a fine adjustment mechanism for the same reason. All cameras are triggered synchronously, and every measurement is timestamped against the main clock, which is itself synchronized to GPS time. From KITTI we know that getting this right matters: a policy trained on data whose sensors disagree about when something happened is learning partly from noise.</p>
+
+        <figure class="lead-chart" id="fig5">
+          <div class="lead-figure-grid">
+            <div class="lead-chart-card">
+              <img src="sensors_front.jpg" alt="Close-up of two cameras mounted on ball joints on the aluminum roof rack, with a long-range lidar below them and the 360 degree lidar visible in the background." />
+            </div>
+            <div class="lead-chart-card">
+              <img src="sensors_back.jpg" alt="Close-up of the rear of the roof rack showing cameras on ball joints, a long-range lidar, and the 360 degree lidar on its tower." />
+            </div>
+          </div>
+          <figcaption><strong>Figure 4.</strong> Cameras on ball joints and long-range LiDARs on the roof rack, front (left) and rear (right).</figcaption>
+        </figure>
+
+        <figure class="lead-chart" id="fig6">
+          <div class="lead-chart-card">
+            <img src="sensors_lidar.jpg" alt="Close-up of the RoboSense Ruby Plus 360 degree lidar mounted on its leveled aluminum tower above the rest of the sensor rack." />
+          </div>
+          <figcaption><strong>Figure 5.</strong> The 360&deg; LiDAR sits on a raised tower to reduce near-range occlusion caused by the ego vehicle itself.</figcaption>
+        </figure>
+
+        <p>The raw sensor data that is recorded at 20 frames per second is enormous: Without compression, 1 hour of recording requires about 5 TB of storage. Our trunk hence houses a professional workstation-class machine in a 19&Prime; rack: an AMD Threadripper PRO with an NVIDIA RTX PRO 6000 Blackwell, 128&thinsp;GB of ECC memory and 60&thinsp;TB of hot-swappable NVMe storage, fed by automotive Ethernet switches and frame grabbers. Our system runs Linux and publishes and records everything through ROS 2 via a software and drivers provided by SafeAD. A separate power system with its own buffer battery keeps the computer alive when the ignition is off.</p>
+
+        <figure class="lead-chart" id="fig7">
+          <div class="lead-chart-card">
+            <img src="trunk_computer.jpg"
+              alt="The open trunk of the research vehicle showing a 19 inch server case in a mini rack, with automotive Ethernet switches, a wifi router and cabling on a shelf above it, and a charging cable coiled to the side." />
+          </div>
+          <figcaption><strong>Figure 6.</strong> The car computer in the trunk, mounted in a mini rack for easy access.</figcaption>
+        </figure>
+
+        <p class="section-eyebrow" style="margin-top: 2rem">Data</p>
+
+        <p>One car in Tübingen will not produce the scale or diversity that training modern driving policies requires. We will use our vehicle for local testing and small-scale, targeted data collection. For scale and diversity we rely on our network of partners. In particular, we integrate all sources of data into <a href="https://github.com/kesai-labs/py123d" target="_blank" rel="noopener">py123D</a><sup><a href="#ref8" id="cite8">[8]</a></sup>, our open-source framework for unifying multi-modal driving data. It already consolidates eight real-world datasets spanning 3,300 hours and 90,000 kilometers behind a single API, and our own recordings as well as other data supplied by our partners will simply become additional sources in it.</p>
+
+        <p>All data we collect is anonymized directly after recording. Faces and license plates are removed, and the data is stored in anonymized form for research purposes. We release as much of this data as possible to the community.</p>
+
+        <!-- First recording video -->
+        <figure class="lead-video" id="fig8">
+          <div class="lead-video-embed">
+            <video src="https://huggingface.co/datasets/kesai-labs/videos/resolve/main/vehicle_premiere_recording.mp4"
+              title="First recording with the KE:SAI research vehicle" controls playsinline preload="metadata"></video>
+          </div>
+        </figure>
+        <!-- End first recording video -->
+
+        <p class="section-eyebrow" style="margin-top: 2rem">What comes next</p>
+
+        <p>We expect to deploy our first policies onto the car before the end of the year, starting on private roads first and moving to public roads once our vehicle is fully certified. In the spirit of the KE:SAI open science lab, we will make everything public: the data, the models, the weights, the test results, and the hardware specifications of the vehicle.</p>
+
+        <p>The physical world does not care about leaderboards. It will surface failure modes that no simulator has shown us, and it will do so in the least convenient way possible. After a decade in simulation, we are looking forward to facing the real thing again, and we will report what we find, including the parts that do not work.</p>
+      </div>
+
+      <div class="blog-body"><p class="section-eyebrow" style="margin-top: 2rem">References</p></div>
+      <ol class="blog-references">
+        <li id="ref1">A. Geiger, P. Lenz, R. Urtasun. &ldquo;<a href="https://www.cvlibs.net/publications/Geiger2012CVPR.pdf" target="_blank" rel="noopener">Are We Ready for Autonomous Driving? The KITTI Vision Benchmark Suite</a>.&rdquo; <em>CVPR</em>, 2012.</li>
+        <li id="ref2">A. Geiger, P. Lenz, C. Stiller, R. Urtasun. &ldquo;<a href="https://www.cvlibs.net/publications/Geiger2013IJRR.pdf" target="_blank" rel="noopener">Vision meets Robotics: The KITTI Dataset</a>.&rdquo; <em>International Journal of Robotics Research</em>, 2013.</li>
+        <li id="ref3">Y. Liao, J. Xie, A. Geiger. &ldquo;<a href="https://www.cvlibs.net/publications/Liao2022PAMI.pdf" target="_blank" rel="noopener">KITTI-360: A Novel Dataset and Benchmarks for Urban Scene Understanding in 2D and 3D</a>.&rdquo; <em>PAMI</em>, <a href="https://arxiv.org/abs/2109.13410" target="_blank" rel="noopener">arXiv:2109.13410</a>, 2022.</li>
+        <li id="ref4">A. Sauer, N. Savinov, A. Geiger. &ldquo;<a href="https://www.cvlibs.net/publications/Sauer2018CORL.pdf" target="_blank" rel="noopener">Conditional Affordance Learning for Driving in Urban Environments</a>.&rdquo; <em>CoRL</em>, <a href="https://arxiv.org/abs/1806.06498" target="_blank" rel="noopener">arXiv:1806.06498</a>, 2018.</li>
+        <li id="ref5">K. Chitta, A. Prakash, B. Jaeger, Z. Yu, K. Renz, A. Geiger. &ldquo;<a href="https://www.cvlibs.net/publications/Chitta2022PAMI.pdf" target="_blank" rel="noopener">TransFuser: Imitation with Transformer-Based Sensor Fusion for Autonomous Driving</a>.&rdquo; <em>PAMI</em>, <a href="https://arxiv.org/abs/2205.15997" target="_blank" rel="noopener">arXiv:2205.15997</a>, 2023.</li>
+        <li id="ref6">L. Nguyen, M. Fauth, B. Jaeger, D. Dauner, M. Igl, A. Geiger, K. Chitta. &ldquo;<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Nguyen_LEAD_Minimizing_Learner-Expert_Asymmetry_in_End-to-End_Driving_CVPR_2026_paper.pdf" target="_blank" rel="noopener">LEAD: Minimizing Learner-Expert Asymmetry in End-to-End Driving</a>.&rdquo; <em>CVPR</em>, 2026.</li>
+        <li id="ref7">A. Dosovitskiy, G. Ros, F. Codevilla, A. Lopez, V. Koltun. &ldquo;<a href="https://proceedings.mlr.press/v78/dosovitskiy17a/dosovitskiy17a.pdf" target="_blank" rel="noopener">CARLA: An Open Urban Driving Simulator</a>.&rdquo; <em>CoRL</em>, <a href="https://arxiv.org/abs/1711.03938" target="_blank" rel="noopener">arXiv:1711.03938</a>, 2017.</li>
+        <li id="ref8">D. Dauner, V. Charraut, B. Berle, T. Li, L. Nguyen, J. Wang, C. Jing, M. Igl, H. Caesar, B. Ivanovic, Y. Liao, A. Geiger, K. Chitta. &ldquo;<a href="https://arxiv.org/pdf/2605.08084" target="_blank" rel="noopener">123D: Unifying Multi-Modal Autonomous Driving Data at Scale</a>.&rdquo; <a href="https://arxiv.org/abs/2605.08084" target="_blank" rel="noopener">arXiv:2605.08084</a>, 2026.</li>
+      </ol>
+    </article>
+  </main>
+
+  <footer id="site-footer"></footer>
+</body>
+
+</html>

@@ -1,0 +1,678 @@
+{
+  "task": "Bench2Drive",
+  "categories": [],
+  "description": "Bench2Drive is an autonomous driving benchmark based on the CARLA leaderboard 2.0. It consists of 220 short routes featuring safety critical scenarios. The evaluation is performed closed-loop in the CARLA simulator. The performance of an entire driving stack is being evaluated.",
+  "subtasks": [],
+  "synonyms": [],
+  "source_link": null,
+  "datasets": [
+    {
+      "sota": {
+        "rows": [
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "TFv6",
+            "metrics": {
+              "Driving Score": "95.28"
+            },
+            "paper_date": "2025-12-23",
+            "paper_title": "Prioritizing Perception-Guided Self-Supervision: A New Paradigm for Causal Modeling in End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://openreview.net/forum?id=PZqII8EoFG&referrer=%5Bthe+profile+of+Yi+Huang%5D%28%2Fprofile%3Fid%3D%7EYi_Huang20%29"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "PGS",
+            "metrics": {
+              "Driving Score": "78.08"
+            },
+            "paper_date": "2025-09-18",
+            "paper_title": "Prioritizing Perception-Guided Self-Supervision: A New Paradigm for Causal Modeling in End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://openreview.net/forum?id=PZqII8EoFG&referrer=%5Bthe+profile+of+Yi+Huang%5D%28%2Fprofile%3Fid%3D%7EYi_Huang20%29"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "SpaRC-AD",
+            "metrics": {
+              "Driving Score": "55.6"
+            },
+            "paper_date": "2025-08-14",
+            "paper_title": "SpaRC-AD: A Baseline for Radar-Camera Fusion in End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2508.10567v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/xiaomi-research/recogdrive",
+                "title": "xiamen-research/recogdrive"
+              }
+            ],
+            "model_links": [],
+            "model_name": "ReCogDrive",
+            "metrics": {
+              "Driving Score": "71.36"
+            },
+            "paper_date": "2025-09-20",
+            "paper_title": "ReCogDrive: A Reinforced Cognitive Framework for End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2506.08052"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "VLR-Driver",
+            "metrics": {
+              "Driving Score": "75.01"
+            },
+            "paper_date": "2025",
+            "paper_title": "VLR-Driver: Large Vision-Language-Reasoning Models for Embodied Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://openaccess.thecvf.com//content/ICCV2025/papers/Kong_VLR-Driver_Large_Vision-Language-Reasoning_Models_for_Embodied_Autonomous_Driving_ICCV_2025_paper.pdf"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "VDRive",
+            "metrics": {
+              "Driving Score": "66.25"
+            },
+            "paper_date": "2025-10-17",
+            "paper_title": "VDRive: Leveraging Reinforced VLA and Diffusion Policy for End-to-end Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2510.15446"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "BridgeDrive",
+            "metrics": {
+              "Driving Score": "86.87"
+            },
+            "paper_date": "2025-09-28",
+            "paper_title": "BridgeDrive: Diffusion Bridge Policy for Closed-Loop Trajectory Planning in Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2509.23589"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/nullmax-vision/hip-ad",
+                "title": "nullmax-vision/hip-ad"
+              }
+            ],
+            "model_links": [],
+            "model_name": "HiP-AD",
+            "metrics": {
+              "Driving Score": "86.77"
+            },
+            "paper_date": "2025-03-11",
+            "paper_title": "HiP-AD: Hierarchical and Multi-Granularity Planning with Deformable Attention for Autonomous Driving in a Single Decoder",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2503.08612v1"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "R2SE",
+            "metrics": {
+              "Driving Score": "86.28"
+            },
+            "paper_date": "2025-06-11",
+            "paper_title": "Reinforced Refinement with Self-Aware Expansion for End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2506.09800v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/RenzKa/simlingo",
+                "title": "RenzKa/simlingo"
+              }
+            ],
+            "model_links": [],
+            "model_name": "SimLingo",
+            "metrics": {
+              "Driving Score": "85.94"
+            },
+            "paper_date": "2024-06-14",
+            "paper_title": "CarLLaVA: Vision language models for camera-only closed-loop driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2406.10165v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/autonomousvision/carla_garage",
+                "title": "autonomousvision/carla_garage"
+              }
+            ],
+            "model_links": [],
+            "model_name": "TFv5",
+            "metrics": {
+              "Driving Score": "84.21"
+            },
+            "paper_date": "2023-06-13",
+            "paper_title": "Hidden Biases of End-to-End Driving Models",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2306.07957v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/Say2L/GaussianFusion",
+                "title": "Say2L/GaussianFusion"
+              }
+            ],
+            "model_links": [],
+            "model_name": "GaussianFusion",
+            "metrics": {
+              "Driving Score": "79.40"
+            },
+            "paper_date": "2025-05-27",
+            "paper_title": "GaussianFusion: Gaussian-Based Multi-Sensor Fusion for End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2506.00034v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/xiaomi-mlab/Orion",
+                "title": "xiaomi-mlab/Orion"
+              }
+            ],
+            "model_links": [],
+            "model_name": "ORION",
+            "metrics": {
+              "Driving Score": "77.70"
+            },
+            "paper_date": "2025-03-25",
+            "paper_title": "ORION: A Holistic End-to-End Autonomous Driving Framework by Vision-Language Instructed Action Generation",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2503.19755v1"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "Raw2Drive",
+            "metrics": {
+              "Driving Score": "74.36"
+            },
+            "paper_date": "2025-05-22",
+            "paper_title": "Raw2Drive: Reinforcement Learning with Aligned World Models for End-to-End Autonomous Driving (in CARLA v2)",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2505.16394v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/OpenDriveLab/ETA",
+                "title": "OpenDriveLab/ETA"
+              }
+            ],
+            "model_links": [],
+            "model_name": "ETA",
+            "metrics": {
+              "Driving Score": "74.33"
+            },
+            "paper_date": "2025-06-09",
+            "paper_title": "ETA: Efficiency through Thinking Ahead, A Dual Approach to Self-Driving with Large Models",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2506.07725"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "DriveMoE",
+            "metrics": {
+              "Driving Score": "74.22"
+            },
+            "paper_date": "2025-05-22",
+            "paper_title": "DriveMoE: Mixture-of-Experts for Vision-Language-Action Model in End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2505.16278v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/woxihuanjiangguo/hydra-next",
+                "title": "woxihuanjiangguo/hydra-next"
+              }
+            ],
+            "model_links": [],
+            "model_name": "Hydra-NeXt",
+            "metrics": {
+              "Driving Score": "73.86"
+            },
+            "paper_date": "2025-03-15",
+            "paper_title": "Hydra-NeXt: Robust Closed-Loop Driving with Open-Loop Training",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2503.12030v1"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "VL (on failure)",
+            "metrics": {
+              "Driving Score": "73.29"
+            },
+            "paper_date": "2024-06-03",
+            "paper_title": "Validity Learning on Failures: Mitigating the Distribution Shift in Autonomous Vehicle Planning",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2406.01544v2"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "DRIVER",
+            "metrics": {
+              "Driving Score": "68.90"
+            },
+            "paper_date": null,
+            "paper_title": "",
+            "uses_additional_data": false,
+            "paper_url": ""
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "DiffAD",
+            "metrics": {
+              "Driving Score": "67.92"
+            },
+            "paper_date": "2025-03-15",
+            "paper_title": "DiffAD: A Unified Diffusion Modeling Approach for Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2503.12170v1"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "NavigationDrive",
+            "metrics": {
+              "Driving Score": "67.17"
+            },
+            "paper_date": null,
+            "paper_title": "",
+            "uses_additional_data": false,
+            "paper_url": ""
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/Kguo-cs/iPad",
+                "title": "Kguo-cs/iPad"
+              }
+            ],
+            "model_links": [],
+            "model_name": "iPad",
+            "metrics": {
+              "Driving Score": "65.02"
+            },
+            "paper_date": "2025-05-21",
+            "paper_title": "iPad: Iterative Proposal-centric End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2505.15111v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/opendrivelab/driveadapter",
+                "title": "opendrivelab/driveadapter"
+              }
+            ],
+            "model_links": [],
+            "model_name": "DriveAdapter",
+            "metrics": {
+              "Driving Score": "64.22"
+            },
+            "paper_date": "2023-08-01",
+            "paper_title": "DriveAdapter: Breaking the Coupling Barrier of Perception and Planning in End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2308.00398v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/liuxueyi/reasonplan",
+                "title": "liuxueyi/reasonplan"
+              }
+            ],
+            "model_links": [],
+            "model_name": "ReasonPlan",
+            "metrics": {
+              "Driving Score": "64.01"
+            },
+            "paper_date": "2025-05-26",
+            "paper_title": "ReasonPlan: Unified Scene Prediction and Decision Reasoning for Closed-loop Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2505.20024v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/thinklab-sjtu/drivetransformer",
+                "title": "thinklab-sjtu/drivetransformer"
+              }
+            ],
+            "model_links": [],
+            "model_name": "Drivetransformer-Large",
+            "metrics": {
+              "Driving Score": "63.46"
+            },
+            "paper_date": "2025-03-07",
+            "paper_title": "DriveTransformer: Unified Transformer for Scalable End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2503.07656v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/opendrivelab/thinktwice",
+                "title": "opendrivelab/thinktwice"
+              }
+            ],
+            "model_links": [],
+            "model_name": "ThinkTwice",
+            "metrics": {
+              "Driving Score": "62.44"
+            },
+            "paper_date": "2023-05-10",
+            "paper_title": "Think Twice before Driving: Towards Scalable Decoders for End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2305.06242v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/OpenPerceptionX/TCP",
+                "title": "OpenPerceptionX/TCP"
+              }
+            ],
+            "model_links": [],
+            "model_name": "TCP-traj",
+            "metrics": {
+              "Driving Score": "59.90"
+            },
+            "paper_date": "2022-06-16",
+            "paper_title": "Trajectory-guided Control Prediction for End-to-end Autonomous Driving: A Simple yet Strong Baseline",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2206.08129v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/suhaisheng/difsd",
+                "title": "suhaisheng/difsd"
+              }
+            ],
+            "model_links": [],
+            "model_name": "DiFSD",
+            "metrics": {
+              "Driving Score": "52.02"
+            },
+            "paper_date": "2024-09-15",
+            "paper_title": "DiFSD: Ego-Centric Fully Sparse Paradigm with Uncertainty Denoising and Iterative Refinement for Efficient End-to-End Self-Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2409.09777v4"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "X-Driver",
+            "metrics": {
+              "Driving Score": "51.70"
+            },
+            "paper_date": "2025-05-08",
+            "paper_title": "X-Driver: Explainable Autonomous Driving with Vision-Language Models",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2505.05098v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/OpenPerceptionX/TCP",
+                "title": "OpenPerceptionX/TCP"
+              }
+            ],
+            "model_links": [],
+            "model_name": "TCP-traj w/o distillation",
+            "metrics": {
+              "Driving Score": "49.30"
+            },
+            "paper_date": "2022-06-16",
+            "paper_title": "Trajectory-guided Control Prediction for End-to-end Autonomous Driving: A Simple yet Strong Baseline",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2206.08129v2"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "CogAD",
+            "metrics": {
+              "Driving Score": "48.30"
+            },
+            "paper_date": "2025-05-27",
+            "paper_title": "CogAD: Cognitive-Hierarchy Guided End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2505.21581v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/adept-thu/MomAD",
+                "title": "adept-thu/MomAD"
+              }
+            ],
+            "model_links": [],
+            "model_name": "MomAD",
+            "metrics": {
+              "Driving Score": "47.91"
+            },
+            "paper_date": "2025-05-08",
+            "paper_title": "Don't Shake the Wheel: Momentum-Aware Planning in End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2503.03125"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/opendrivelab/uniad",
+                "title": "opendrivelab/uniad"
+              }
+            ],
+            "model_links": [],
+            "model_name": "UniAD-Base",
+            "metrics": {
+              "Driving Score": "45.81"
+            },
+            "paper_date": "2022-12-20",
+            "paper_title": "Planning-oriented Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2212.10156v2"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "TTOG",
+            "metrics": {
+              "Driving Score": "45.23"
+            },
+            "paper_date": "2025-04-17",
+            "paper_title": "Two Tasks, One Goal: Uniting Motion and Planning for Excellent End To End Autonomous Driving Performance",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2504.12667v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/wzzheng/genad",
+                "title": "wzzheng/genad"
+              }
+            ],
+            "model_links": [],
+            "model_name": "GenAD",
+            "metrics": {
+              "Driving Score": "44.81"
+            },
+            "paper_date": "2024-02-18",
+            "paper_title": "GenAD: Generative End-to-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2402.11502v3"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/swc-17/sparsedrive",
+                "title": "swc-17/sparsedrive"
+              },
+              {
+                "url": "https://github.com/linxuewu/sparse4d",
+                "title": "linxuewu/sparse4d"
+              }
+            ],
+            "model_links": [],
+            "model_name": "SparseDrive",
+            "metrics": {
+              "Driving Score": "44.54"
+            },
+            "paper_date": "2024-05-30",
+            "paper_title": "SparseDrive: End-to-End Autonomous Driving via Sparse Scene Representation",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2405.19620v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/hustvl/vad",
+                "title": "hustvl/vad"
+              },
+              {
+                "url": "https://github.com/yangyucheng000/papercode-2/tree/main/WS-VAD-mindspore-main",
+                "title": "yangyucheng000/papercode-2"
+              }
+            ],
+            "model_links": [],
+            "model_name": "VAD",
+            "metrics": {
+              "Driving Score": "42.35"
+            },
+            "paper_date": "2023-03-21",
+            "paper_title": "VAD: Vectorized Scene Representation for Efficient Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2303.12077v3"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/opendrivelab/uniad",
+                "title": "opendrivelab/uniad"
+              }
+            ],
+            "model_links": [],
+            "model_name": "UniAD-Tiny",
+            "metrics": {
+              "Driving Score": "40.73"
+            },
+            "paper_date": "2022-12-20",
+            "paper_title": "Planning-oriented Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2212.10156v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/OpenPerceptionX/TCP",
+                "title": "OpenPerceptionX/TCP"
+              }
+            ],
+            "model_links": [],
+            "model_name": "TCP",
+            "metrics": {
+              "Driving Score": "40.70"
+            },
+            "paper_date": "2022-06-16",
+            "paper_title": "Trajectory-guided Control Prediction for End-to-end Autonomous Driving: A Simple yet Strong Baseline",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2206.08129v2"
+          },
+          {
+            "code_links": [],
+            "model_links": [],
+            "model_name": "VAD + SERA",
+            "metrics": {
+              "Driving Score": "35.64"
+            },
+            "paper_date": "2025-05-28",
+            "paper_title": "From Failures to Fixes: LLM-Driven Scenario Repair for Self-Evolving Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2505.22067v1"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/OpenPerceptionX/TCP",
+                "title": "OpenPerceptionX/TCP"
+              }
+            ],
+            "model_links": [],
+            "model_name": "TCP-ctrl",
+            "metrics": {
+              "Driving Score": "30.47"
+            },
+            "paper_date": "2022-06-16",
+            "paper_title": "Trajectory-guided Control Prediction for End-to-end Autonomous Driving: A Simple yet Strong Baseline",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2206.08129v2"
+          },
+          {
+            "code_links": [
+              {
+                "url": "https://github.com/Thinklab-SJTU/Bench2Drive",
+                "title": "Thinklab-SJTU/Bench2Drive"
+              },
+              {
+                "url": "https://github.com/autonomousvision/carla_garage",
+                "title": "autonomousvision/carla_garage"
+              },
+              {
+                "url": "https://github.com/thinklab-sjtu/bench2drivezoo",
+                "title": "thinklab-sjtu/bench2drivezoo"
+              },
+              {
+                "url": "https://github.com/RenzKa/simlingo",
+                "title": "RenzKa/simlingo"
+              }
+            ],
+            "model_links": [],
+            "model_name": "AD-MLP",
+            "metrics": {
+              "Driving Score": "18.05"
+            },
+            "paper_date": "2024-06-06",
+            "paper_title": "Bench2Drive: Towards Multi-Ability Benchmarking of Closed-Loop End-To-End Autonomous Driving",
+            "uses_additional_data": false,
+            "paper_url": "https://arxiv.org/abs/2406.03877v3"
+          }
+        ],
+        "metrics": [
+          "Driving Score"
+        ]
+      },
+      "dataset_links": [
+        {
+          "url": "https://paperswithcode.com/sota/bench2drive-on-bench2drive",
+          "title": "Papers with Code Leaderboard URL"
+        }
+      ],
+      "description": "",
+      "subdatasets": [],
+      "dataset_citations": [],
+      "dataset": "Bench2Drive"
+    }
+  ]
+}
