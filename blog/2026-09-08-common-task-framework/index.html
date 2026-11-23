@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Making Progress Measurable: A Common Task Framework for Autonomous Driving with AlpaSim</title>
+  <meta name="description" content="KE:SAI, NVIDIA, and OpenDriveLab are organizing the AlpaSim challenge with shared evaluation suites, neural simulation, and developer kits.">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="KE:SAI">
+  <meta property="og:url" content="https://kesai.eu/blog/2026-09-08-common-task-framework/">
+  <meta property="og:title" content="Making Progress Measurable: A Common Task Framework for Autonomous Driving with AlpaSim">
+  <meta property="og:description" content="KE:SAI, NVIDIA, and OpenDriveLab are organizing the AlpaSim challenge with shared evaluation suites, neural simulation, and developer kits.">
+  <meta property="og:image" content="https://kesai.eu/assets/og-image.jpg">
+  <meta property="article:published_time" content="2026-09-08">
+  <meta property="article:section" content="Research">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Making Progress Measurable: A Common Task Framework for Autonomous Driving with AlpaSim">
+  <meta name="twitter:description" content="KE:SAI, NVIDIA, and OpenDriveLab are organizing the AlpaSim challenge with shared evaluation suites, neural simulation, and developer kits.">
+  <meta name="twitter:image" content="https://kesai.eu/assets/og-image.jpg">
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/assets/fonts/google/fonts.css">
+  <link rel="stylesheet" href="/site.css?v=blog-typography-2">
+  <link rel="stylesheet" href="post.css?v=alpasim-aspect-2">
+  <style>html{background:#0a0a0a}</style>
+  <script>document.documentElement.classList.add('blog-loading');</script>
+  <script src="/site.js" defer></script>
+  <script src="post.js?v=scroll-playback-2" defer></script>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main>
+    <article class="lp-section">
+      <div class="blog-post-top">
+        <a href="/blog/" class="blog-back">&larr; Back to Blog</a>
+        <div style="display:flex;flex-wrap:wrap;gap:1rem">
+          <a href="https://huggingface.co/spaces/nvidia/AlpasimE2EClosedLoopChallenge2026" class="blog-back" target="_blank" rel="noopener">Challenge</a>
+          <a href="https://github.com/NVlabs/alpasim/tree/e2e_challenge" class="blog-back" target="_blank" rel="noopener">Simulator</a>
+          <a href="https://github.com/kesai-labs/py123d_garage" class="blog-back" target="_blank" rel="noopener">devkit</a>
+        </div>
+      </div>
+
+      <p class="section-eyebrow">Research &nbsp;&middot;&nbsp; <time datetime="2026-09-08">September 8, 2026</time></p>
+      <h1 class="section-title">Making Progress Measurable: A Common Task Framework for Autonomous Driving with AlpaSim</h1>
+
+      <div class="blog-body">
+        <p>Our <a href="/blog/2026-07-17-vehicle-premiere/">previous post</a> introduced the research vehicle we will use for real-world testing, helping us understand and account for hardware-related challenges such as sensor noise and calibration. However, systematic progress also requires experiments that other researchers can repeat. This is the motivation behind the common task framework<sup><a href="#ref1" id="cite1">[1]</a></sup>: shared development data, a defined evaluation protocol, held-out test data, and a public leaderboard. Researchers evaluate their methods under a set of common rules on examples withheld from development and openly share their findings. This approach has helped organize and accelerate research in vision, speech, and language since the 1980s. We now aim to bring that same discipline to the development of frontier models for real-world end-to-end autonomous driving.</p>
+        <p>Together with <a href="https://research.nvidia.com/labs/avg/" target="_blank" rel="noopener">NVIDIA’s ASPIRE Group</a> and <a href="https://opendrivelab.com/" target="_blank" rel="noopener">HKU’s OpenDriveLab</a>, we are organizing the <a href="https://huggingface.co/spaces/nvidia/AlpasimE2EClosedLoopChallenge2026" target="_blank" rel="noopener">AlpaSim End-to-End Closed-Loop Challenge</a><sup><a href="#ref2" id="cite2">[2]</a></sup>. The challenge is the first to bring together photorealistic neural simulation<sup><a href="#ref3" id="cite3">[3]</a></sup>, accessible baselines, and large evaluation suites in a shared framework for comparing end-to-end driving policies. Our aim is to make frontier autonomous driving research accessible to a broader community.</p>
+      </div>
+
+      <section class="blog-body" aria-labelledby="pseudo-title">
+        <h2 id="pseudo-title">Lightweight simulation with NAVSIM</h2>
+
+        <p>A recorded drive shows one way to navigate a scene, but other choices can be safe too. Early attempts to establish an accessible common task for autonomous driving evaluated a method’s planned path by its distance from the human driver’s recorded path: a comparison that can reward the wrong behavior<sup><a href="#ref4" id="cite4">[4]</a></sup>. Try the controls in <a href="#fig-pseudo">Figure 1</a>: changing speed while staying in the lane can produce a larger average displacement error (ADE) than swerving off the road.</p>
+        <p><a href="https://arxiv.org/abs/2406.15349" target="_blank" rel="noopener">NAVSIM</a><sup><a href="#ref5" id="cite5">[5]</a></sup> was our attempt to address this problem by simulating a planned path for a few seconds (without replanning) and measuring safety, comfort, and progress. We used NAVSIM to test policies on large and carefully curated real-world driving datasets, without relying on the ADE metric. The simplified NAVSIM score below illustrates the benefit of this approach: it penalizes leaving the road or entering oncoming traffic, even when the path’s endpoint stays close to the recording.</p>
+        <figure class="pseudo-widget" id="fig-pseudo">
+          <div class="pseudo-grid">
+            <div class="pseudo-panel">
+              <h3>Change speed</h3>
+              <svg id="speed-road" viewBox="0 0 320 380" role="img" aria-label="Top-down two-way highway with one lane per direction comparing a speed change with the recorded trajectory"></svg>
+              <label for="drive-speed">Speed <output id="speed-value" for="drive-speed">70 km/h</output></label>
+              <input id="drive-speed" type="range" min="70" max="130" step="1" value="70">
+              <p class="pseudo-compliance">✓ Compliant</p>
+              <div class="pseudo-score" id="speed-error-card">Average Displacement Error (ADE) ↓ <div class="pseudo-score-value"><strong id="speed-error">18.75 m</strong><span class="pseudo-score-status" id="speed-error-status" aria-live="polite"></span></div><div class="pseudo-bar"><span id="speed-bar"></span></div></div>
+              <div class="pseudo-score" id="speed-pdm-card">(Simplified) NAVSIM Score ↑ <div class="pseudo-score-value"><strong id="speed-pdm">0.70</strong><span class="pseudo-score-status" id="speed-pdm-status" aria-live="polite"></span></div><div class="pseudo-bar"><span id="speed-pdm-bar"></span></div></div>
+            </div>
+            <div class="pseudo-panel">
+              <h3>Swerve while maintaining speed</h3>
+              <svg id="swerve-road" viewBox="0 0 320 380" role="img" aria-label="Top-down two-way highway with one lane per direction comparing a lateral swerve with the recorded trajectory"></svg>
+              <label for="drive-swerve">Swerve <output id="swerve-value" for="drive-swerve">1.8 m right</output></label>
+              <input id="drive-swerve" type="range" min="-3.5" max="3.5" step="0.1" value="1.8">
+              <p class="pseudo-compliance is-failure" id="swerve-compliance" aria-live="polite">✕ Drivable area compliance</p>
+              <div class="pseudo-score" id="swerve-error-card">Average Displacement Error (ADE) ↓ <div class="pseudo-score-value"><strong id="swerve-error">0.90 m</strong><span class="pseudo-score-status" id="swerve-error-status" aria-live="polite"></span></div><div class="pseudo-bar"><span id="swerve-bar"></span></div></div>
+              <div class="pseudo-score" id="swerve-pdm-card">(Simplified) NAVSIM Score ↑ <div class="pseudo-score-value"><strong id="swerve-pdm">0.00</strong><span class="pseudo-score-status" id="swerve-pdm-status" aria-live="polite"></span></div><div class="pseudo-bar"><span id="swerve-pdm-bar"></span></div></div>
+            </div>
+          </div>
+          <figcaption><strong>Figure 1.</strong> When compared with a recorded drive at 100 km/h, a safe speed change can have a higher ADE than a swerve off the road or into oncoming traffic.</figcaption>
+        </figure>
+        <p>NAVSIM now provides a practical first step for evaluating new ideas in autonomous driving. Since 2024, we have organized three successful NAVSIM challenges. The inaugural 2024 challenge<sup><a href="#ref6" id="cite6">[6]</a></sup> attracted 143 teams and 463 submissions, showing how much research a shared evaluation setup can support.</p>
+        <p>We have also improved NAVSIM over time, introducing <a href="https://arxiv.org/abs/2506.04218" target="_blank" rel="noopener">pseudo-simulation</a><sup><a href="#ref7" id="cite7">[7]</a></sup> to probe how a policy recovers from deviations. Before evaluation, it uses <a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/" target="_blank" rel="noopener">3D Gaussian Splatting</a><sup><a href="#ref8" id="cite8">[8]</a></sup> to render additional observations at different positions, headings, and speeds. During evaluation, these observations receive weights according to how closely they match states the policy is likely to reach. This lets the benchmark test recovery beyond the recorded drive.</p>
+        <p>However, the common task framework requires us to revisit the choice of task once community progress begins to saturate. Unfortunately, NAVSIM does not account for important deployment constraints. A policy can score well while far exceeding a typical vehicle’s GPU memory budget or taking too long to produce a plan. Incorporating significant methodological complexity is now common on the benchmark, even for marginal gains. Therefore, the AlpaSim challenge moves to a closed-loop simulation setup with explicit compute and timing limits.</p>
+      </section>
+      <section class="blog-body" aria-labelledby="alpasim-title">
+        <h2 id="alpasim-title">Closed-loop simulation at scale with AlpaSim</h2>
+
+        <p>The AlpaSim challenge uses an open, modular simulator for closed-loop evaluation on two independent tracks: the <a href="https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles" target="_blank" rel="noopener">Physical AI AV dataset</a><sup><a href="#ref9" id="cite9">[9]</a></sup>, with 1,700 hours of driving data, and <a href="https://arxiv.org/abs/2403.04133" target="_blank" rel="noopener">nuPlan</a><sup><a href="#ref10" id="cite10">[10]</a></sup>, with 120 hours of publicly released sensor data. A common simulator lets researchers develop policies across different geographies and vehicle configurations without maintaining separate evaluation setups. This enables the exploration of new research questions beyond NAVSIM, which only supported the nuPlan dataset. Our <a href="https://github.com/kesai-labs/py123d_garage" target="_blank" rel="noopener">developer kit</a> for the AlpaSim challenge enables joint training on both Physical AI AV and nuPlan, making it easier to draw on their combined scale and diversity. <a href="#fig-alpasim">Figure 2</a> shows a baseline policy trained with the developer kit driving on both challenge tracks.</p>
+        <figure class="alpasim-figure" id="fig-alpasim">
+          <div class="alpasim-previews">
+            <div class="alpasim-preview">
+              <strong>Physical AI AV</strong>
+              <div class="lead-video-embed">
+                <video src="https://huggingface.co/datasets/kesai-labs/videos/resolve/main/alpasim_pai.mp4"
+                  title="Baseline policy driving on Physical AI AV in AlpaSim" width="1920" height="2160" controls playsinline muted preload="metadata"></video>
+              </div>
+            </div>
+            <div class="alpasim-preview">
+              <strong>nuPlan</strong>
+              <div class="lead-video-embed">
+                <video src="https://huggingface.co/datasets/kesai-labs/videos/resolve/main/alpasim_nuplan.mp4"
+                  title="Baseline policy driving on nuPlan in AlpaSim" controls playsinline muted preload="metadata"></video>
+              </div>
+            </div>
+          </div>
+          <figcaption><strong>Figure 2.</strong> Closed-loop driving visualization of a baseline policy trained with the developer kit on AlpaSim's Physical AI AV track (left) and nuPlan track (right). The policy drives based on camera inputs, the maps (bottom) are only used for calculating metrics.</figcaption>
+        </figure>
+        <p>Like NAVSIM, AlpaSim penalizes policies for collisions, off-road driving, and failure to make progress, without using traditional displacement errors. Unlike NAVSIM’s pseudo-simulation, which weights pre-rendered observations, AlpaSim runs a full closed-loop simulation: each action changes the simulated vehicle’s state, and newly rendered observations feed back into the policy’s next decision. This lets evaluation follow the consequences of successive decisions and test recovery as a drive unfolds. Furthermore, the challenge makes computational efficiency part of the task. Policies must fit within 16 GiB of GPU memory and target a planning frequency of 10 Hz, producing a new plan every 0.1 seconds. This brings evaluation closer to the demands of running a policy on a real vehicle.</p>
+        <p>Closed-loop simulation requires substantial compute, which can put large-scale evaluation out of reach for smaller teams. To lower this barrier, participants in the AlpaSim challenge submit a containerized policy, and the organizers provide the compute and infrastructure for official evaluation. Our test suite covers thousands of private held-out scenes across Denmark, France, Germany, Japan, Singapore, South Korea, Spain, Sweden, the United Kingdom, and the United States.</p>
+        <p>To keep evaluation fair, each team receives the same fixed number of official submissions. We also provide smaller, <a href="https://github.com/NVlabs/alpasim/tree/e2e_challenge/e2e_challenge/local_evaluation">standardized validation splits</a> so teams can run rigorous ablation studies on local compute before using their official leaderboard submissions.</p>
+      </section>
+
+      <section class="blog-body" aria-labelledby="irt-title">
+        <h2 id="irt-title">Towards multitask benchmarking with Item Response Theory</h2>
+
+        <p>As driving policies become more general, we need to evaluate them across multiple datasets and sensor configurations. This raises a question that also appears in multitask benchmarks for large language models: how should results from different tasks be combined into a meaningful assessment of capability? Simply averaging scores makes implicit choices about the importance and difficulty of each task. A model’s ranking can then depend on the benchmark’s composition<sup><a href="#ref11" id="cite11">[11]</a></sup>, and improvements in the aggregate can hide weaknesses in individual skills. Frontier driving models will face the same problem as evaluation expands across environments.</p>
+        <p>We are exploring <a href="https://en.wikipedia.org/wiki/Item_response_theory" target="_blank" rel="noopener">Item Response Theory (IRT)</a> as an initial approach to this problem. Originally developed for educational testing<sup><a href="#ref12" id="cite12">[12]</a></sup>, IRT treats each policy as a student and each driving scenario as an exam question. It estimates policy ability and scenario difficulty from the pattern of successes and failures across policies. This provides a way to account for the difficulty of scenarios in which a policy succeeds when assigning scores and to identify scenarios that best distinguish policies. IRT also estimates uncertainty in policy ability, allowing us to show a range of plausible ranks for each policy. <a href="https://ln2697.github.io/navhard-leaderboard-2" target="_blank" rel="noopener">We applied IRT to existing NAVSIM submissions</a> as an illustrative example, displaying policy ability and route difficulty rankings with rank intervals.</p>
+        <p>The current AlpaSim challenge will be our first attempt to put this approach into practice on a live leaderboard. IRT will not be used to combine the two tracks, but rather to score the policies and routes independently in each track. For policies with overlapping rank intervals, we will use kilometers driven per at-fault infraction as a ranking metric to break the tie. We aim to use what we learn from the challenge to refine our approach and continue investigating solutions for curating and expanding the AlpaSim leaderboard tracks.</p>
+      </section>
+
+      <section class="blog-body" aria-labelledby="conclusion-title">
+        <h2 id="conclusion-title">Conclusion</h2>
+
+        <p>Tackling the hardest problems in autonomous driving requires a shared research effort. The AlpaSim challenge is our next step towards making this possible. There is still much to learn about how best to measure driving capability, and we expect the benchmark to evolve as its limitations become clear. We hope it can provide a common task for the end-to-end driving community to gather around, leading to the discovery of new techniques to improve driving policy safety and efficiency.</p>
+        <p>The challenge opened on June 15, 2026. Under the <a href="https://nvidia-alpasime2eclosedloopchallenge2026.hf.space/#timeline" target="_blank" rel="noopener">planned timeline</a>, upon completion of the ongoing maintenance, the rules and submission formats freeze on September 15. The public leaderboard closes on October 31, when final submissions and technical reports are due. You can follow the live results in <a href="#fig-leaderboard">Figure 3</a>:</p>
+
+        <figure class="alpasim-figure leaderboard-figure" id="fig-leaderboard">
+          <iframe src="https://nvidia-alpasime2eclosedloopchallenge2026.hf.space/gradio/" title="Live AlpaSim End-to-End Closed-Loop Challenge leaderboard" width="100%" height="900" loading="lazy"></iframe>
+          <figcaption><strong>Figure 3.</strong> Live AlpaSim challenge leaderboard.</figcaption>
+        </figure>
+      </section>
+
+      <div class="blog-body"><p class="section-eyebrow" style="margin-top: 2rem">References</p></div>
+      <ol class="blog-references">
+        <li id="ref1">M. Liberman. &ldquo;<a href="https://www.simonsfoundation.org/event/reproducible-research-and-the-common-task-method/" target="_blank" rel="noopener">Reproducible Research and the Common Task Method</a>.&rdquo; Simons Foundation, 2015.</li>
+        <li id="ref2">NVIDIA. &ldquo;<a href="https://huggingface.co/spaces/nvidia/AlpasimE2EClosedLoopChallenge2026" target="_blank" rel="noopener">AlpaSim End-to-End Closed-Loop Challenge</a>.&rdquo; Hugging Face, 2026.</li>
+        <li id="ref3">Y. Zhang, K. Tóthová, Z. Wang, K. Yin, H. Turki, R. de Lutio, Y.-Y. Chang, O. Litany, S. Fidler, Z. Gojcic. &ldquo;<a href="https://arxiv.org/pdf/2602.24096" target="_blank" rel="noopener">DiffusionHarmonizer: Bridging Neural Reconstruction and Photorealistic Simulation with Online Diffusion Enhancer</a>.&rdquo; <a href="https://arxiv.org/abs/2602.24096" target="_blank" rel="noopener">arXiv:2602.24096</a>, 2026.</li>
+        <li id="ref4">B. Jaeger, K. Chitta, D. Dauner, K. Renz, A. Geiger. &ldquo;<a href="https://github.com/autonomousvision/carla_garage/blob/leaderboard_2/docs/common_mistakes_in_benchmarking_ad.md#nuscenes-planning" target="_blank" rel="noopener">Common Mistakes in Benchmarking Autonomous Driving</a>.&rdquo; 2024.</li>
+        <li id="ref5">D. Dauner et al. &ldquo;<a href="https://arxiv.org/abs/2406.15349" target="_blank" rel="noopener">NAVSIM: Data-Driven Non-Reactive Autonomous Vehicle Simulation and Benchmarking</a>.&rdquo; NeurIPS, 2024.</li>
+        <li id="ref6">OpenDriveLab. &ldquo;<a href="https://opendrivelab.com/challenge2024/#end_to_end_driving_at_scale" target="_blank" rel="noopener">End-to-End Driving at Scale</a>.&rdquo; Autonomous Grand Challenge, CVPR 2024.</li>
+        <li id="ref7">W. Cao et al. &ldquo;<a href="https://arxiv.org/abs/2506.04218" target="_blank" rel="noopener">Pseudo-Simulation for Autonomous Driving</a>.&rdquo; CoRL, 2025.</li>
+        <li id="ref8">B. Kerbl, G. Kopanas, T. Leimkühler, G. Drettakis. &ldquo;<a href="https://repo-sam.inria.fr/fungraph/3d-gaussian-splatting/" target="_blank" rel="noopener">3D Gaussian Splatting for Real-Time Radiance Field Rendering</a>.&rdquo; ACM Transactions on Graphics (SIGGRAPH), 2023.</li>
+        <li id="ref9">NVIDIA. &ldquo;<a href="https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles" target="_blank" rel="noopener">Physical AI Autonomous Vehicles Dataset</a>.&rdquo; Hugging Face.</li>
+        <li id="ref10">N. Karnchanachari et al. &ldquo;<a href="https://arxiv.org/abs/2403.04133" target="_blank" rel="noopener">Towards Learning-Based Planning: The nuPlan Benchmark for Real-World Autonomous Driving</a>.&rdquo; ICRA, 2024.</li>
+        <li id="ref11">G. Zhang, M. Hardt. &ldquo;<a href="https://arxiv.org/abs/2405.01719" target="_blank" rel="noopener">Inherent Trade-Offs between Diversity and Stability in Multi-Task Benchmarks</a>.&rdquo; ICML, 2024.</li>
+        <li id="ref12">A. Birnbaum. &ldquo;Some Latent Trait Models and Their Use in Inferring an Examinee’s Ability.&rdquo; In F. M. Lord &amp; M. R. Novick (Eds.), <em>Statistical Theories of Mental Test Scores</em>. Addison-Wesley, Reading, MA, 1968, pp. 397–479.</li>
+      </ol>
+    </article>
+  </main>
+
+  <footer id="site-footer"></footer>
+</body>
+</html>

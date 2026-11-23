@@ -1,0 +1,106 @@
+.blog-references {
+  list-style: decimal;
+  padding-left: 1.5rem;
+  margin-top: 1rem;
+}
+
+.blog-references li {
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--secondary);
+  margin-bottom: .5rem;
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.blog-references a {
+  color: var(--amber);
+  text-decoration: underline;
+  text-decoration-color: rgba(255, 190, 39, 0.4);
+  text-underline-offset: 3px;
+  transition: text-decoration-color .15s;
+}
+.blog-references a:hover { text-decoration-color: var(--amber); }
+
+/* Citation superscripts: amber to match the brand accent. */
+.blog-body sup a {
+  color: var(--amber);
+  text-decoration: none;
+}
+.blog-body sup a:hover {
+  color: var(--amber);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Figure cards, as in the AlpaSim post. */
+.garage-figure { margin: 2rem 0; padding: 1rem; background: #111; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; font-family: var(--font-sans); scroll-margin-top: 90px; }
+.garage-figure > img { display: block; width: 100%; height: auto; border-radius: 10px; }
+.garage-figure figcaption { margin-top: 1rem; text-align: center; font-size: .88rem; line-height: 1.5; color: rgba(255, 255, 255, 0.6); }
+.blog-body p + .garage-figure { margin-top: 1.25rem; }
+.blog-body .garage-figure + p { margin-top: 3.5rem; }
+.garage-overview .ov-band { fill: #fff; fill-opacity: 0; transition: fill-opacity .15s; }
+.garage-overview .ov-name { opacity: 0; transition: opacity .15s; }
+.garage-overview .ov-row:hover .ov-band { fill-opacity: .04; }
+.garage-overview .ov-row:hover .ov-name { opacity: 1; }
+
+.garage-previews { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.garage-preview { display: flex; flex-direction: column; align-items: center; gap: .75rem; min-width: 0; text-align: center; }
+.garage-preview strong { font-size: 1rem; color: var(--amber); }
+.garage-video { width: 100%; aspect-ratio: 8 / 9; border-radius: 12px; overflow: hidden; }
+.garage-video video { display: block; width: 100%; height: 100%; object-fit: cover; }
+@media (max-width: 600px) { .garage-previews { grid-template-columns: 1fr; } }
+
+/* The compute explorer brings its own light and dark tokens; the dark color
+   scheme on the frame makes it follow the dark page. */
+.garage-explorer iframe { display: block; width: 100%; height: 640px; border: 0; border-radius: 10px; color-scheme: dark; }
+
+/* Tables: dark-theme rules that read like the surrounding body text. */
+.garage-table-title { margin: 0 0 .75rem; font-family: var(--font-sans); font-size: 1.05rem; font-weight: 600; color: var(--amber); }
+.garage-table-wrap { overflow-x: auto; }
+.garage-table { width: 100%; border-collapse: collapse; font-family: var(--font-sans); font-size: .9rem; color: #d2d8df; font-variant-numeric: tabular-nums; }
+.garage-table th,
+.garage-table td { padding: .55rem .8rem; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.1); white-space: nowrap; }
+.garage-table th { color: var(--text); font-weight: 600; }
+.garage-table tbody tr:last-child td { border-bottom: none; }
+.garage-table .is-ours td { color: var(--amber); background: var(--amber-soft); border-bottom-color: rgba(255, 190, 39, 0.25); }
+.garage-table .is-ours td:first-child { font-weight: 600; }
+.garage-table .is-ours + .is-ours td:first-child { font-weight: inherit; }
+.garage-table .is-ours b { color: var(--amber); }
+.garage-table .is-ours-col { color: var(--amber); background: var(--amber-soft); }
+.garage-table .is-section td { padding-top: .9rem; padding-bottom: .3rem; font-size: .76rem; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--amber); border-bottom: none; }
+.garage-table :is(.is-metric, .is-rl) td { color: #6e737a; }
+.garage-table :is(.is-metric, .is-rl) b { color: #82878e; }
+.garage-table .num { text-align: right; }
+.garage-table .mid { text-align: center; }
+.garage-table th.group { text-align: center; }
+.garage-table th[rowspan] { vertical-align: bottom; }
+.garage-table b { font-weight: 600; color: var(--text); }
+.garage-table .gap-pos { color: var(--text); font-weight: 600; }
+.garage-table .gap-neg { color: #d2d8df; }
+/* Citations in a cell must not change the row height. */
+.garage-table sup { line-height: 0; }
+
+/* Keep linked headings below the sticky/fixed navigation banner. */
+.blog-body :is(h2, h3)[id] { scroll-margin-top: calc(var(--nav-h) + 1.5rem); }
+
+/* Appendix subsections (Closed loop / Open loop). */
+.blog-body h3 { color: #ffffff; font-family: var(--font-sans); font-size: clamp(1.1rem, 1.6vw, 1.35rem); font-weight: 600; letter-spacing: -.01em; line-height: 1.2; margin: 2.5rem 0 1rem; }
+.blog-body h3 + .garage-figure { margin-top: 1rem; }
+
+.blog-body .garage-list { list-style: disc; padding-left: 1.5rem; margin: 1rem 0; }
+.blog-body ol.garage-list { list-style: decimal; }
+.blog-body .garage-list li { margin-bottom: .6rem; color: var(--secondary); }
+
+.blog-body pre { margin: 1.25rem 0; padding: 1rem 1.25rem; overflow-x: auto; background: #111; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; font-size: .85rem; line-height: 1.6; }
+.blog-body code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+/* Citation tooltips (post.js): hovering or focusing a citation shows the
+   matching entry of the reference list in a card next to it. */
+.cite-tip { position: absolute; z-index: 300; box-sizing: border-box; width: max-content; max-width: min(30rem, calc(100vw - 1.5rem)); padding: .6rem .85rem; background: #161616; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 10px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.55); font-family: var(--font-sans); font-size: .85rem; font-weight: 400; line-height: 1.5; color: var(--secondary); text-align: left; white-space: normal; }
+.cite-tip[hidden] { display: none; }
+.cite-tip-head { margin-bottom: .2rem; font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--amber); }
+.cite-tip-head.is-mismatch { color: #ff7b7b; }
+.cite-tip-body { overflow-wrap: break-word; }
+.cite-tip a { color: var(--amber); text-decoration: underline; text-decoration-color: rgba(255, 190, 39, 0.4); text-underline-offset: 3px; }
+.cite-tip a:hover { text-decoration-color: var(--amber); }

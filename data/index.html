@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Notice for KE:SAI Test Vehicles</title>
+  <meta name="description" content="How KE:SAI records, pixelates and uses sensor data from its marked test vehicles in Germany and France.">
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="KE:SAI">
+  <meta property="og:url"         content="https://kesai.eu/data/">
+  <meta property="og:title"       content="Privacy Notice for KE:SAI Test Vehicles">
+  <meta property="og:description" content="How KE:SAI records, pixelates and uses sensor data from its marked test vehicles in Germany and France.">
+  <meta name="twitter:card"       content="summary">
+  <meta name="twitter:title"      content="Privacy Notice for KE:SAI Test Vehicles">
+  <meta name="twitter:description" content="How KE:SAI records, pixelates and uses sensor data from its marked test vehicles in Germany and France.">
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/assets/fonts/google/fonts.css">
+  <link rel="stylesheet" href="/site.css?v=blog-appendix-2">
+  <style>html{background:#0a0a0a}</style>
+  <link rel="stylesheet" href="/data/data.css?v=1">
+  <script src="/site.js" defer></script>
+  <script src="/data/data.js?v=1" defer></script>
+  <script>
+    window.addEventListener('load', function () {
+      // Language toggle, as on the launch post
+      var btns = document.querySelectorAll('.lang-btn');
+      btns.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var lang = this.dataset.lang;
+          var current = document.querySelector('.lang-content:not([hidden])');
+          var next = document.querySelector('.lang-content[data-lang="' + lang + '"]');
+          if (current === next) return;
+          btns.forEach(function (b) { b.classList.toggle('active', b.dataset.lang === lang); });
+          document.documentElement.lang = lang;
+          current.style.opacity = '0';
+          setTimeout(function () {
+            current.hidden = true;
+            current.style.opacity = '';
+            next.hidden = false;
+            next.style.opacity = '0';
+            requestAnimationFrame(function () {
+              requestAnimationFrame(function () { next.style.opacity = '1'; });
+            });
+          }, 180);
+        });
+      });
+    });
+  </script>
+</head>
+<body>
+
+  <header id="site-header"></header>
+
+  <main>
+    <section class="lp-section">
+
+      <div class="blog-post-top">
+        <div class="lang-toggle" role="group" aria-label="Language">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="de">DE</button>
+          <button class="lang-btn" data-lang="fr">FR</button>
+        </div>
+      </div>
+
+      <!-- ═══ ENGLISH ═══════════════════════════════════════════ -->
+      <div class="lang-content" data-lang="en">
+
+        <h1 class="section-title">Privacy Notice for KE:SAI Test Vehicles</h1>
+        <p class="section-body">KE:SAI is a non-profit research lab that develops self-driving systems and publishes its results openly. For this research, KE:SAI operates marked test vehicles on public roads in Germany and France. This notice explains which data these vehicles record, how we pixelate faces and license plates, how we use the data and which rights you have.</p>
+
+        <h2 class="section-title legal-h">1. Scope</h2>
+        <p class="section-body">This notice applies to the recording of sensor data by KE:SAI test vehicles in public traffic and, where permitted, on private premises and test sites. The vehicles carry a sticker that refers to this page (kesai.eu/data). Anyone who is near such a vehicle during a recording drive may be recorded.</p>
+
+        <h2 class="section-title legal-h">2. Controller and contact</h2>
+        <p class="section-body">
+          KE:SAI — Kyutai ELLIS Scalable Autonomous Intelligence gGmbH<br>
+          Maria-von-Linden-Str. 1<br>
+          72076 Tübingen<br>
+          Germany<br>
+          E-mail: <a href="mailto:info@kesai.eu">info@kesai.eu</a>
+        </p>
+
+        <h2 class="section-title legal-h">3. Which data the vehicles record</h2>
+        <p class="section-body">The vehicles are equipped with cameras, LiDAR and radar sensors, a GPS receiver and an inertial measurement unit (IMU). They record camera images, LiDAR and radar measurements, the position and motion of the vehicle and the time of each recording. The vehicles do not have microphones and do not record audio. The camera images can show people, vehicles and license plates in the surroundings of the vehicle.</p>
+
+        <h2 class="section-title legal-h">4. Pixelation on the vehicle</h2>
+        <p class="section-body">All camera images are processed on the vehicle immediately after capture. A detection model finds all recognizable faces and license plates in every image and covers them with a coarse mosaic pattern. Images are stored only after this step. Raw images exist only briefly in the working memory of the vehicle computer and are never stored, transferred or published. People may still be visible, for example by their clothing. The pixelation runs on a computer in the vehicle that is operated by KE:SAI itself.</p>
+        <figure class="pix-gallery">
+          <div class="pix-grid">
+            <a class="pix-thumb" href="/data/img/pixelation-1.jpg"><img src="/data/img/pixelation-1-small.jpg" width="960" height="540" loading="lazy" alt="Street between office buildings with parked cars and pedestrians"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-2.jpg"><img src="/data/img/pixelation-2-small.jpg" width="960" height="540" loading="lazy" alt="Parking lot with several parked cars"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-3.jpg"><img src="/data/img/pixelation-3-small.jpg" width="960" height="540" loading="lazy" alt="Square with a scooter, a pedestrian and a café"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-4.jpg"><img src="/data/img/pixelation-4-small.jpg" width="960" height="540" loading="lazy" alt="Intersection with cars, a truck, a bicycle and a scooter"></a>
+          </div>
+          <figcaption>Camera images from KE:SAI recordings after pixelation. Faces and license plates are covered by a coarse mosaic pattern. Select an image to enlarge it.</figcaption>
+        </figure>
+        <p class="section-body" style="margin-top:1rem">The detection is reliable but not perfect: occasionally a face or license plate is missed and remains recognizable in a stored image. If you find one in our data, please tell us at <a href="mailto:info@kesai.eu">info@kesai.eu</a>, and we will pixelate or delete the affected images.</p>
+
+        <h2 class="section-title legal-h">5. Purpose of the processing</h2>
+        <p class="section-body">We use the recorded data for research on and development of self-driving systems. In particular, we use it to train and evaluate driving policies and generative models of driving scenes. Since the models are trained only on pixelated images, they do not learn the faces and license plates that were covered. In addition, we publish parts of the pixelated data as publicly available datasets. They may be used for research and commercial purposes under a license that protects the people recorded (see section 7). Within a recording, our software detects road users and tracks them over consecutive frames, for example to estimate their speed. This tracking uses only the pixelated images. We do not identify any person, do not recognize people across different recordings, do not create profiles and do not link the data to other information about individuals.</p>
+
+        <h2 class="section-title legal-h">6. Legal basis</h2>
+        <p class="section-body">The recording and pixelation of the data, its storage and use for our research, and the publication of pixelated datasets are based on our legitimate interest pursuant to Art. 6(1)(f) GDPR. Our legitimate interest is research on safe self-driving systems and making driving data publicly available to research and industry. In our assessment, your interests do not override this interest, because faces and license plates are pixelated before any data is stored, raw images are never published, the dataset license prohibits re-identification and use for surveillance, recordings are removed on request and excluded from all future releases, and we neither intend nor attempt to identify any person.</p>
+        <p class="section-body" style="margin-top:1rem">Recordings on closed test sites, such as driver training grounds, are not sufficient for this research. Self-driving systems must handle the variety of real traffic: many different road users and their interactions, road layouts, traffic densities, weather and lighting conditions, and rare events. Closed test sites cannot reproduce this variety, and systems developed only there do not transfer reliably to public roads.</p>
+
+        <h2 class="section-title legal-h">7. Storage, recipients and publication</h2>
+        <p class="section-body">The pixelated data is stored on servers in Germany and France. As part of our open research, we publish pixelated data as publicly available datasets and use it in public research challenges. Published datasets are available to anyone worldwide. Their license allows research and commercial use and protects the people recorded: it prohibits identifying or attempting to identify any person or vehicle, biometric analysis, inferring sensitive characteristics such as ethnic origin or health, and use for surveillance or for enforcing rules such as traffic laws. Users must report to us any face or license plate that was not pixelated. We may also share pixelated data with research partners under at least the same restrictions. Raw images are never shared.</p>
+
+        <h2 class="section-title legal-h">8. Retention period</h2>
+        <p class="section-body">At least every 3 years, we review whether the stored data is still needed for our research and delete what is not. Published dataset versions remain available without a time limit; recordings removed on request are excluded from all later versions. Raw images are not stored.</p>
+
+        <h2 class="section-title legal-h">9. No automated decision-making</h2>
+        <p class="section-body">We do not carry out automated individual decision-making or profiling within the meaning of Art. 22 GDPR.</p>
+
+        <h2 class="section-title legal-h">10. Your rights</h2>
+        <p class="section-body">Under the GDPR, you have the right of access (Art. 15), rectification (Art. 16), erasure (Art. 17), restriction of processing (Art. 18) and to object to the processing (Art. 21). Since we do not identify the people in our data (Art. 11 GDPR), we need your help to find a recording: please tell us the place, the date and the approximate time at which you were near one of our vehicles, and if possible a description that helps us find you in the images. Send your request to <a href="mailto:info@kesai.eu">info@kesai.eu</a>. We answer within one month.</p>
+        <p class="section-body" style="margin-top:1rem"><strong>Right to object.</strong> You may object at any time to the processing of recordings that show you. You do not need to give reasons. We will then remove the affected recordings.</p>
+        <p class="section-body" style="margin-top:1rem">On request, we delete the affected recordings from our own data and exclude them from all future releases of our datasets. We cannot delete copies that others have already downloaded. When we remove recordings on request, we note this in the release notes of the next dataset version.</p>
+        <p class="section-body" style="margin-top:1rem">You also have the right to lodge a complaint with a data protection supervisory authority, in particular in the Member State of your habitual residence, your place of work or the place of the recording. The authority responsible for KE:SAI is the State Commissioner for Data Protection and Freedom of Information Baden-Württemberg (Lautenschlagerstraße 20, 70173 Stuttgart, Germany, <a href="https://www.baden-wuerttemberg.datenschutz.de/" target="_blank" rel="noopener">baden-wuerttemberg.datenschutz.de</a>). In France, you can contact the Commission nationale de l'informatique et des libertés (CNIL, <a href="https://www.cnil.fr/" target="_blank" rel="noopener">cnil.fr</a>).</p>
+
+        <p class="section-body" style="margin-top:2rem">Status: November 2026</p>
+
+      </div><!-- /en -->
+
+      <!-- ═══ DEUTSCH ════════════════════════════════════════════ -->
+      <div class="lang-content" data-lang="de" hidden>
+
+        <h1 class="section-title">Datenschutzhinweise für die Testfahrzeuge von KE:SAI</h1>
+        <p class="section-body">KE:SAI ist ein gemeinnütziges Forschungslabor, das selbstfahrende Systeme entwickelt und seine Ergebnisse frei zugänglich veröffentlicht. Für diese Forschung betreibt KE:SAI gekennzeichnete Testfahrzeuge im öffentlichen Straßenverkehr in Deutschland und Frankreich. Diese Hinweise erläutern, welche Daten die Fahrzeuge aufzeichnen, wie wir Gesichter und Kennzeichen verpixeln, wofür wir die Daten verwenden und welche Rechte Sie haben.</p>
+
+        <h2 class="section-title legal-h">1. Geltungsbereich</h2>
+        <p class="section-body">Diese Hinweise gelten für die Aufzeichnung von Sensordaten durch Testfahrzeuge von KE:SAI im öffentlichen Verkehrsraum sowie, soweit zulässig, auf privaten Geländen und Testgeländen. Die Fahrzeuge tragen einen Aufkleber, der auf diese Seite verweist (kesai.eu/data). Wer sich während einer Aufzeichnungsfahrt in der Nähe eines solchen Fahrzeugs aufhält, kann aufgezeichnet werden.</p>
+
+        <h2 class="section-title legal-h">2. Verantwortlicher und Kontakt</h2>
+        <p class="section-body">
+          KE:SAI — Kyutai ELLIS Scalable Autonomous Intelligence gGmbH<br>
+          Maria-von-Linden-Str. 1<br>
+          72076 Tübingen<br>
+          Deutschland<br>
+          E-Mail: <a href="mailto:info@kesai.eu">info@kesai.eu</a>
+        </p>
+
+        <h2 class="section-title legal-h">3. Welche Daten die Fahrzeuge aufzeichnen</h2>
+        <p class="section-body">Die Fahrzeuge sind mit Kameras, LiDAR- und Radarsensoren, einem GPS-Empfänger und einer inertialen Messeinheit (IMU) ausgestattet. Sie zeichnen Kamerabilder, LiDAR- und Radarmessungen, die Position und Bewegung des Fahrzeugs sowie den Zeitpunkt jeder Aufnahme auf. Die Fahrzeuge haben keine Mikrofone und zeichnen keinen Ton auf. Die Kamerabilder können Personen, Fahrzeuge und Kennzeichen in der Umgebung des Fahrzeugs zeigen.</p>
+
+        <h2 class="section-title legal-h">4. Verpixelung im Fahrzeug</h2>
+        <p class="section-body">Alle Kamerabilder werden im Fahrzeug unmittelbar nach der Aufnahme verarbeitet. Ein Detektionsmodell findet in jedem Bild alle erkennbaren Gesichter und Kennzeichen und überdeckt sie mit einem groben Mosaikmuster. Erst nach diesem Schritt werden die Bilder gespeichert. Rohbilder existieren nur kurz im Arbeitsspeicher des Fahrzeugrechners und werden zu keinem Zeitpunkt gespeichert, übertragen oder veröffentlicht. Personen können weiterhin sichtbar sein, etwa anhand ihrer Kleidung. Die Verpixelung läuft auf einem Rechner im Fahrzeug, den KE:SAI selbst betreibt.</p>
+        <figure class="pix-gallery">
+          <div class="pix-grid">
+            <a class="pix-thumb" href="/data/img/pixelation-1.jpg"><img src="/data/img/pixelation-1-small.jpg" width="960" height="540" loading="lazy" alt="Straße zwischen Bürogebäuden mit parkenden Autos und Fußgängern"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-2.jpg"><img src="/data/img/pixelation-2-small.jpg" width="960" height="540" loading="lazy" alt="Parkplatz mit mehreren parkenden Autos"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-3.jpg"><img src="/data/img/pixelation-3-small.jpg" width="960" height="540" loading="lazy" alt="Platz mit einem Motorroller, einer Person zu Fuß und einem Café"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-4.jpg"><img src="/data/img/pixelation-4-small.jpg" width="960" height="540" loading="lazy" alt="Kreuzung mit Autos, einem Lastwagen, einem Fahrrad und einem Motorroller"></a>
+          </div>
+          <figcaption>Kamerabilder aus Aufnahmen von KE:SAI nach der Verpixelung. Gesichter und Kennzeichen sind mit einem groben Mosaikmuster überdeckt. Wählen Sie ein Bild aus, um es zu vergrößern.</figcaption>
+        </figure>
+        <p class="section-body" style="margin-top:1rem">Die Erkennung ist zuverlässig, aber nicht fehlerfrei: Gelegentlich wird ein Gesicht oder Kennzeichen übersehen und bleibt in einem gespeicherten Bild erkennbar. Sollten Sie ein solches Bild in unseren Daten finden, teilen Sie uns dies bitte unter <a href="mailto:info@kesai.eu">info@kesai.eu</a> mit. Wir werden die betroffenen Bilder dann verpixeln oder löschen.</p>
+
+        <h2 class="section-title legal-h">5. Zweck der Verarbeitung</h2>
+        <p class="section-body">Wir verwenden die aufgezeichneten Daten für die Erforschung und Entwicklung selbstfahrender Systeme. Insbesondere trainieren und bewerten wir damit Fahrstrategien und generative Modelle von Verkehrsszenen. Da die Modelle ausschließlich mit verpixelten Bildern trainiert werden, lernen sie die überdeckten Gesichter und Kennzeichen nicht. Darüber hinaus veröffentlichen wir Teile der verpixelten Daten als frei verfügbare Datensätze. Sie dürfen unter einer Lizenz, die die aufgezeichneten Personen schützt, für Forschung und kommerzielle Zwecke genutzt werden (siehe Abschnitt 7). Innerhalb einer Aufnahme erkennt unsere Software Verkehrsteilnehmer und verfolgt sie über aufeinanderfolgende Bilder hinweg, etwa um ihre Geschwindigkeit zu schätzen. Diese Nachverfolgung verwendet ausschließlich die verpixelten Bilder. Wir identifizieren keine Personen, erkennen Personen nicht über verschiedene Aufnahmen hinweg wieder, erstellen keine Profile und verknüpfen die Daten nicht mit anderen Informationen über Einzelpersonen.</p>
+
+        <h2 class="section-title legal-h">6. Rechtsgrundlage</h2>
+        <p class="section-body">Die Aufzeichnung und Verpixelung der Daten, ihre Speicherung und Verwendung für unsere Forschung sowie die Veröffentlichung verpixelter Datensätze beruhen auf unserem berechtigten Interesse nach Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse ist die Forschung an sicheren selbstfahrenden Systemen und die öffentliche Bereitstellung von Fahrdaten für Forschung und Industrie. Nach unserer Einschätzung überwiegen Ihre Interessen dieses Interesse nicht, da Gesichter und Kennzeichen vor jeder Speicherung verpixelt werden, Rohbilder zu keinem Zeitpunkt veröffentlicht werden, die Lizenz der Datensätze die Re-Identifizierung von Personen und die Nutzung zur Überwachung verbietet, Aufnahmen auf Anfrage entfernt und von allen künftigen Veröffentlichungen ausgeschlossen werden und wir eine Identifizierung von Personen weder beabsichtigen noch versuchen.</p>
+        <p class="section-body" style="margin-top:1rem">Aufnahmen auf abgeschlossenen Testgeländen, etwa Verkehrsübungsplätzen, reichen für diese Forschung nicht aus. Selbstfahrende Systeme müssen die Vielfalt des realen Verkehrs beherrschen: viele unterschiedliche Verkehrsteilnehmer und ihr Zusammenspiel, Straßenführungen, Verkehrsdichten, Wetter- und Lichtverhältnisse sowie seltene Ereignisse. Abgeschlossene Testgelände können diese Vielfalt nicht abbilden, und Systeme, die nur dort entwickelt werden, lassen sich nicht zuverlässig auf öffentliche Straßen übertragen.</p>
+
+        <h2 class="section-title legal-h">7. Speicherung, Empfänger und Veröffentlichung</h2>
+        <p class="section-body">Die verpixelten Daten werden auf Servern in Deutschland und Frankreich gespeichert. Im Rahmen unserer offenen Forschung veröffentlichen wir verpixelte Daten als frei verfügbare Datensätze und verwenden sie in öffentlichen Forschungswettbewerben. Veröffentlichte Datensätze sind für jeden weltweit zugänglich. Ihre Lizenz erlaubt die Nutzung für Forschung und kommerzielle Zwecke und schützt die aufgezeichneten Personen: Sie verbietet die Identifizierung von Personen oder Fahrzeugen und jeden Versuch dazu, biometrische Analysen, das Ableiten sensibler Merkmale wie ethnischer Herkunft oder Gesundheit sowie die Nutzung zur Überwachung oder zur Durchsetzung von Vorschriften wie Verkehrsregeln. Nutzer müssen uns jedes Gesicht und jedes Kennzeichen melden, das nicht verpixelt wurde. Verpixelte Daten können wir außerdem an Forschungspartner weitergeben, mindestens unter denselben Einschränkungen. Rohbilder werden zu keinem Zeitpunkt weitergegeben.</p>
+
+        <h2 class="section-title legal-h">8. Speicherdauer</h2>
+        <p class="section-body">Mindestens alle 3 Jahre prüfen wir, ob die gespeicherten Daten für unsere Forschung noch benötigt werden, und löschen, was nicht mehr benötigt wird. Veröffentlichte Versionen der Datensätze bleiben ohne zeitliche Begrenzung verfügbar; auf Anfrage entfernte Aufnahmen sind in allen späteren Versionen nicht mehr enthalten. Rohbilder werden nicht gespeichert.</p>
+
+        <h2 class="section-title legal-h">9. Keine automatisierte Entscheidungsfindung</h2>
+        <p class="section-body">Eine automatisierte Entscheidung im Einzelfall oder ein Profiling im Sinne von Art. 22 DSGVO findet nicht statt.</p>
+
+        <h2 class="section-title legal-h">10. Ihre Rechte</h2>
+        <p class="section-body">Nach der DSGVO haben Sie das Recht auf Auskunft (Art. 15), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18) und Widerspruch gegen die Verarbeitung (Art. 21). Da wir die Personen in unseren Daten nicht identifizieren (Art. 11 DSGVO), benötigen wir Ihre Mithilfe, um eine Aufnahme zu finden: Bitte nennen Sie uns den Ort, das Datum und die ungefähre Uhrzeit, zu der Sie sich in der Nähe eines unserer Fahrzeuge aufgehalten haben, und nach Möglichkeit eine Beschreibung, anhand derer wir Sie auf den Bildern finden können. Senden Sie Ihre Anfrage an <a href="mailto:info@kesai.eu">info@kesai.eu</a>. Wir antworten innerhalb eines Monats.</p>
+        <p class="section-body" style="margin-top:1rem"><strong>Widerspruchsrecht.</strong> Sie können der Verarbeitung von Aufnahmen, die Sie zeigen, jederzeit widersprechen. Sie müssen dafür keine Gründe angeben. Wir entfernen dann die betroffenen Aufnahmen.</p>
+        <p class="section-body" style="margin-top:1rem">Auf Anfrage löschen wir die betroffenen Aufnahmen aus unseren eigenen Daten und schließen sie von allen künftigen Veröffentlichungen unserer Datensätze aus. Kopien, die andere bereits heruntergeladen haben, können wir nicht löschen. Wenn wir Aufnahmen auf Anfrage entfernen, vermerken wir dies in den Versionshinweisen der nächsten Datensatzversion.</p>
+        <p class="section-body" style="margin-top:1rem">Sie haben außerdem das Recht, Beschwerde bei einer Aufsichtsbehörde einzulegen, insbesondere in dem Mitgliedstaat Ihres gewöhnlichen Aufenthalts, Ihres Arbeitsplatzes oder des Ortes der Aufnahme. Für KE:SAI zuständig ist der Landesbeauftragte für den Datenschutz und die Informationsfreiheit Baden-Württemberg (Lautenschlagerstraße 20, 70173 Stuttgart, <a href="https://www.baden-wuerttemberg.datenschutz.de/" target="_blank" rel="noopener">baden-wuerttemberg.datenschutz.de</a>). In Frankreich können Sie sich an die Commission nationale de l'informatique et des libertés wenden (CNIL, <a href="https://www.cnil.fr/" target="_blank" rel="noopener">cnil.fr</a>).</p>
+
+        <p class="section-body" style="margin-top:2rem">Stand: November 2026</p>
+
+      </div><!-- /de -->
+
+      <!-- ═══ FRANÇAIS ═══════════════════════════════════════════ -->
+      <div class="lang-content" data-lang="fr" hidden>
+
+        <h1 class="section-title">Notice d'information sur la protection des données — véhicules d'essai de KE:SAI</h1>
+        <p class="section-body">KE:SAI est un laboratoire de recherche à but non lucratif qui développe des systèmes de conduite autonome et publie ses résultats de manière ouverte. Pour cette recherche, KE:SAI exploite des véhicules d'essai signalés comme tels sur la voie publique en Allemagne et en France. La présente notice explique quelles données ces véhicules enregistrent, comment nous pixellisons les visages et les plaques d'immatriculation, comment nous utilisons les données et quels sont vos droits.</p>
+
+        <h2 class="section-title legal-h">1. Champ d'application</h2>
+        <p class="section-body">La présente notice s'applique à l'enregistrement de données de capteurs par les véhicules d'essai de KE:SAI sur la voie publique et, lorsque cela est autorisé, sur des terrains privés et des sites d'essai. Les véhicules portent un autocollant qui renvoie à cette page (kesai.eu/data). Toute personne se trouvant à proximité d'un tel véhicule pendant un trajet d'enregistrement peut être enregistrée.</p>
+
+        <h2 class="section-title legal-h">2. Responsable du traitement et contact</h2>
+        <p class="section-body">
+          KE:SAI — Kyutai ELLIS Scalable Autonomous Intelligence gGmbH<br>
+          Maria-von-Linden-Str. 1<br>
+          72076 Tübingen<br>
+          Allemagne<br>
+          E-mail : <a href="mailto:info@kesai.eu">info@kesai.eu</a>
+        </p>
+
+        <h2 class="section-title legal-h">3. Données enregistrées par les véhicules</h2>
+        <p class="section-body">Les véhicules sont équipés de caméras, de capteurs LiDAR et radar, d'un récepteur GPS et d'une centrale inertielle (IMU). Ils enregistrent des images de caméra, des mesures LiDAR et radar, la position et le mouvement du véhicule ainsi que l'heure de chaque enregistrement. Les véhicules ne sont pas équipés de microphones et n'enregistrent aucun son. Les images de caméra peuvent montrer des personnes, des véhicules et des plaques d'immatriculation dans l'environnement du véhicule.</p>
+
+        <h2 class="section-title legal-h">4. Pixellisation à bord du véhicule</h2>
+        <p class="section-body">Toutes les images de caméra sont traitées à bord du véhicule immédiatement après leur capture. Un modèle de détection repère dans chaque image tous les visages et toutes les plaques d'immatriculation reconnaissables et les recouvre d'une mosaïque grossière. Les images ne sont stockées qu'après cette étape. Les images brutes n'existent que brièvement dans la mémoire vive de l'ordinateur du véhicule et ne sont jamais stockées, transférées ni publiées. Les personnes peuvent rester visibles, par exemple par leurs vêtements. La pixellisation s'effectue sur un ordinateur embarqué exploité par KE:SAI elle-même.</p>
+        <figure class="pix-gallery">
+          <div class="pix-grid">
+            <a class="pix-thumb" href="/data/img/pixelation-1.jpg"><img src="/data/img/pixelation-1-small.jpg" width="960" height="540" loading="lazy" alt="Rue entre des immeubles de bureaux, avec des voitures garées et des piétons"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-2.jpg"><img src="/data/img/pixelation-2-small.jpg" width="960" height="540" loading="lazy" alt="Parking avec plusieurs voitures garées"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-3.jpg"><img src="/data/img/pixelation-3-small.jpg" width="960" height="540" loading="lazy" alt="Place avec un scooter, un piéton et un café"></a>
+            <a class="pix-thumb" href="/data/img/pixelation-4.jpg"><img src="/data/img/pixelation-4-small.jpg" width="960" height="540" loading="lazy" alt="Carrefour avec des voitures, un camion, un vélo et un scooter"></a>
+          </div>
+          <figcaption>Images de caméra issues d'enregistrements de KE:SAI après pixellisation. Les visages et les plaques d'immatriculation sont recouverts d'une mosaïque grossière. Sélectionnez une image pour l'agrandir.</figcaption>
+        </figure>
+        <p class="section-body" style="margin-top:1rem">La détection est fiable, mais pas parfaite : il arrive qu'un visage ou une plaque d'immatriculation ne soit pas détecté et reste reconnaissable sur une image stockée. Si vous en trouvez un dans nos données, veuillez nous en informer à l'adresse <a href="mailto:info@kesai.eu">info@kesai.eu</a> ; nous pixelliserons ou supprimerons alors les images concernées.</p>
+
+        <h2 class="section-title legal-h">5. Finalité du traitement</h2>
+        <p class="section-body">Nous utilisons les données enregistrées pour la recherche et le développement de systèmes de conduite autonome. Nous les utilisons en particulier pour entraîner et évaluer des stratégies de conduite et des modèles génératifs de scènes de circulation. Les modèles étant entraînés uniquement sur des images pixellisées, ils n'apprennent pas les visages et les plaques masqués. En outre, nous publions une partie des données pixellisées sous forme de jeux de données accessibles au public. Ils peuvent être utilisés à des fins de recherche et à des fins commerciales, sous une licence qui protège les personnes enregistrées (voir la section 7). Au sein d'un enregistrement, notre logiciel détecte les usagers de la route et les suit d'une image à l'autre, par exemple pour estimer leur vitesse. Ce suivi utilise uniquement les images pixellisées. Nous n'identifions aucune personne, ne reconnaissons pas les personnes d'un enregistrement à l'autre, ne créons pas de profils et ne relions pas les données à d'autres informations concernant des individus.</p>
+
+        <h2 class="section-title legal-h">6. Base juridique</h2>
+        <p class="section-body">L'enregistrement et la pixellisation des données, leur stockage et leur utilisation pour notre recherche ainsi que la publication de jeux de données pixellisés reposent sur notre intérêt légitime, sur le fondement de l'article 6, paragraphe 1, point f), du RGPD. Notre intérêt légitime est la recherche sur des systèmes de conduite autonome sûrs et la mise à disposition publique de données de conduite pour la recherche et l'industrie. Selon notre appréciation, vos intérêts ne prévalent pas sur cet intérêt, car les visages et les plaques sont pixellisés avant tout stockage, les images brutes ne sont jamais publiées, la licence des jeux de données interdit la réidentification et l'utilisation à des fins de surveillance, les enregistrements sont retirés sur demande et exclus de toutes les publications futures, et nous n'avons pas l'intention d'identifier qui que ce soit et ne tentons pas de le faire.</p>
+        <p class="section-body" style="margin-top:1rem">Des enregistrements sur des sites d'essai fermés, tels que des terrains d'entraînement à la conduite, ne suffisent pas pour cette recherche. Les systèmes de conduite autonome doivent maîtriser la diversité de la circulation réelle : de nombreux usagers de la route différents et leurs interactions, les tracés routiers, les densités de trafic, les conditions météorologiques et d'éclairage ainsi que les événements rares. Les sites d'essai fermés ne peuvent pas reproduire cette diversité, et des systèmes développés uniquement sur ces sites ne se transposent pas de manière fiable à la voie publique.</p>
+
+        <h2 class="section-title legal-h">7. Stockage, destinataires et publication</h2>
+        <p class="section-body">Les données pixellisées sont stockées sur des serveurs situés en Allemagne et en France. Dans le cadre de notre recherche ouverte, nous publions des données pixellisées sous forme de jeux de données accessibles au public et les utilisons dans des compétitions de recherche publiques. Les jeux de données publiés sont mis à la disposition de tous dans le monde entier. Leur licence autorise l'utilisation à des fins de recherche et à des fins commerciales et protège les personnes enregistrées : elle interdit d'identifier ou de tenter d'identifier une personne ou un véhicule, l'analyse biométrique, la déduction de caractéristiques sensibles telles que l'origine ethnique ou la santé, ainsi que l'utilisation à des fins de surveillance ou pour faire respecter des règles telles que le code de la route. Les utilisateurs doivent nous signaler tout visage et toute plaque d'immatriculation qui n'ont pas été pixellisés. Nous pouvons également partager des données pixellisées avec des partenaires de recherche, sous des restrictions au moins équivalentes. Les images brutes ne sont jamais partagées.</p>
+
+        <h2 class="section-title legal-h">8. Durée de conservation</h2>
+        <p class="section-body">Au moins tous les 3 ans, nous vérifions si les données stockées sont encore nécessaires à notre recherche et supprimons celles qui ne le sont plus. Les versions publiées des jeux de données restent accessibles sans limite de durée ; les enregistrements retirés sur demande sont exclus de toutes les versions ultérieures. Les images brutes ne sont pas stockées.</p>
+
+        <h2 class="section-title legal-h">9. Absence de décision automatisée</h2>
+        <p class="section-body">Nous ne prenons aucune décision individuelle automatisée et ne procédons à aucun profilage au sens de l'article 22 du RGPD.</p>
+
+        <h2 class="section-title legal-h">10. Vos droits</h2>
+        <p class="section-body">En vertu du RGPD, vous disposez d'un droit d'accès (art. 15), de rectification (art. 16), d'effacement (art. 17), de limitation du traitement (art. 18) et d'opposition au traitement (art. 21). Comme nous n'identifions pas les personnes présentes dans nos données (art. 11 du RGPD), nous avons besoin de votre aide pour retrouver un enregistrement : veuillez nous indiquer le lieu, la date et l'heure approximative à laquelle vous vous trouviez à proximité de l'un de nos véhicules et, si possible, une description qui nous permette de vous retrouver sur les images. Envoyez votre demande à <a href="mailto:info@kesai.eu">info@kesai.eu</a>. Nous répondons dans un délai d'un mois.</p>
+        <p class="section-body" style="margin-top:1rem"><strong>Droit d'opposition.</strong> Vous pouvez à tout moment vous opposer au traitement des enregistrements sur lesquels vous apparaissez. Vous n'avez pas à justifier votre demande. Nous retirerons alors les enregistrements concernés.</p>
+        <p class="section-body" style="margin-top:1rem">Sur demande, nous supprimons les enregistrements concernés de nos propres données et les excluons de toutes les publications futures de nos jeux de données. Nous ne pouvons pas supprimer les copies déjà téléchargées par d'autres. Lorsque nous retirons des enregistrements sur demande, nous le signalons dans les notes de publication de la prochaine version du jeu de données.</p>
+        <p class="section-body" style="margin-top:1rem">Vous avez également le droit d'introduire une réclamation auprès d'une autorité de contrôle de la protection des données, notamment dans l'État membre de votre résidence habituelle, de votre lieu de travail ou du lieu de l'enregistrement. L'autorité compétente pour KE:SAI est le commissaire du Land de Bade-Wurtemberg à la protection des données et à la liberté d'information (Landesbeauftragter für den Datenschutz und die Informationsfreiheit Baden-Württemberg, Lautenschlagerstraße 20, 70173 Stuttgart, Allemagne, <a href="https://www.baden-wuerttemberg.datenschutz.de/" target="_blank" rel="noopener">baden-wuerttemberg.datenschutz.de</a>). En France, vous pouvez vous adresser à la Commission nationale de l'informatique et des libertés (CNIL, <a href="https://www.cnil.fr/" target="_blank" rel="noopener">cnil.fr</a>).</p>
+
+        <p class="section-body" style="margin-top:2rem">Dernière mise à jour : novembre 2026</p>
+
+      </div><!-- /fr -->
+
+    </section>
+  </main>
+
+  <footer id="site-footer"></footer>
+
+</body>
+</html>

@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Learning to Drive in a Day: An Open Recipe for End-to-End Driving Policies that Generalize across Benchmarks</title>
+  <meta name="description" content="py123d_garage v0.2 releases a 68M camera-only driving policy with its full training recipe: one day on one 8×H100 node, ahead of Alpamayo 1 and 1.5 in AlpaSim, and evaluated on seven benchmarks.">
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="KE:SAI">
+  <meta property="og:url" content="https://kesai.eu/blog/2026-11-02-py123d-garage/">
+  <meta property="og:title" content="Learning to Drive in a Day: An Open Recipe for End-to-End Driving Policies that Generalize across Benchmarks">
+  <meta property="og:description" content="py123d_garage v0.2 releases a 68M camera-only driving policy with its full training recipe: one day on one 8×H100 node, ahead of Alpamayo 1 and 1.5 in AlpaSim, and evaluated on seven benchmarks.">
+  <meta property="og:image" content="https://kesai.eu/assets/og-image.jpg">
+  <meta property="article:published_time" content="2026-11-02">
+  <meta property="article:section" content="Research">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Learning to Drive in a Day: An Open Recipe for End-to-End Driving Policies that Generalize across Benchmarks">
+  <meta name="twitter:description" content="py123d_garage v0.2 releases a 68M camera-only driving policy with its full training recipe: one day on one 8×H100 node, ahead of Alpamayo 1 and 1.5 in AlpaSim, and evaluated on seven benchmarks.">
+  <meta name="twitter:image" content="https://kesai.eu/assets/og-image.jpg">
+  <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="/assets/fonts/google/fonts.css">
+  <link rel="stylesheet" href="/site.css?v=blog-appendix-2">
+  <link rel="stylesheet" href="post.css?v=5f94689a">
+  <style>html{background:#0a0a0a}</style>
+  <script>document.documentElement.classList.add('blog-loading');</script>
+  <script src="/site.js" defer></script>
+  <script src="post.js?v=3ba09e32" defer></script>
+</head>
+<body>
+  <header id="site-header"></header>
+
+  <main>
+    <article class="lp-section">
+      <div class="blog-post-top">
+        <a href="/blog/" class="blog-back">&larr; Back to Blog</a>
+        <div style="display:flex;flex-wrap:wrap;gap:1rem">
+          <a href="https://github.com/kesai-labs/py123d_garage" class="blog-back" target="_blank" rel="noopener">Code</a>
+          <a href="https://huggingface.co/kesai-labs/py123d_garage_pretrained_checkpoints" class="blog-back" target="_blank" rel="noopener">Checkpoints</a>
+        </div>
+      </div>
+
+      <p class="section-eyebrow">Research &nbsp;&middot;&nbsp; <time datetime="2026-11-02">November 2, 2026</time></p>
+      <h1 class="section-title">Learning to Drive in a Day: An Open Recipe for End-to-End Driving Policies that Generalize across Benchmarks</h1>
+
+      <div class="blog-body">
+        <p>Open-weight models are advancing the capabilities of autonomous systems over a broad set of domains<sup><a href="#ref-mistral-large-4" id="cite-mistral-large-4">[1]</a><a href="#ref-pi05" id="cite-pi05">[2]</a></sup>. In the LLM and robotics communities, open-weight models have helped accelerate progress by enabling researchers to build on shared foundations, setting an encouraging example for autonomous driving<sup><a href="#ref-alpamayo-r1" id="cite-alpamayo-r1">[3]</a></sup>, where model weights have traditionally remained closed. However, even with open weights, high data and compute costs as well as closed training recipes limit reproducibility, slowing down the community's efforts to address a model's limitations.</p>
+        <p>NVIDIA's Alpamayo 1, for example, releases weights and inference code, but neither its 80,000 hours of curated proprietary training data, likely selected from more than a million hours of driving, nor its training recipe<sup><a href="#ref-alpamayo-r1">[3]</a></sup>. In contrast, <strong>fully open models</strong> with open recipe releases, which include data, code, models, and evaluations, are playing an important role in enabling research progress<sup><a href="#ref-olmo" id="cite-olmo">[4]</a><a href="#ref-reki" id="cite-reki">[5]</a><a href="#ref-vavim-vavam" id="cite-vavim-vavam">[6]</a></sup>. Unfortunately, in driving, existing fully open models have a different limitation: they are specialists, models which either only use a single benchmark or require independently tuned weights for each benchmark<sup><a href="#ref-diffusiondrive" id="cite-diffusiondrive">[7]</a><a href="#ref-drivor" id="cite-drivor">[8]</a></sup>. Today, we change this. We are releasing our <a href="https://github.com/kesai-labs/py123d_garage" target="_blank" rel="noopener">first fully open recipe</a> for end-to-end driving:</p>
+        <ul class="garage-list">
+          <li><strong>General and fully open pipeline:</strong> Developed with minimal assumptions about the model architecture or the target benchmarks, our three-stage training pipeline effectively tackles two key challenges in training driving policies, the copycat problem<sup><a href="#ref-copycat" id="cite-copycat">[9]</a><a href="#ref-bc-limitations" id="cite-bc-limitations">[10]</a></sup> and the target point bias<sup><a href="#ref-transfuserpp" id="cite-transfuserpp">[11]</a><a href="#ref-lead" id="cite-lead">[12]</a></sup>.</li>
+          <li><strong>Efficient infrastructure:</strong> The complete training runs on a single 8×H100 node in under a day. One command evaluates a checkpoint on seven different driving benchmarks.</li>
+          <li><strong>The experiments behind the release:</strong> We share an open <a href="https://github.com/kesai-labs/py123d_garage/blob/main/docs/research_logs.md" target="_blank" rel="noopener">research log</a> of more than 50 experiments. Importantly, we also include the experiments that failed.</li>
+          <li><strong>A strong, reproducible baseline:</strong> Trained exclusively on public data and evaluated on seven benchmarks, our baseline model achieves competitive performance across all of them (<a href="#fig-overview">Figure 1</a>, details in <a href="#appendix-title">Appendix A</a>).</li>
+        </ul>
+
+        <figure class="garage-figure" id="fig-overview">
+          <svg class="garage-overview" viewBox="0 0 1460 920" width="100%" role="img" aria-label="Overview: what is open compared with Alpamayo 1, and the released policy against the best published policy trained under the same conditions on seven benchmarks, with the hidden test set of the AlpaSim leaderboard" style="font-family: var(--font-sans), "Space Grotesk", system-ui, sans-serif; display: block">
+<rect x="0.5" y="0.5" width="803" height="919" rx="14" fill="#181818" stroke="#fff" stroke-opacity="0.08" stroke-width="1"/>
+<g transform="translate(24 24)">
+<text x="0" y="30" font-size="28" font-weight="600" fill="#edf2f7" text-anchor="start">Overview</text>
+<rect x="494" y="62" width="262" height="774" rx="10" fill="#ffbe27" fill-opacity="0.07"/>
+<line x1="220" y1="62" x2="220" y2="836" stroke="#4a4a4a" stroke-width="1"/>
+<text x="236" y="95" font-size="21" font-weight="600" fill="#aaaaaa" text-anchor="start">Alpamayo 1 (NVIDIA)</text>
+<text x="510" y="95" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">py123d_garage (ours)</text>
+<line x1="0" y1="116" x2="756" y2="116" stroke="#4a4a4a" stroke-width="1"/>
+<text x="0" y="183.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Parameters</text>
+<text x="236" y="183.0" font-size="22" font-weight="400" fill="#edf2f7" text-anchor="start">10B</text>
+<text x="510" y="183.0" font-size="22" font-weight="600" fill="#edf2f7" text-anchor="start">0.07B</text>
+<line x1="0" y1="236" x2="756" y2="236" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="303.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Training data</text>
+<circle cx="247" cy="282.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M243 278.0 l8 8 M251 278.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="268" y="289.0" font-size="22" font-weight="400" fill="#edf2f7" text-anchor="start">80,000 h</text>
+<text x="268" y="317.0" font-size="19" font-weight="400" fill="#aaaaaa" text-anchor="start">Internal, curated</text>
+<circle cx="521" cy="282.0" r="11" fill="#ffbe27"/><path d="M516 282.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="542" y="289.0" font-size="22" font-weight="600" fill="#edf2f7" text-anchor="start">1,800 h</text>
+<text x="542" y="317.0" font-size="19" font-weight="400" fill="#aaaaaa" text-anchor="start">Public</text>
+<line x1="0" y1="356" x2="756" y2="356" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="423.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Training compute</text>
+<circle cx="247" cy="416.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M243 412.0 l8 8 M251 412.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="268" y="423.0" font-size="22" font-weight="400" fill="#edf2f7" text-anchor="start">Undisclosed</text>
+<circle cx="521" cy="402.0" r="11" fill="#ffbe27"/><path d="M516 402.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="542" y="409.0" font-size="22" font-weight="600" fill="#edf2f7" text-anchor="start">21 h</text>
+<text x="542" y="437.0" font-size="19" font-weight="400" fill="#aaaaaa" text-anchor="start">One 8×H100 node</text>
+<line x1="0" y1="476" x2="756" y2="476" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="543.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Training code</text>
+<circle cx="247" cy="536.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M243 532.0 l8 8 M251 532.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="268" y="543.0" font-size="22" font-weight="400" fill="#edf2f7" text-anchor="start">Fine-tuning only</text>
+<circle cx="521" cy="536.0" r="11" fill="#ffbe27"/><path d="M516 536.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="542" y="543.0" font-size="22" font-weight="600" fill="#edf2f7" text-anchor="start">Full recipe</text>
+<line x1="0" y1="596" x2="756" y2="596" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="663.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Weights</text>
+<circle cx="247" cy="656.0" r="11" fill="#ffbe27"/><path d="M242 656.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="268" y="663.0" font-size="22" font-weight="400" fill="#edf2f7" text-anchor="start">Open</text>
+<circle cx="521" cy="656.0" r="11" fill="#ffbe27"/><path d="M516 656.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="542" y="663.0" font-size="22" font-weight="600" fill="#edf2f7" text-anchor="start">Open</text>
+<line x1="0" y1="716" x2="756" y2="716" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="783.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Evaluation</text>
+<circle cx="247" cy="776.0" r="11" fill="#ffbe27"/><path d="M242 776.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="268" y="783.0" font-size="22" font-weight="400" fill="#edf2f7" text-anchor="start">AlpaSim</text>
+<circle cx="521" cy="776.0" r="11" fill="#ffbe27"/><path d="M516 776.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="542" y="783.0" font-size="22" font-weight="600" fill="#edf2f7" text-anchor="start">7 Benchmarks</text>
+</g>
+<rect x="832.5" y="0.5" width="627" height="919" rx="14" fill="#181818" stroke="#fff" stroke-opacity="0.08" stroke-width="1"/>
+<g transform="translate(856 24)">
+<text x="0" y="30" font-size="28" font-weight="600" fill="#edf2f7" text-anchor="start">Benchmark results</text>
+<circle cx="7" cy="88" r="8" fill="#8a8a8a"/>
+<text x="20" y="95" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Baseline</text>
+<circle cx="152" cy="88" r="8" fill="#ffbe27"/>
+<text x="165" y="95" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">TransFuser-K1 (Ours)</text>
+<line x1="272.0" y1="118" x2="272.0" y2="846" stroke="#4a4a4a" stroke-width="1"/>
+<text x="272.0" y="874" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="middle">0</text>
+<line x1="334.0" y1="118" x2="334.0" y2="846" stroke="#2e2e2e" stroke-width="1"/>
+<text x="334.0" y="874" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="middle">25</text>
+<line x1="396.0" y1="118" x2="396.0" y2="846" stroke="#2e2e2e" stroke-width="1"/>
+<text x="396.0" y="874" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="middle">50</text>
+<line x1="458.0" y1="118" x2="458.0" y2="846" stroke="#2e2e2e" stroke-width="1"/>
+<text x="458.0" y="874" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="middle">75</text>
+<line x1="520.0" y1="118" x2="520.0" y2="846" stroke="#2e2e2e" stroke-width="1"/>
+<text x="520.0" y="874" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="middle">100</text>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="120" width="604" height="72" rx="8"/>
+<text x="0" y="154" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">AlpaSim Physical AI</text>
+<text x="0" y="179" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">Public validation</text>
+<line x1="410.88" y1="158" x2="466.432" y2="158" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="410.88" cy="158" r="10.5" fill="#181818"/><circle cx="410.88" cy="158" r="8.5" fill="#8a8a8a"/>
+<circle cx="466.432" cy="158" r="9" fill="#181818"/><circle cx="466.432" cy="158" r="7" fill="#ffbe27"/>
+<text x="394.88" y="165" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="end">56.0</text>
+<text x="482.432" y="165" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">78.4</text>
+<text x="410.88" y="189" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">Alpamayo 1</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="192" width="604" height="72" rx="8"/>
+<text x="0" y="226" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">AlpaSim Physical AI</text>
+<text x="0" y="251" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">Hidden test</text>
+<line x1="410.88" y1="230" x2="428.736" y2="230" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="410.88" cy="230" r="10.5" fill="#181818"/><circle cx="410.88" cy="230" r="8.5" fill="#8a8a8a"/>
+<circle cx="428.736" cy="230" r="9" fill="#181818"/><circle cx="428.736" cy="230" r="7" fill="#ffbe27"/>
+<text x="394.88" y="237" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="end">56.0</text>
+<text x="444.736" y="237" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">63.2</text>
+<text x="410.88" y="261" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">Alpamayo 1</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="264" width="604" height="72" rx="8"/>
+<text x="0" y="298" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">AlpaSim nuPlan</text>
+<text x="0" y="323" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">Public validation</text>
+<line x1="491.48" y1="302" x2="495.94399999999996" y2="302" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="491.48" cy="302" r="10.5" fill="#181818"/><circle cx="491.48" cy="302" r="8.5" fill="#8a8a8a"/>
+<circle cx="495.94399999999996" cy="302" r="9" fill="#181818"/><circle cx="495.94399999999996" cy="302" r="7" fill="#ffbe27"/>
+<text x="475.48" y="309" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="end">88.5</text>
+<text x="511.94399999999996" y="309" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">90.3</text>
+<text x="491.48" y="333" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">SimScale GTRS-Dense</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="336" width="604" height="72" rx="8"/>
+<text x="0" y="370" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">AlpaSim nuPlan</text>
+<text x="0" y="395" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">Hidden test</text>
+<line x1="464.94399999999996" y1="374" x2="500.65600000000006" y2="374" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="464.94399999999996" cy="374" r="10.5" fill="#181818"/><circle cx="464.94399999999996" cy="374" r="8.5" fill="#8a8a8a"/>
+<circle cx="500.65600000000006" cy="374" r="9" fill="#181818"/><circle cx="500.65600000000006" cy="374" r="7" fill="#ffbe27"/>
+<text x="448.94399999999996" y="381" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="end">77.8</text>
+<text x="516.6560000000001" y="381" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">92.2</text>
+<text x="464.94399999999996" y="405" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">SimScale DiffusionDrive</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="408" width="604" height="72" rx="8"/>
+<text x="0" y="442" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">Odyssey</text>
+<text x="0" y="467" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">Non-reactive traffic</text>
+<line x1="382.11199999999997" y1="446" x2="379.384" y2="446" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="382.11199999999997" cy="446" r="10.5" fill="#181818"/><circle cx="382.11199999999997" cy="446" r="8.5" fill="#8a8a8a"/>
+<circle cx="379.384" cy="446" r="9" fill="#181818"/><circle cx="379.384" cy="446" r="7" fill="#ffbe27"/>
+<text x="363.384" y="453" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="end">43.3</text>
+<text x="398.11199999999997" y="453" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">44.4</text>
+<text x="382.11199999999997" y="477" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">SafeDrive</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="480" width="604" height="72" rx="8"/>
+<text x="0" y="514" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">Odyssey</text>
+<text x="0" y="539" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">Reactive traffic</text>
+<line x1="393.272" y1="518" x2="379.384" y2="518" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="393.272" cy="518" r="10.5" fill="#181818"/><circle cx="393.272" cy="518" r="8.5" fill="#8a8a8a"/>
+<circle cx="379.384" cy="518" r="9" fill="#181818"/><circle cx="379.384" cy="518" r="7" fill="#ffbe27"/>
+<text x="363.384" y="525" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="end">43.3</text>
+<text x="409.272" y="525" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">48.9</text>
+<text x="393.272" y="549" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">SafeDrive</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="552" width="604" height="72" rx="8"/>
+<text x="0" y="597" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">HUGSIM</text>
+<line x1="366.488" y1="590" x2="367.48" y2="590" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="366.488" cy="590" r="10.5" fill="#181818"/><circle cx="366.488" cy="590" r="8.5" fill="#8a8a8a"/>
+<circle cx="367.48" cy="590" r="9" fill="#181818"/><circle cx="367.48" cy="590" r="7" fill="#ffbe27"/>
+<text x="350.488" y="597" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="end">38.1</text>
+<text x="383.48" y="597" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">38.5</text>
+<text x="366.488" y="621" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">DrivoR-Scale</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="624" width="604" height="72" rx="8"/>
+<text x="0" y="669" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">NavSafe-∞</text>
+<line x1="454.28" y1="662" x2="450.808" y2="662" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="454.28" cy="662" r="10.5" fill="#181818"/><circle cx="454.28" cy="662" r="8.5" fill="#8a8a8a"/>
+<circle cx="450.808" cy="662" r="9" fill="#181818"/><circle cx="450.808" cy="662" r="7" fill="#ffbe27"/>
+<text x="434.808" y="669" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="end">72.1</text>
+<text x="470.28" y="669" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">73.5</text>
+<text x="454.28" y="693" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">SimScale GTRS-Dense</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="696" width="604" height="72" rx="8"/>
+<text x="0" y="741" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">NAVSIM v1</text>
+<line x1="497.68" y1="734" x2="489.992" y2="734" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="497.68" cy="734" r="10.5" fill="#181818"/><circle cx="497.68" cy="734" r="8.5" fill="#8a8a8a"/>
+<circle cx="489.992" cy="734" r="9" fill="#181818"/><circle cx="489.992" cy="734" r="7" fill="#ffbe27"/>
+<text x="473.992" y="741" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="end">87.9</text>
+<text x="513.6800000000001" y="741" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">91.0</text>
+<text x="497.68" y="765" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">ReDrive</text>
+</g>
+<g class="ov-row">
+<rect class="ov-band" x="-12" y="768" width="604" height="72" rx="8"/>
+<text x="0" y="813" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">NAVSIM v2</text>
+<line x1="365.248" y1="806" x2="358.552" y2="806" stroke="#4a4a4a" stroke-width="2"/>
+<circle cx="365.248" cy="806" r="10.5" fill="#181818"/><circle cx="365.248" cy="806" r="8.5" fill="#8a8a8a"/>
+<circle cx="358.552" cy="806" r="9" fill="#181818"/><circle cx="358.552" cy="806" r="7" fill="#ffbe27"/>
+<text x="342.552" y="813" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="end">34.9</text>
+<text x="381.248" y="813" font-size="20" font-weight="400" fill="#aaaaaa" text-anchor="start">37.6</text>
+<text x="365.248" y="837" font-size="19" font-weight="500" fill="#aaaaaa" text-anchor="middle" class="ov-name">SimWAM</text>
+</g>
+</g>
+</svg>
+          <figcaption><strong>Figure 1.</strong> A single open model, trained on public data in under a day, performs on par with the best published policies trained under the same conditions (only imitation of human driving, without closed-loop fine-tuning or benchmark-specific tuning) across seven benchmarks. Left: our recipe release in py123d_garage v0.2 compared with NVIDIA’s Alpamayo 1. Right: our policy, with the same weights on every benchmark, against the best such policy per benchmark, each on its own metric, 0 to 100, higher is better. Details in <a href="#tab-benchmarks">Table 1</a>.</figcaption>
+        </figure>
+
+      </div>
+
+      <section class="blog-body" aria-labelledby="recipe-title">
+        <h2 id="recipe-title">A training recipe against shortcut learning</h2>
+
+        <p>Central to our experiments is TransFuser-K1, a camera-only Latent TransFuser<sup><a href="#ref-transfuser" id="cite-transfuser">[13]</a></sup> with a diffusion transformer as motion planner (<a href="#fig-architecture">Figure 2</a>). As input, the policy receives the front camera of the current timestep and one second earlier, the ego speed and, optionally, target points 40 m, 60 m and 80 m ahead on the intended route. We train on about 1,800 hours of public driving data (<a href="#tab-data">Table 14</a>): the Physical AI AV dataset<sup><a href="#ref-physical-ai-av" id="cite-physical-ai-av">[14]</a></sup> (about 1,650 hours), the camera subset of nuPlan<sup><a href="#ref-nuplan" id="cite-nuplan">[15]</a></sup> (about 124 hours) and the NuRec training scenes of AlpaSim (about 7 hours).</p>
+        <figure class="garage-figure" id="fig-architecture">
+          <img src="transfuser_architecture.svg" alt="Latent TransFuser architecture: a camera branch and a BEV branch of learned queries fused by transformers at four resolutions, an output of 64 BEV tokens, and the decoders for perception and motion planning" loading="lazy">
+          <figcaption><strong>Figure 2.</strong> TransFuser-K1. The current and the past front-camera frame are stacked into one image. The model also supports LiDAR input, but we do not use it here, because not all seven benchmarks provide LiDAR and one policy should run on all of them. The BEV (bird's-eye view) branch starts from learned queries, and the encoder outputs 64 BEV tokens. The motion planner reads them, the ego speed and the optional target points.</figcaption>
+        </figure>
+        <p>Training a driving policy end-to-end is notoriously difficult, and much of the difficulty comes from shortcut learning<sup><a href="#ref-shortcut" id="cite-shortcut">[16]</a></sup>. A policy takes the easiest path to minimizing its training loss, and unless this is done carefully, the policy can lean on cues that are unreliable at test time. In driving, two cues make shortcut learning highly likely. The first is the <strong>target points</strong>: following them is easier than interpreting the sensory inputs, so the policy steers toward them even when a point lies off the road, a phenomenon studied thoroughly in <a href="/blog/2026-06-26-lead/">our prior work</a><sup><a href="#ref-transfuserpp">[11]</a><a href="#ref-lead">[12]</a></sup>. The second is the <strong>ego speed</strong>: driving data consists mostly of nominal driving, where extrapolating the current speed explains most of the future speed. A policy that learns this keeps its speed instead of reacting to the scene, and brakes too late when the car ahead slows down. This is typically referred to as the inertia or copycat problem, and has been observed consistently since the pioneering research on end-to-end driving policies<sup><a href="#ref-bc-limitations" id="cite-codevilla">[10]</a></sup>.</p>
+        <p>To tackle these two shortcuts, we decompose training into three stages (<a href="#fig-stages">Figure 3</a>). The two inputs that enable these shortcuts, the ego speed and the target points, are added only in later stages, after the network has learned to perform the perception and driving without them. In <strong>pretraining</strong>, the network focuses on learning robust perception features, making the policy interpret its sensory inputs. In <strong>midtraining</strong>, a planning decoder with access to the current vehicle speed is attached to the output of the pretrained encoder, and the policy learns general driving without target points to follow. In the final <strong>posttraining</strong> stage, target points are provided to the planner, so the policy learns to follow an instruction in addition to the driving capability it already has.</p>
+        <figure class="garage-figure" id="fig-stages">
+          <img src="transfuser_stages.svg" alt="The three training stages side by side. Pretrain learns perception from BEV segmentation and boxes, midtrain picks a branch of the fork from the scene alone, posttrain follows target points with the backbone frozen. Trained parts carry a flame, the frozen backbone a snowflake." loading="lazy">
+          <figcaption><strong>Figure 3.</strong> The three training stages, each initialized with the weights of the previous stage.</figcaption>
+        </figure>
+        <p>Four elements are central to our recipe, as evidenced by our experiments (<a href="#fig-gains">Figure 4</a>, details in <a href="#appendix-recipe-title">Appendix B</a>):</p>
+        <ul class="garage-list">
+          <li><strong>Diffusion planning loss.</strong> A regression loss averages its output when several outputs are correct. Without target points in midtraining, this ambiguity arises at intersections and forks, where the human driver could take several different paths, and the averaged path runs between the lanes. A diffusion transformer trained with flow matching<sup><a href="#ref-flow-matching" id="cite-flow-matching">[17]</a></sup> can in principle learn all of them in training and commit to one at test time. This makes the policy mode-seeking instead of mean-seeking.</li>
+          <li><strong>Three training stages.</strong> Training the planner first without target points (midtraining) and only afterward with them (posttraining) works better than providing target points to the planner from the start (same compute budget).</li>
+          <li><strong>Target point dropout.</strong> During posttraining, we drop each target point with a probability of 91 %, so 75 % of the training samples contain no target point and the planner still has to drive from the sensory inputs alone. The target points thereby remain an auxiliary cue that resolves ambiguities such as forks, rather than a signal the policy can directly copy.</li>
+          <li><strong>Temporal input.</strong> A single frame carries no motion information. Hence, the planner can only infer the dynamics of the scene from the ego speed, which reinforces the inertia shortcut. Stacking the front-camera frame from one second earlier exposes the relative motion of surrounding traffic and reduces collisions.</li>
+        </ul>
+        <figure class="garage-figure" id="fig-gains">
+          <svg class="garage-gains" viewBox="0 0 1200 485" width="100%" role="img" aria-label="Gain of each recipe choice on the Physical AI and the nuPlan track of AlpaSim" style="font-family: var(--font-sans), "Space Grotesk", system-ui, sans-serif; display: block">
+<text x="0" y="30" font-size="24" font-weight="600" fill="#edf2f7" text-anchor="start">Contribution of each ingredient</text>
+<rect x="0" y="48" width="16" height="16" rx="3" fill="#ffbe27"/>
+<text x="24" y="62" font-size="17" font-weight="500" fill="#edf2f7" text-anchor="start">AlpaSim Physical AI</text>
+<rect x="240" y="48" width="16" height="16" rx="3" fill="#9a9a9a"/>
+<text x="264" y="62" font-size="17" font-weight="500" fill="#edf2f7" text-anchor="start">AlpaSim nuPlan</text>
+<line x1="50" y1="410.0" x2="1200" y2="410.0" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="415.0" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">−4</text>
+<line x1="50" y1="370.25" x2="1200" y2="370.25" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="375.25" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">−2</text>
+<line x1="50" y1="330.5" x2="1200" y2="330.5" stroke="#6a6a6a" stroke-width="1.5"/>
+<text x="40" y="335.5" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">0</text>
+<line x1="50" y1="290.75" x2="1200" y2="290.75" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="295.75" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">+2</text>
+<line x1="50" y1="251.0" x2="1200" y2="251.0" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="256.0" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">+4</text>
+<line x1="50" y1="211.25" x2="1200" y2="211.25" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="216.25" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">+6</text>
+<line x1="50" y1="171.5" x2="1200" y2="171.5" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="176.5" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">+8</text>
+<line x1="50" y1="131.75" x2="1200" y2="131.75" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="136.75" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">+10</text>
+<line x1="50" y1="92.0" x2="1200" y2="92.0" stroke="#2e2e2e" stroke-width="1"/>
+<text x="40" y="97.0" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">+12</text>
+<text x="193.75" y="442" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">Diffusion planning loss</text>
+<text x="193.75" y="466" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="middle">vs regression loss</text>
+<g><title>AlpaSim Physical AI: +5.4 ± 1.3</title><path d="M135.75 330.5 V227.17499999999998 a4 4 0 0 1 4 -4 H187.75 a4 4 0 0 1 4 4 V330.5 Z" fill="#ffbe27"/></g>
+<path d="M163.75 249.01249999999996 V197.3375 M156.75 197.3375 H170.75 M156.75 249.01249999999996 H170.75" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="163.75" y="189.3375" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">+5.4</text>
+<g><title>AlpaSim nuPlan: −0.7 ± 1.3</title><path d="M195.75 330.5 V340.4125 a4 4 0 0 0 4 4 H247.75 a4 4 0 0 0 4 -4 V330.5 Z" fill="#9a9a9a"/></g>
+<path d="M223.75 370.25 V318.575 M216.75 318.575 H230.75 M216.75 370.25 H230.75" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="223.75" y="391.25" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">−0.7</text>
+<text x="481.25" y="442" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">Three training stages</text>
+<text x="481.25" y="466" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="middle">vs two stages</text>
+<g><title>AlpaSim Physical AI: +3.0 ± 0.9</title><path d="M423.25 330.5 V274.875 a4 4 0 0 1 4 -4 H475.25 a4 4 0 0 1 4 4 V330.5 Z" fill="#ffbe27"/></g>
+<path d="M451.25 288.7625 V252.98749999999998 M444.25 252.98749999999998 H458.25 M444.25 288.7625 H458.25" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="451.25" y="244.98749999999998" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">+3.0</text>
+<g><title>AlpaSim nuPlan: +1.8 ± 0.2</title><path d="M483.25 330.5 V298.725 a4 4 0 0 1 4 -4 H535.25 a4 4 0 0 1 4 4 V330.5 Z" fill="#9a9a9a"/></g>
+<path d="M511.25 298.7 V290.75 M504.25 290.75 H518.25 M504.25 298.7 H518.25" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="511.25" y="282.75" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">+1.8</text>
+<text x="768.75" y="442" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">Target point dropout</text>
+<text x="768.75" y="466" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="middle">vs no dropout</text>
+<g><title>AlpaSim Physical AI: +3.1 ± 2.4</title><path d="M710.75 330.5 V272.88750000000005 a4 4 0 0 1 4 -4 H762.75 a4 4 0 0 1 4 4 V330.5 Z" fill="#ffbe27"/></g>
+<path d="M738.75 316.5875 V221.1875 M731.75 221.1875 H745.75 M731.75 316.5875 H745.75" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="738.75" y="213.1875" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">+3.1</text>
+<g><title>AlpaSim nuPlan: +9.5 ± 0.6</title><path d="M770.75 330.5 V145.6875 a4 4 0 0 1 4 -4 H822.75 a4 4 0 0 1 4 4 V330.5 Z" fill="#9a9a9a"/></g>
+<path d="M798.75 153.6125 V129.7625 M791.75 129.7625 H805.75 M791.75 153.6125 H805.75" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="798.75" y="121.76249999999999" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">+9.5</text>
+<text x="1056.25" y="442" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">Temporal input</text>
+<text x="1056.25" y="466" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="middle">vs static input</text>
+<g><title>AlpaSim Physical AI: +7.3 ± 0.8</title><path d="M998.25 330.5 V189.4125 a4 4 0 0 1 4 -4 H1050.25 a4 4 0 0 1 4 4 V330.5 Z" fill="#ffbe27"/></g>
+<path d="M1026.25 201.3125 V169.51250000000002 M1019.25 169.51250000000002 H1033.25 M1019.25 201.3125 H1033.25" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="1026.25" y="161.51250000000002" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">+7.3</text>
+<g><title>AlpaSim nuPlan: +1.8 ± 1.0</title><path d="M1058.25 330.5 V298.725 a4 4 0 0 1 4 -4 H1110.25 a4 4 0 0 1 4 4 V330.5 Z" fill="#9a9a9a"/></g>
+<path d="M1086.25 314.6 V274.85 M1079.25 274.85 H1093.25 M1079.25 314.6 H1093.25" stroke="#edf2f7" stroke-width="1.5" fill="none"/>
+<text x="1086.25" y="266.85" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="middle">+1.8</text>
+</svg>
+          <figcaption><strong>Figure 4.</strong> Gain of each recipe choice in AlpaSim score points over the alternative, mean of three seeds. Error bars: standard deviation over the three seeds. Details in <a href="#appendix-recipe-title">Appendix B</a>.</figcaption>
+        </figure>
+      </section>
+
+      <section class="blog-body" aria-labelledby="results-title">
+        <h2 id="results-title">Real progress should hold across benchmarks</h2>
+
+        <p>The hidden test sets of the <a href="/blog/2026-09-08-common-task-framework/">AlpaSim challenge</a><sup><a href="#ref-alpasim-challenge" id="cite-alpasim-challenge">[18]</a></sup>, which we co-organize with NVIDIA and OpenDriveLab, are unseen by policies trained only on public data. The challenge offers two tracks, nuPlan and Physical AI, with two different private test datasets. Their scenes are not released to participants, including us as co-organizers, and submissions are scored by the challenge server. A strong baseline on the Physical AI test set is Alpamayo 1<sup><a href="#ref-alpamayo-r1">[3]</a></sup>, NVIDIA’s 10B parameter policy trained on 80,000 hours of internal driving data, far more than is publicly available and recorded by the same fleet as the test scenes. Our 68M parameter policy is trained on 1,800 hours of public driving data.</p>
+        <p>During the development of our policies, we observed that checkpoints that did well on the validation scenes of only one of the two AlpaSim tracks underperformed Alpamayo 1 on the hidden test set of the Physical AI track. Only after combining all four elements of the training recipe (<a href="#fig-gains">Figure 4</a>) did we obtain a policy that does well on the public validation scenes of both nuPlan and Physical AI at the same time, and achieves a higher score than Alpamayo 1 on the hidden Physical AI test set (<a href="#fig-summit">Figure 5</a>).</p>
+        <figure class="garage-figure" id="fig-summit">
+          <svg class="garage-summit" viewBox="0 0 1200 500" width="100%" role="img" aria-label="Hidden test score of three challenge submissions against Alpamayo 1 at 56.0: strong locally on nuPlan only, 46.4; on Physical AI only, 47.7; on both, 60.5, the only one above Alpamayo 1" style="font-family: var(--font-sans), "Space Grotesk", system-ui, sans-serif; display: block">
+<text x="0" y="30" font-size="24" font-weight="600" fill="#edf2f7" text-anchor="start">Validation scores and leaderboard score of three submissions</text>
+<text x="0" y="78" font-size="14" font-weight="600" fill="#ffbe27" text-anchor="start" letter-spacing="1.5">PUBLIC VALIDATION</text>
+<text x="1200" y="78" font-size="15" font-weight="400" fill="#aaaaaa" text-anchor="end">✓ strong   ✗ weak</text>
+<text x="0" y="118" font-size="17" font-weight="500" fill="#edf2f7" text-anchor="start">Physical AI validation</text>
+<text x="0" y="164" font-size="17" font-weight="500" fill="#edf2f7" text-anchor="start">nuPlan validation</text>
+<g><title>Physical AI validation: 63.0</title><rect x="323.5" y="94" width="128" height="36" rx="6" fill="#e5484d" fill-opacity="0.16" stroke="#e5484d" stroke-width="1.5"/></g>
+<text x="387.5" y="118" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">63.0  ✗</text>
+<g><title>nuPlan validation: 88.1</title><rect x="323.5" y="140" width="128" height="36" rx="6" fill="#4cc38a" fill-opacity="0.16" stroke="#4cc38a" stroke-width="1.5"/></g>
+<text x="387.5" y="164" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">88.1  ✓</text>
+<text x="387.5" y="210" font-size="17" font-weight="500" fill="#aaaaaa" text-anchor="middle">Strong on nuPlan val</text>
+<g><title>Physical AI validation: 70.8</title><rect x="648.5" y="94" width="128" height="36" rx="6" fill="#4cc38a" fill-opacity="0.16" stroke="#4cc38a" stroke-width="1.5"/></g>
+<text x="712.5" y="118" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">70.8  ✓</text>
+<g><title>nuPlan validation: 78.0</title><rect x="648.5" y="140" width="128" height="36" rx="6" fill="#e5484d" fill-opacity="0.16" stroke="#e5484d" stroke-width="1.5"/></g>
+<text x="712.5" y="164" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">78.0  ✗</text>
+<text x="712.5" y="210" font-size="17" font-weight="500" fill="#aaaaaa" text-anchor="middle">Strong on PAI val</text>
+<g><title>Physical AI validation: 76.1</title><rect x="973.5" y="94" width="128" height="36" rx="6" fill="#4cc38a" fill-opacity="0.16" stroke="#4cc38a" stroke-width="1.5"/></g>
+<text x="1037.5" y="118" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">76.1  ✓</text>
+<g><title>nuPlan validation: 89.2</title><rect x="973.5" y="140" width="128" height="36" rx="6" fill="#4cc38a" fill-opacity="0.16" stroke="#4cc38a" stroke-width="1.5"/></g>
+<text x="1037.5" y="164" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">89.2  ✓</text>
+<text x="1037.5" y="210" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">Strong on both val sets</text>
+<line x1="0" y1="236" x2="1200" y2="236" stroke="#4a4a4a" stroke-width="1"/>
+<text x="0" y="268" font-size="14" font-weight="600" fill="#ffbe27" text-anchor="start" letter-spacing="1.5">HIDDEN TEST · LEADERBOARD SCORE</text>
+<line x1="225" y1="480.0" x2="1200" y2="480.0" stroke="#4a4a4a" stroke-width="1"/>
+<text x="215" y="485.0" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">0</text>
+<line x1="225" y1="407.6923076923077" x2="1200" y2="407.6923076923077" stroke="#2e2e2e" stroke-width="1"/>
+<text x="215" y="412.6923076923077" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">25</text>
+<line x1="225" y1="335.38461538461536" x2="1200" y2="335.38461538461536" stroke="#2e2e2e" stroke-width="1"/>
+<text x="215" y="340.38461538461536" font-size="16" font-weight="400" fill="#aaaaaa" text-anchor="end">50</text>
+<g><title>Leaderboard (hidden test set): 46.4 (-9.6 vs Alpamayo 1)</title><path d="M332.5 480 V349.7969230769231 a4 4 0 0 1 4 -4 H438.5 a4 4 0 0 1 4 4 V480 Z" fill="#4a4a4a"/></g>
+<text x="387.5" y="335.7969230769231" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">46.4</text>
+<g><title>Leaderboard (hidden test set): 47.7 (-8.3 vs Alpamayo 1)</title><path d="M657.5 480 V346.0369230769231 a4 4 0 0 1 4 -4 H763.5 a4 4 0 0 1 4 4 V480 Z" fill="#4a4a4a"/></g>
+<text x="712.5" y="332.0369230769231" font-size="17" font-weight="600" fill="#edf2f7" text-anchor="middle">47.7</text>
+<g><title>Leaderboard (hidden test set): 60.5 (+4.5 vs Alpamayo 1)</title><path d="M982.5 480 V309.0153846153846 a4 4 0 0 1 4 -4 H1088.5 a4 4 0 0 1 4 4 V480 Z" fill="#ffbe27"/></g>
+<text x="1037.5" y="295.0153846153846" font-size="19" font-weight="600" fill="#edf2f7" text-anchor="middle">60.5</text>
+<line x1="225" y1="318.03076923076924" x2="1200" y2="318.03076923076924" stroke="#edf2f7" stroke-width="1.5" stroke-dasharray="5 4"/>
+<text x="233" y="310.03076923076924" font-size="16" font-weight="600" fill="#edf2f7" text-anchor="start">Alpamayo 1: 56.0</text>
+</svg>
+          <figcaption><strong>Figure 5.</strong> Three submissions to the Physical AI track of the official <a href="https://huggingface.co/spaces/nvidia/AlpasimE2EClosedLoopChallenge2026" target="_blank" rel="noopener">AlpaSim challenge leaderboard</a> (hidden test set), one seed each. Validation scores are computed locally on the public validation scenes, in our development setting of the time. All scores are scene scores, 0 to 100.</figcaption>
+        </figure>
+        <p>The general lesson: a policy that drives well only on one benchmark may just have specialized to that benchmark’s metrics. Most prior work evaluates one architecture on a single or a small set of benchmarks and retrains or tunes it for each. In contrast, we evaluate <a href="https://huggingface.co/kesai-labs/py123d_garage_pretrained_checkpoints/tree/main/v0.2.0/ltf-base-joint32-68M/posttrain" target="_blank" rel="noopener">one checkpoint</a>, unchanged, on seven independent benchmarks: both AlpaSim tracks, <a href="https://github.com/SNU-ADR/Odyssey" target="_blank" rel="noopener">Odyssey</a><sup><a href="#ref-odyssey" id="cite-odyssey">[19]</a></sup>, <a href="https://arxiv.org/abs/2412.01718" target="_blank" rel="noopener">HUGSIM</a><sup><a href="#ref-hugsim" id="cite-hugsim">[20]</a></sup>, <a href="https://github.com/VAIL-UCLA/NavSafe-infty" target="_blank" rel="noopener">NavSafe-∞</a><sup><a href="#ref-navsafe" id="cite-navsafe">[53]</a></sup>, and <a href="https://arxiv.org/abs/2406.15349" target="_blank" rel="noopener">NAVSIM</a><sup><a href="#ref-navsim" id="cite-navsim">[21]</a></sup> v1 and v2<sup><a href="#ref-pseudo-simulation" id="cite-pseudo-simulation">[22]</a></sup> (<a href="#fig-overview">Figure 1</a>, right; per-benchmark results in <a href="#tab-benchmarks">Table 1</a>). Our policy scores higher than the best published policy trained under the same conditions (trained only to imitate human driving, without closed-loop fine-tuning or benchmark-specific tuning) on both AlpaSim tracks, on par on HUGSIM, and lower on Odyssey, NavSafe-∞ and NAVSIM.</p>
+        <p>Gains that hold across all seven benchmarks are more likely to reflect better driving. This is the premise of the <a href="/blog/2026-09-08-common-task-framework/">common task framework</a> behind the AlpaSim challenge, and we will extend our evaluation as further independent benchmarks with held-out test sets become available.</p>
+      </section>
+
+      <section class="blog-body" aria-labelledby="compute-title">
+        <h2 id="compute-title">Learning to drive in a day</h2>
+
+        <p>Our training code allows others to reproduce our numbers and build on them without a large compute budget. The full recipe trains three seeds in 21 hours on one node with eight H100 GPUs. Two techniques, with minimal assumptions about the underlying architecture, make this affordable:</p>
+        <p><strong>Training multiple seeds efficiently.</strong> A 68M parameter model cannot utilize a GPU like the H100 at its full potential. This is in particular a problem since, in our experience, driving policies have always had trouble scaling with batch size under the limited scale and diversity of public driving datasets. Our release tackles this issue by fitting three seeds into one training session (<a href="#fig-seeds">Figure 6</a>). The step of all three seeds is recorded once as a CUDA graph and replayed every step, so the GPU does not idle between operations. Multiple seeds are essential for reliable conclusions: closed-loop scores vary by about 3 points from seed to seed on the Physical AI track, and now and then one seed converges to a lower score than the others, so every number in this post, except the leaderboard submissions, is a mean of three training seeds.</p>
+        <figure class="garage-figure" id="fig-seeds">
+          <img src="training_seed_bubbles.svg" alt="GPU timeline of one training step: with one seed the GPU idles between operations, with three seeds one CUDA graph runs all three and keeps the GPU busy, at the same wall time per step" loading="lazy">
+          <figcaption><strong>Figure 6.</strong> One training step, schematic. The three seeds share the GPU but nothing else: each has its own weights and its own third of every batch, so it trains exactly as it would alone. One recorded CUDA graph replays the step of all three seeds, so the GPU does not idle between operations.</figcaption>
+        </figure>
+        <p><strong>Random access into compressed video.</strong> py123D<sup><a href="#ref-py123d" id="cite-py123d">[23]</a></sup> stores cameras as MP4 streams. At 1,800 hours of driving this is a necessity rather than a convenience: compressed video keeps the logs small enough to store, copy and share. Policy training, however, samples individual frames in random order, and reading one frame from an MP4 requires decoding every frame since the last keyframe. Our release therefore introduces a flexible cache system, built on LMDB<sup><a href="#ref-lmdb" id="cite-lmdb">[24]</a></sup>, that allows random-access training from a lightweight cache (<a href="#fig-cache">Figure 7</a>). A sample holds the policy’s features and labels, each tensor with its own codec, and the policy builds what is not cached from the logs at training time. It scales with the logs: one store per log lets the cache build in parallel, and one file per log instead of millions of small ones avoids hitting the file system’s limit on the number of files.</p>
+        <figure class="garage-figure" id="fig-cache">
+          <svg class="garage-cache" viewBox="0 0 1200 560" width="100%" role="img" aria-label="Three ways to store training data compared: the MP4 logs are compact at full resolution and few files, but have no random access and prepare each sample on every read; image files, one per frame, have random access, but compressed per frame, millions of files, and samples prepared on every read; the training cache has random access, one file per log, and samples prepared once when it is built, but requires downsampling the images" style="font-family: var(--font-sans), "Space Grotesk", system-ui, sans-serif; display: block">
+<rect x="880" y="6" width="310" height="538" rx="10" fill="#ffbe27" fill-opacity="0.07"/>
+<line x1="300" y1="6" x2="300" y2="544" stroke="#4a4a4a" stroke-width="1"/>
+<text x="316" y="46" font-size="21" font-weight="600" fill="#aaaaaa" text-anchor="start">123D logs</text>
+<text x="316" y="72" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">MP4 video</text>
+<text x="606" y="46" font-size="21" font-weight="600" fill="#aaaaaa" text-anchor="start">Image files</text>
+<text x="606" y="72" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">One file per frame</text>
+<text x="896" y="46" font-size="21" font-weight="600" fill="#ffbe27" text-anchor="start">Training cache (ours)</text>
+<text x="896" y="72" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">One LMDB file per log</text>
+<line x1="0" y1="96" x2="1190" y2="96" stroke="#4a4a4a" stroke-width="1"/>
+<text x="0" y="159.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Compact at full resolution</text>
+<circle cx="327" cy="142.0" r="11" fill="#ffbe27"/><path d="M322 142.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="348" y="149.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">Yes</text>
+<text x="348" y="175.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Compressed across frames</text>
+<circle cx="617" cy="142.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M613 138.0 l8 8 M621 138.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="638" y="149.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">No</text>
+<text x="638" y="175.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Compressed per frame</text>
+<circle cx="907" cy="142.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M903 138.0 l8 8 M911 138.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="928" y="149.0" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">No</text>
+<text x="928" y="175.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Downsampling required</text>
+<line x1="0" y1="208" x2="1190" y2="208" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="271.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Random access</text>
+<circle cx="327" cy="254.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M323 250.0 l8 8 M331 250.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="348" y="261.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">No</text>
+<text x="348" y="287.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Decodes from the keyframe</text>
+<circle cx="617" cy="254.0" r="11" fill="#ffbe27"/><path d="M612 254.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="638" y="261.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">Yes</text>
+<text x="638" y="287.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Any frame read directly</text>
+<circle cx="907" cy="254.0" r="11" fill="#ffbe27"/><path d="M902 254.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="928" y="261.0" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">Yes</text>
+<text x="928" y="287.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Any sample read directly</text>
+<line x1="0" y1="320" x2="1190" y2="320" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="383.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Few files</text>
+<circle cx="327" cy="366.0" r="11" fill="#ffbe27"/><path d="M322 366.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="348" y="373.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">Yes</text>
+<text x="348" y="399.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">One per camera and log</text>
+<circle cx="617" cy="366.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M613 362.0 l8 8 M621 362.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="638" y="373.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">No</text>
+<text x="638" y="399.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Millions of files</text>
+<circle cx="907" cy="366.0" r="11" fill="#ffbe27"/><path d="M902 366.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="928" y="373.0" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">Yes</text>
+<text x="928" y="399.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">One file per log</text>
+<line x1="0" y1="432" x2="1190" y2="432" stroke="#2e2e2e" stroke-width="1"/>
+<text x="0" y="495.0" font-size="21" font-weight="500" fill="#aaaaaa" text-anchor="start">Ready for training</text>
+<circle cx="327" cy="478.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M323 474.0 l8 8 M331 474.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="348" y="485.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">No</text>
+<text x="348" y="511.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Prepared on every read</text>
+<circle cx="617" cy="478.0" r="10.25" fill="none" stroke="#8a8a8a" stroke-width="1.5"/><path d="M613 474.0 l8 8 M621 474.0 l-8 8" stroke="#8a8a8a" stroke-width="2" stroke-linecap="round"/>
+<text x="638" y="485.0" font-size="21" font-weight="400" fill="#edf2f7" text-anchor="start">No</text>
+<text x="638" y="511.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Prepared on every read</text>
+<circle cx="907" cy="478.0" r="11" fill="#ffbe27"/><path d="M902 478.0 l3.5 3.5 l6.5 -7" fill="none" stroke="#111" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+<text x="928" y="485.0" font-size="21" font-weight="600" fill="#edf2f7" text-anchor="start">Yes</text>
+<text x="928" y="511.0" font-size="17" font-weight="400" fill="#aaaaaa" text-anchor="start">Prepared once, when built</text>
+</svg>
+          <figcaption><strong>Figure 7.</strong> Three ways to store training data. The cache is built once from the logs, shared by all three training stages, and copied to the local disk of the node on its first read.</figcaption>
+        </figure>
+      </section>
+
+      <section class="blog-body" aria-labelledby="next-title">
+        <h2 id="next-title">Conclusion</h2>
+
+        <p>Our results lead to two conclusions:</p>
+        <ul class="garage-list">
+          <li><strong>The training recipe matters more than the encoder.</strong> We kept the TransFuser encoder and replaced only the planner with a diffusion transformer. Adding the ego speed and the target points only in later training stages was sufficient to avoid both shortcuts, as in our earlier work in CARLA<sup><a href="#ref-transfuserpp">[11]</a><a href="#ref-lead">[12]</a></sup>.</li>
+          <li><strong>Generalization requires several benchmarks.</strong> Validation scores on a single AlpaSim track did not predict the hidden test score (<a href="#fig-summit">Figure 5</a>). Evaluating one checkpoint on seven benchmarks, with three seeds per result, is therefore a more reliable measure of progress, in particular once policies are trained in closed loop<sup><a href="#ref-beyond-bc" id="cite-beyond-bc">[25]</a></sup>.</li>
+        </ul>
+        <p>We see the release as a starting point for research questions that need many affordable training runs:</p>
+        <ul class="garage-list">
+          <li><strong>On-policy training.</strong> AlpaSim enables training a policy on the consequences of its own actions, beyond imitating recorded drives, a direction that recent work on closed-loop fine-tuning explores<sup><a href="#ref-world-engine" id="cite-world-engine">[26]</a></sup>.</li>
+          <li><strong>Beyond TransFuser.</strong> TransFuser was designed in 2021 for about 30 hours of driving data. Its architectural assumptions may limit how much it benefits from 1,800 hours. We are working on architectures that remove these assumptions while staying efficient and performant.</li>
+        </ul>
+        <p>Next, we are excited to take the policy out of the simulator and onto the road with our <a href="/blog/2026-07-17-vehicle-premiere/">research vehicle</a>.</p>
+      </section>
+
+      <div class="blog-body"><p class="section-eyebrow" style="margin-top: 2rem">Citation</p></div>
+      <div class="pub-bibtex-wrap" style="margin-top: 0.5rem">
+        <div class="pub-bibtex-modal-box" style="width: 100%">
+          <button class="pub-copy-btn" data-action="copy-bibtex">Copy</button>
+          <pre class="pub-bibtex-code">@article{<a href="https://arxiv.org/abs/2605.08084" target="_blank" rel="noopener">Dauner2026ARXIV</a>,
+  title={123D: Unifying Multi-Modal Autonomous Driving Data at Scale},
+  author={Dauner, Daniel and Charraut, Valentin and Berle, Bastian and Li, Tianyu and Nguyen, Long and Wang, Jiabao and Jing, Changhui and Igl, Maximilian and Caesar, Holger and Ivanovic, Boris and Geiger, Andreas and Chitta, Kashyap},
+  journal={arXiv preprint arXiv:2605.08084},
+  year={2026}
+}
+
+@inproceedings{<a href="https://openaccess.thecvf.com/content/CVPR2026/papers/Nguyen_LEAD_Minimizing_Learner-Expert_Asymmetry_in_End-to-End_Driving_CVPR_2026_paper.pdf" target="_blank" rel="noopener">Nguyen2026CVPR</a>,
+  title={LEAD: Minimizing Learner-Expert Asymmetry in End-to-End Driving},
+  author={Long Nguyen and Micha Fauth and Bernhard Jaeger and Daniel Dauner and Maximilian Igl and Andreas Geiger and Kashyap Chitta},
+  booktitle={Conference on Computer Vision and Pattern Recognition (CVPR)},
+  year={2026}
+}</pre>
+        </div>
+      </div>
+
+      <div class="blog-body"><p class="section-eyebrow" style="margin-top: 2rem">References</p></div>
+      <ol class="blog-references">
+        <li id="ref-mistral-large-4">Mistral AI. &ldquo;<a href="https://huggingface.co/mistralai/Mistral-Large-4-1T-A52B" target="_blank" rel="noopener">Mistral Large 4</a>.&rdquo; Model card, Hugging Face, 2026.</li>
+        <li id="ref-pi05">Physical Intelligence et al. &ldquo;<a href="https://arxiv.org/pdf/2504.16054" target="_blank" rel="noopener">π<sub>0.5</sub>: a Vision-Language-Action Model with Open-World Generalization</a>.&rdquo; <a href="https://arxiv.org/abs/2504.16054" target="_blank" rel="noopener">arXiv:2504.16054</a>, 2025.</li>
+        <li id="ref-alpamayo-r1">Y. Wang et al. &ldquo;<a href="https://arxiv.org/pdf/2511.00088" target="_blank" rel="noopener">Alpamayo-R1: Bridging Reasoning and Action Prediction for Generalizable Autonomous Driving in the Long Tail</a>.&rdquo; <a href="https://arxiv.org/abs/2511.00088" target="_blank" rel="noopener">arXiv:2511.00088</a>, 2025.</li>
+        <li id="ref-olmo">D. Groeneveld et al. &ldquo;<a href="https://arxiv.org/pdf/2402.00838" target="_blank" rel="noopener">OLMo: Accelerating the Science of Language Models</a>.&rdquo; <a href="https://arxiv.org/abs/2402.00838" target="_blank" rel="noopener">arXiv:2402.00838</a>, 2024.</li>
+        <li id="ref-reki">J. Marrie, P. Pacaud, A. Ramanana Rahary, S. Chen, M. Böhle. &ldquo;<a href="https://arxiv.org/pdf/2610.22178" target="_blank" rel="noopener">REKI: Registering Knowledge in VLAs</a>.&rdquo; <a href="https://arxiv.org/abs/2610.22178" target="_blank" rel="noopener">arXiv:2610.22178</a>, 2026.</li>
+        <li id="ref-vavim-vavam">F. Bartoccioni et al. &ldquo;<a href="https://arxiv.org/pdf/2502.15672" target="_blank" rel="noopener">VaViM and VaVAM: Autonomous Driving through Video Generative Modeling</a>.&rdquo; <a href="https://arxiv.org/abs/2502.15672" target="_blank" rel="noopener">arXiv:2502.15672</a>, 2025.</li>
+        <li id="ref-diffusiondrive">B. Liao et al. &ldquo;<a href="https://arxiv.org/abs/2411.15139" target="_blank" rel="noopener">DiffusionDrive: Truncated Diffusion Model for End-to-End Autonomous Driving</a>.&rdquo; CVPR, 2025.</li>
+        <li id="ref-drivor">E. Kirby et al. &ldquo;<a href="https://arxiv.org/abs/2601.05083" target="_blank" rel="noopener">Driving on Registers</a>.&rdquo; <a href="https://arxiv.org/abs/2601.05083" target="_blank" rel="noopener">arXiv:2601.05083</a>, 2026.</li>
+        <li id="ref-copycat">C. Wen, J. Lin, T. Darrell, D. Jayaraman, Y. Gao. &ldquo;<a href="https://arxiv.org/abs/2010.14876" target="_blank" rel="noopener">Fighting Copycat Agents in Behavioral Cloning from Observation Histories</a>.&rdquo; NeurIPS, 2020.</li>
+        <li id="ref-bc-limitations">F. Codevilla, E. Santana, A. M. López, A. Gaidon. &ldquo;<a href="https://arxiv.org/abs/1904.08980" target="_blank" rel="noopener">Exploring the Limitations of Behavior Cloning for Autonomous Driving</a>.&rdquo; ICCV, 2019.</li>
+        <li id="ref-transfuserpp">B. Jaeger, K. Chitta, A. Geiger. &ldquo;<a href="https://arxiv.org/abs/2306.07957" target="_blank" rel="noopener">Hidden Biases of End-to-End Driving Models</a>.&rdquo; ICCV, 2023.</li>
+        <li id="ref-lead">L. Nguyen, M. Fauth, B. Jaeger, D. Dauner, M. Igl, A. Geiger, K. Chitta. &ldquo;<a href="https://arxiv.org/abs/2512.20563" target="_blank" rel="noopener">LEAD: Minimizing Learner-Expert Asymmetry in End-to-End Driving</a>.&rdquo; CVPR, 2026.</li>
+        <li id="ref-transfuser">K. Chitta, A. Prakash, B. Jaeger, Z. Yu, K. Renz, A. Geiger. &ldquo;<a href="https://arxiv.org/abs/2205.15997" target="_blank" rel="noopener">TransFuser: Imitation with Transformer-Based Sensor Fusion for Autonomous Driving</a>.&rdquo; IEEE TPAMI, 2023.</li>
+        <li id="ref-physical-ai-av">NVIDIA. &ldquo;<a href="https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles" target="_blank" rel="noopener">Physical AI Autonomous Vehicles Dataset</a>.&rdquo; Hugging Face.</li>
+        <li id="ref-nuplan">N. Karnchanachari et al. &ldquo;<a href="https://arxiv.org/abs/2403.04133" target="_blank" rel="noopener">Towards Learning-Based Planning: The nuPlan Benchmark for Real-World Autonomous Driving</a>.&rdquo; ICRA, 2024.</li>
+        <li id="ref-shortcut">R. Geirhos et al. &ldquo;<a href="https://arxiv.org/abs/2004.07780" target="_blank" rel="noopener">Shortcut Learning in Deep Neural Networks</a>.&rdquo; Nature Machine Intelligence, 2020.</li>
+        <li id="ref-flow-matching">Y. Lipman, R. T. Q. Chen, H. Ben-Hamu, M. Nickel, M. Le. &ldquo;<a href="https://arxiv.org/abs/2210.02747" target="_blank" rel="noopener">Flow Matching for Generative Modeling</a>.&rdquo; ICLR, 2023.</li>
+        <li id="ref-alpasim-challenge">NVIDIA. &ldquo;<a href="https://huggingface.co/spaces/nvidia/AlpasimE2EClosedLoopChallenge2026" target="_blank" rel="noopener">AlpaSim End-to-End Closed-Loop Challenge</a>.&rdquo; Hugging Face, 2026.</li>
+        <li id="ref-odyssey">J. Kim et al. &ldquo;<a href="https://arxiv.org/abs/2610.06469" target="_blank" rel="noopener">Odyssey: A Closed-Loop Benchmark for Long-Horizon Real-World Driving with Explicit Navigation Routes</a>.&rdquo; <a href="https://arxiv.org/abs/2610.06469" target="_blank" rel="noopener">arXiv:2610.06469</a>, 2026.</li>
+        <li id="ref-hugsim">H. Zhou, L. Lin, J. Wang, Y. Lu, D. Bai, B. Liu, Y. Wang, A. Geiger, Y. Liao. &ldquo;<a href="https://arxiv.org/abs/2412.01718" target="_blank" rel="noopener">HUGSIM: A Real-Time, Photo-Realistic and Closed-Loop Simulator for Autonomous Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2412.01718" target="_blank" rel="noopener">arXiv:2412.01718</a>, 2024.</li>
+        <li id="ref-navsim">D. Dauner et al. &ldquo;<a href="https://arxiv.org/abs/2406.15349" target="_blank" rel="noopener">NAVSIM: Data-Driven Non-Reactive Autonomous Vehicle Simulation and Benchmarking</a>.&rdquo; NeurIPS, 2024.</li>
+        <li id="ref-pseudo-simulation">W. Cao et al. &ldquo;<a href="https://arxiv.org/abs/2506.04218" target="_blank" rel="noopener">Pseudo-Simulation for Autonomous Driving</a>.&rdquo; CoRL, 2025.</li>
+        <li id="ref-py123d">D. Dauner et al. &ldquo;<a href="https://arxiv.org/abs/2605.08084" target="_blank" rel="noopener">123D: Unifying Multi-Modal Autonomous Driving Data at Scale</a>.&rdquo; <a href="https://arxiv.org/abs/2605.08084" target="_blank" rel="noopener">arXiv:2605.08084</a>, 2026.</li>
+        <li id="ref-lmdb">D. Wilson and N. Watson. &ldquo;<a href="https://lmdb.readthedocs.io/en/py-lmdb_3.0.0/" target="_blank" rel="noopener">lmdb documentation</a>.&rdquo; Version 3.0.0, Read the Docs, 2026.</li>
+        <li id="ref-beyond-bc">P. Karkus, M. Igl et al. &ldquo;<a href="https://research.nvidia.com/publication/2025-12_beyond-behavior-cloning-autonomous-driving-survey-closed-loop-training" target="_blank" rel="noopener">Beyond Behavior Cloning in Autonomous Driving: a Survey of Closed-Loop Training Techniques</a>.&rdquo; 2025.</li>
+        <li id="ref-world-engine">T. Li, L. Chen, C. Wang et al. &ldquo;<a href="https://arxiv.org/abs/2606.19836" target="_blank" rel="noopener">World Engine: Towards the Era of Post-Training for Autonomous Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2606.19836" target="_blank" rel="noopener">arXiv:2606.19836</a>, 2026.</li>
+        <li id="ref-simscale">H. Tian et al. &ldquo;<a href="https://arxiv.org/abs/2511.23369" target="_blank" rel="noopener">SimScale: Learning to Drive via Real-World Simulation at Scale</a>.&rdquo; CVPR, 2026.</li>
+        <li id="ref-gtrs">Z. Li et al. &ldquo;<a href="https://arxiv.org/abs/2506.06664" target="_blank" rel="noopener">Generalized Trajectory Scoring for End-to-end Multimodal Planning</a>.&rdquo; <a href="https://arxiv.org/abs/2506.06664" target="_blank" rel="noopener">arXiv:2506.06664</a>, 2025.</li>
+        <li id="ref-safedrive">J. Kim, J. Oh, S. Yu, H. Shin, D. Kwak, J. W. Choi. &ldquo;<a href="https://arxiv.org/abs/2602.18887" target="_blank" rel="noopener">SafeDrive: Fine-Grained Safety Reasoning for End-to-End Driving in a Sparse World</a>.&rdquo; CVPR, 2026.</li>
+        <li id="ref-redrive">Y. Zhu et al. &ldquo;<a href="https://arxiv.org/abs/2609.33854" target="_blank" rel="noopener">ReDrive: Shaping Representations with World Modeling for End-to-End Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2609.33854" target="_blank" rel="noopener">arXiv:2609.33854</a>, 2026.</li>
+        <li id="ref-simwam">Z. Zhao et al. &ldquo;<a href="https://arxiv.org/abs/2608.07468" target="_blank" rel="noopener">SimWAM: A Simple World Action Model for End-to-End Autonomous Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2608.07468" target="_blank" rel="noopener">arXiv:2608.07468</a>, 2026.</li>
+        <li id="ref-recogdrive">Y. Li et al. &ldquo;<a href="https://arxiv.org/abs/2506.08052" target="_blank" rel="noopener">ReCogDrive: A Reinforced Cognitive Framework for End-to-End Autonomous Driving</a>.&rdquo; ICLR, 2026.</li>
+        <li id="ref-vad">B. Jiang et al. &ldquo;<a href="https://arxiv.org/abs/2303.12077" target="_blank" rel="noopener">VAD: Vectorized Scene Representation for Efficient Autonomous Driving</a>.&rdquo; ICCV, 2023.</li>
+        <li id="ref-uniad">Y. Hu et al. &ldquo;<a href="https://arxiv.org/abs/2212.10156" target="_blank" rel="noopener">Planning-oriented Autonomous Driving</a>.&rdquo; CVPR, 2023.</li>
+        <li id="ref-ztrs">Z. Li, N. Chang, W. Yao et al. &ldquo;<a href="https://arxiv.org/abs/2510.24108" target="_blank" rel="noopener">Zero-Human Demonstration End-to-end Autonomous Driving with Trajectory Scorer</a>.&rdquo; <a href="https://arxiv.org/abs/2510.24108" target="_blank" rel="noopener">arXiv:2510.24108</a>, 2025.</li>
+        <li id="ref-gigapixel">L. Rowe et al. &ldquo;<a href="https://arxiv.org/abs/2606.19641" target="_blank" rel="noopener">Scaling Self-Play for End-to-End Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2606.19641" target="_blank" rel="noopener">arXiv:2606.19641</a>, 2026.</li>
+        <li id="ref-drivezero">H. He, C. Hu, Z. Su et al. &ldquo;<a href="https://arxiv.org/abs/2609.06055" target="_blank" rel="noopener">DriveZero: End-to-End Driving Beyond Human Demonstrations</a>.&rdquo; <a href="https://arxiv.org/abs/2609.06055" target="_blank" rel="noopener">arXiv:2609.06055</a>, 2026.</li>
+        <li id="ref-terratransfer">Z. Xiong et al. &ldquo;<a href="https://arxiv.org/abs/2610.30319" target="_blank" rel="noopener">TerraTransfer++: Demonstration-Free End-to-End Planner</a>.&rdquo; <a href="https://arxiv.org/abs/2610.30319" target="_blank" rel="noopener">arXiv:2610.30319</a>, 2026.</li>
+        <li id="ref-paradrive">X. Weng, B. Ivanovic, Y. Wang, Y. Wang, M. Pavone. &ldquo;<a href="https://doi.org/10.1109/CVPR52733.2024.01463" target="_blank" rel="noopener">PARA-Drive: Parallelized Architecture for Real-Time Autonomous Driving</a>.&rdquo; CVPR, 2024.</li>
+        <li id="ref-foredrive">S. Wang et al. &ldquo;<a href="https://arxiv.org/abs/2609.26299" target="_blank" rel="noopener">ForeDrive: Foresight-Guided End-to-End Autonomous Driving with a Planning-Relevant Latent World Model</a>.&rdquo; <a href="https://arxiv.org/abs/2609.26299" target="_blank" rel="noopener">arXiv:2609.26299</a>, 2026.</li>
+        <li id="ref-suv">Y. Yuan et al. &ldquo;<a href="https://arxiv.org/abs/2608.03084" target="_blank" rel="noopener">SUV: Future Scene Understanding as Video Generation for End-to-End Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2608.03084" target="_blank" rel="noopener">arXiv:2608.03084</a>, 2026.</li>
+        <li id="ref-wam4d">J. Fu, Y. Yuan, M. Tian et al. &ldquo;<a href="https://arxiv.org/abs/2608.10107" target="_blank" rel="noopener">4D-WAM: 4D Consistent World Modeling for Autonomous Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2608.10107" target="_blank" rel="noopener">arXiv:2608.10107</a>, 2026.</li>
+        <li id="ref-vira">Z. Zhang et al. &ldquo;<a href="https://arxiv.org/abs/2610.09695" target="_blank" rel="noopener">Do Better Visual Representations Always Lead to Better End-to-End Autonomous Driving?</a>&rdquo; <a href="https://arxiv.org/abs/2610.09695" target="_blank" rel="noopener">arXiv:2610.09695</a>, 2026.</li>
+        <li id="ref-rap">L. Feng et al. &ldquo;<a href="https://arxiv.org/abs/2510.04333" target="_blank" rel="noopener">RAP: 3D Rasterization Augmented End-to-End Planning</a>.&rdquo; ICLR, 2026.</li>
+        <li id="ref-nurec">NVIDIA. &ldquo;<a href="https://huggingface.co/datasets/nvidia/PhysicalAI-Autonomous-Vehicles-NuRec" target="_blank" rel="noopener">Physical AI Autonomous Vehicles NuRec Dataset</a>.&rdquo; Hugging Face.</li>
+        <li id="ref-3dgut">Q. Wu, J. Martinez Esturo, A. Mirzaei, N. Moenne-Loccoz, Z. Gojcic. &ldquo;<a href="https://arxiv.org/abs/2412.12507" target="_blank" rel="noopener">3DGUT: Enabling Distorted Cameras and Secondary Rays in Gaussian Splatting</a>.&rdquo; CVPR, 2025.</li>
+        <li id="ref-dinov3">O. Siméoni et al. &ldquo;<a href="https://arxiv.org/abs/2508.10104" target="_blank" rel="noopener">DINOv3</a>.&rdquo; <a href="https://arxiv.org/abs/2508.10104" target="_blank" rel="noopener">arXiv:2508.10104</a>, 2025.</li>
+        <li id="ref-regnet">I. Radosavovic, R. P. Kosaraju, R. Girshick, K. He, P. Dollár. &ldquo;<a href="https://arxiv.org/abs/2003.13678" target="_blank" rel="noopener">Designing Network Design Spaces</a>.&rdquo; CVPR, 2020.</li>
+        <li id="ref-resnet">K. He, X. Zhang, S. Ren, J. Sun. &ldquo;<a href="https://arxiv.org/abs/1512.03385" target="_blank" rel="noopener">Deep Residual Learning for Image Recognition</a>.&rdquo; CVPR, 2016.</li>
+        <li id="ref-imagenet">J. Deng, W. Dong, R. Socher, L.-J. Li, K. Li, L. Fei-Fei. &ldquo;<a href="https://www.image-net.org/static_files/papers/imagenet_cvpr09.pdf" target="_blank" rel="noopener">ImageNet: A Large-Scale Hierarchical Image Database</a>.&rdquo; CVPR, 2009.</li>
+        <li id="ref-convnext">Z. Liu, H. Mao, C.-Y. Wu, C. Feichtenhofer, T. Darrell, S. Xie. &ldquo;<a href="https://arxiv.org/abs/2201.03545" target="_blank" rel="noopener">A ConvNet for the 2020s</a>.&rdquo; CVPR, 2022.</li>
+        <li id="ref-timm">R. Wightman. &ldquo;<a href="https://github.com/huggingface/pytorch-image-models" target="_blank" rel="noopener">PyTorch Image Models</a>.&rdquo; GitHub, 2019.</li>
+        <li id="ref-navsafe">Y. Bao et al. &ldquo;<a href="https://arxiv.org/abs/2609.26618" target="_blank" rel="noopener">NavSafe-∞: Benchmarking Closed-Loop Driving Safety in Photorealistic Environments</a>.&rdquo; <a href="https://arxiv.org/abs/2609.26618" target="_blank" rel="noopener">arXiv:2609.26618</a>, 2026.</li>
+        <li id="ref-sparsedrivev2">W. Sun et al. &ldquo;<a href="https://arxiv.org/abs/2603.29163" target="_blank" rel="noopener">SparseDriveV2: Scoring is All You Need for End-to-End Autonomous Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2603.29163" target="_blank" rel="noopener">arXiv:2603.29163</a>, 2026.</li>
+        <li id="ref-autovla">Z. Zhou et al. &ldquo;<a href="https://arxiv.org/abs/2506.13757" target="_blank" rel="noopener">AutoVLA: A Vision-Language-Action Model for End-to-End Autonomous Driving with Adaptive Reasoning and Reinforcement Fine-Tuning</a>.&rdquo; NeurIPS, 2025.</li>
+        <li id="ref-mtdrive">X. Li et al. &ldquo;<a href="https://arxiv.org/abs/2601.22930" target="_blank" rel="noopener">MTDrive: Multi-turn Interactive Reinforcement Learning for Autonomous Driving</a>.&rdquo; <a href="https://arxiv.org/abs/2601.22930" target="_blank" rel="noopener">arXiv:2601.22930</a>, 2026.</li>
+      </ol>
+      <div class="blog-body"><p style="font-size: 0.85rem; opacity: 0.7">Thumbnail photo: <a href="https://commons.wikimedia.org/wiki/File:Glenwood_Canyon_I-70.JPG" target="_blank" rel="noopener">Glenwood Canyon I-70</a> by Patrick Pelster, <a href="https://creativecommons.org/licenses/by-sa/3.0/de/deed.en" target="_blank" rel="noopener">CC BY-SA 3.0 DE</a>, via Wikimedia Commons; cropped, darkened and overlaid with text.</p></div>
+
+      <section class="blog-body" aria-labelledby="appendix">
+        <details class="blog-appendix">
+          <summary><h2 id="appendix">Appendix</h2></summary>
+        <h3 id="appendix-title">Appendix A: Benchmark results</h3>
+
+        <p>This appendix lists the results summarized in <a href="#fig-overview">Figure 1</a>. <a href="#tab-benchmarks">Table 1</a> compares our policy on each benchmark with the best published policy trained under the same conditions. Tables 2 to 10 list all baselines for each benchmark.</p>
+        <figure class="garage-figure" id="tab-benchmarks">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th rowspan="2">Benchmark</th><th rowspan="2">Setting</th><th rowspan="2">Feedback</th><th rowspan="2">Metric</th><th rowspan="2" class="num is-ours-col">Ours</th><th colspan="2" class="group">Best baseline, same conditions</th><th rowspan="2" class="num">Gap</th></tr>
+                <tr><th>Policy</th><th class="num">Score</th></tr>
+              </thead>
+              <tbody>
+                <tr><td rowspan="2">AlpaSim Physical AI<sup><a href="#ref-alpasim-challenge">[18]</a><a href="#ref-physical-ai-av">[14]</a></sup></td><td>public validation</td><td>closed loop</td><td>AlpaSim score</td><td class="num is-ours-col">78.4 ± 0.7</td><td>Alpamayo 1<sup><a href="#ref-alpamayo-r1">[3]</a></sup></td><td class="num">56.0</td><td class="num gap-pos">+22.4</td></tr>
+                <tr><td>hidden test</td><td>closed loop</td><td>AlpaSim score</td><td class="num is-ours-col">63.2</td><td>Alpamayo 1<sup><a href="#ref-alpamayo-r1">[3]</a></sup></td><td class="num">56.0</td><td class="num gap-pos">+7.2</td></tr>
+                <tr><td rowspan="2">AlpaSim nuPlan<sup><a href="#ref-alpasim-challenge">[18]</a><a href="#ref-nuplan">[15]</a></sup></td><td>public validation</td><td>closed loop</td><td>AlpaSim score</td><td class="num is-ours-col">90.3 ± 0.5</td><td>SimScale GTRS-Dense<sup><a href="#ref-simscale" id="cite-simscale">[27]</a><a href="#ref-gtrs" id="cite-gtrs">[28]</a></sup></td><td class="num">88.5</td><td class="num gap-pos">+1.8</td></tr>
+                <tr><td>hidden test</td><td>closed loop</td><td>AlpaSim score</td><td class="num is-ours-col">92.2</td><td>SimScale DiffusionDrive<sup><a href="#ref-simscale">[27]</a><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="num">77.8</td><td class="num gap-pos">+14.4</td></tr>
+                <tr><td rowspan="2">Odyssey<sup><a href="#ref-odyssey">[19]</a></sup></td><td>non-reactive traffic</td><td>closed loop</td><td>RouteDS</td><td class="num is-ours-col">43.3 ± 3.5</td><td>SafeDrive<sup><a href="#ref-safedrive" id="cite-safedrive">[29]</a></sup></td><td class="num">44.4</td><td class="num gap-neg">−1.1</td></tr>
+                <tr><td>reactive traffic</td><td>closed loop</td><td>RouteDS</td><td class="num is-ours-col">43.3 ± 3.6</td><td>SafeDrive<sup><a href="#ref-safedrive">[29]</a></sup></td><td class="num">48.9</td><td class="num gap-neg">−5.6</td></tr>
+                <tr><td>HUGSIM<sup><a href="#ref-hugsim">[20]</a></sup></td><td>pre-challenge</td><td>closed loop</td><td>HD-Score</td><td class="num is-ours-col">38.5 ± 1.3</td><td>DrivoR-Scale<sup><a href="#ref-drivor">[8]</a></sup></td><td class="num">38.1</td><td class="num gap-pos">+0.4</td></tr>
+                <tr><td>NavSafe-∞<sup><a href="#ref-navsafe">[53]</a></sup></td><td>280 safety scenarios</td><td>closed loop</td><td>Driving score</td><td class="num is-ours-col">72.1 ± 1.1</td><td>SimScale GTRS-Dense<sup><a href="#ref-simscale">[27]</a><a href="#ref-gtrs">[28]</a></sup></td><td class="num">73.5</td><td class="num gap-neg">−1.4</td></tr>
+                <tr><td>NAVSIM v1<sup><a href="#ref-navsim">[21]</a></sup></td><td>navtest</td><td>open loop</td><td>PDMS</td><td class="num is-ours-col">87.9 ± 0.1</td><td>ReDrive<sup><a href="#ref-redrive" id="cite-redrive">[30]</a></sup></td><td class="num">91.0</td><td class="num gap-neg">−3.1</td></tr>
+                <tr><td>NAVSIM v2<sup><a href="#ref-pseudo-simulation">[22]</a></sup></td><td>navhard</td><td>open loop</td><td>EPDMS</td><td class="num is-ours-col">34.9 ± 0.4</td><td>SimWAM<sup><a href="#ref-simwam" id="cite-simwam">[31]</a></sup></td><td class="num">37.6</td><td class="num gap-neg">−2.7</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 1.</strong> Results of TransFuser-K1 on all benchmarks, with the released checkpoint <a href="https://huggingface.co/kesai-labs/py123d_garage_pretrained_checkpoints/tree/main/v0.2.0/ltf-base-joint32-68M/posttrain" target="_blank" rel="noopener">ltf-base-joint32-68M</a> v0.2.0. Mean ± standard deviation over three seeds; the hidden test rows show the single seed submitted to the <a href="https://huggingface.co/spaces/nvidia/AlpasimE2EClosedLoopChallenge2026" target="_blank" rel="noopener">challenge leaderboard</a>. AlpaSim scores are scaled to 0 to 100. Gap: our score minus the baseline score. On NavSafe-∞, the baseline is the best entry of the leaderboard, and no baseline is excluded. On AlpaSim, our policy receives target points. Alpamayo 1 accepts navigation only as text, which the public version of AlpaSim does not support, so it is evaluated without navigation input.</figcaption>
+        </figure>
+
+        <p>We compare our policy only with baselines that are trained under the same conditions. Each benchmark is only a proxy for driving in the real world. If a baseline is trained on quantities that the benchmark measures, a higher score is less informative about how well the baseline would drive on real roads. We therefore exclude two types of baselines from <a href="#tab-benchmarks">Table 1</a>:</p>
+        <ul class="garage-list">
+          <li><strong>Metric training.</strong> The baseline is trained to predict the metric of the benchmark, or it uses such predictions to select its plan at test time. This mainly affects NAVSIM, where many baselines learn to predict the PDM score or its sub-scores and select the plan with the highest predicted score. We exclude such a baseline only on the benchmark whose metric it is trained on. DrivoR and DrivoR-Scale, for example, are trained on the PDM score of NAVSIM, so we exclude them on NAVSIM but not on HUGSIM.</li>
+          <li><strong>Distillation from reinforcement learning.</strong> The baseline imitates a teacher that is trained with reinforcement learning in closed-loop simulation, with rewards designed for the benchmark. This mainly affects HUGSIM, where GigaPixel, DriveZero, DriveZero-Scale and TerraTransfer++ are trained in this way. We exclude such a baseline only on the benchmark that its teacher is trained for.</li>
+        </ul>
+        <p>Tables 7, 9 and 10 show the excluded baselines as gray rows. A high NAVSIM score obtained with metric training does not necessarily carry over to the closed-loop benchmarks. GTRS-Dense, ZTRS and DrivoR score 45.3, 48.1 and 54.5 EPDMS on navhard (<a href="#tab-navhard">Table 10</a>), 10.4 to 19.6 points higher than our policy and higher than every policy without metric training. On HUGSIM (<a href="#tab-hugsim">Table 7</a>), the same three methods score 28.2, 32.9 and 35.7 HD-Score, 2.8 to 10.3 points lower than our policy. SimScale GTRS-Dense scores 48.0 EPDMS on navhard but 76.2 on the hidden test set of the AlpaSim nuPlan track (<a href="#tab-lb-nuplan">Table 5</a>), 16.0 points lower than our policy.</p>
+
+        <h4 id="appendix-closed-loop">Closed loop</h4>
+        <figure class="garage-figure" id="tab-pai">
+          <div class="garage-table-title">AlpaSim, Physical AI track</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th>Policy</th><th class="mid">Navigation conditioning</th><th class="num">Score ↑</th><th class="num">km per incident ↑</th><th class="num">Off-road ↓</th><th class="num">Collision ↓</th><th class="num">Corridor ↓</th><th class="num">Progress ↑</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>Alpamayo 1<sup><a href="#ref-alpamayo-r1">[3]</a></sup></td><td class="mid">×</td><td class="num">56.0 ± 1.0</td><td class="num">0.96</td><td class="num">10.3 %</td><td class="num">5.4 %</td><td class="num">24.3 %</td><td class="num">75.3</td></tr>
+                <tr><td>Alpamayo 1.5<sup><a href="#ref-alpamayo-r1">[3]</a></sup></td><td class="mid">×</td><td class="num">55.3 ± 0.7</td><td class="num">0.94</td><td class="num">11.3 %</td><td class="num"><b>5.2 %</b></td><td class="num">25.4 %</td><td class="num">76.3</td></tr>
+                <tr class="is-ours"><td rowspan="2">TransFuser-K1 (Ours)</td><td class="mid">×</td><td class="num">64.2 ± 0.4</td><td class="num">1.28</td><td class="num">6.3 %</td><td class="num">7.3 %</td><td class="num">15.2 %</td><td class="num">79.3</td></tr>
+                <tr class="is-ours"><td class="mid">✓</td><td class="num"><b>78.4 ± 0.7</b></td><td class="num"><b>1.44</b></td><td class="num"><b>5.8 %</b></td><td class="num">7.0 %</td><td class="num"><b>3.3 %</b></td><td class="num"><b>84.6</b></td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 2.</strong> AlpaSim Physical AI track, 441 public validation scenes, mean ± standard deviation over three seeds. Alpamayo: native setting with four cameras at 10 Hz and three sampled rollouts, without navigation input (see <a href="#tab-benchmarks">Table 1</a>). Ours: the checkpoint of <a href="#tab-benchmarks">Table 1</a> with the front camera, without (×) and with (✓) target points. km per incident: driven kilometers per at-fault incident. Off-road, Collision, Corridor: share of scenes that end in this failure. Progress: mean progress along the recorded drive. AlpaSim commit <a href="https://github.com/NVlabs/alpasim/commit/e121e59141dc391f6c295513d6dadc840a419149" target="_blank" rel="noopener">e121e59</a>.</figcaption>
+        </figure>
+        <figure class="garage-figure" id="tab-nuplan">
+          <div class="garage-table-title">AlpaSim, nuPlan track</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th>Policy</th><th class="mid">Navigation conditioning</th><th class="num">Score ↑</th><th class="num">km per incident ↑</th><th class="num">Off-road ↓</th><th class="num">Collision ↓</th><th class="num">Corridor ↓</th><th class="num">Progress ↑</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>SimScale DiffusionDrive<sup><a href="#ref-simscale">[27]</a><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">Command</td><td class="num">83.4</td><td class="num">0.25</td><td class="num">7.7 %</td><td class="num">0.7 %</td><td class="num">4.9 %</td><td class="num">81.2</td></tr>
+                <tr><td>SimScale Latent TransFuser<sup><a href="#ref-simscale">[27]</a><a href="#ref-transfuser">[13]</a></sup></td><td class="mid">Command</td><td class="num">86.3</td><td class="num">0.32</td><td class="num">5.7 %</td><td class="num">1.4 %</td><td class="num">3.4 %</td><td class="num">82.6</td></tr>
+                <tr><td>SimScale GTRS-Dense<sup><a href="#ref-simscale">[27]</a><a href="#ref-gtrs">[28]</a></sup></td><td class="mid">Command</td><td class="num">88.5</td><td class="num">0.35</td><td class="num">3.7 %</td><td class="num">0.9 %</td><td class="num">2.5 %</td><td class="num"><b>82.9</b></td></tr>
+                <tr class="is-ours"><td rowspan="2">TransFuser-K1 (Ours)</td><td class="mid">×</td><td class="num">89.6 ± 0.3</td><td class="num">0.63</td><td class="num">3.8 %</td><td class="num"><b>0.4 %</b></td><td class="num">1.0 %</td><td class="num">79.3</td></tr>
+                <tr class="is-ours"><td class="mid">✓</td><td class="num"><b>90.3 ± 0.5</b></td><td class="num"><b>0.72</b></td><td class="num"><b>3.3 %</b></td><td class="num">0.5 %</td><td class="num"><b>0.8 %</b></td><td class="num">79.6</td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 3.</strong> AlpaSim nuPlan track, 1,485 navtest scenes, mean ± standard deviation over three seeds. Checkpoint and columns as in <a href="#tab-pai">Table 2</a>. The SimScale baselines receive the driving command (left, straight or right).</figcaption>
+        </figure>
+        <figure class="garage-figure" id="tab-lb-pai">
+          <div class="garage-table-title">AlpaSim leaderboard, Physical AI track</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th>Policy</th><th class="num">Scene score ↑</th><th class="num">km per incident ↑</th><th class="num">Dist. to GT ↓</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>Host: go straight with delay</td><td class="num">17.5</td><td class="num">0.14</td><td class="num">2.16</td></tr>
+                <tr><td>Host: Alpamayo 1<sup><a href="#ref-alpamayo-r1">[3]</a></sup></td><td class="num">56.0</td><td class="num">0.57</td><td class="num">2.29</td></tr>
+                <tr class="is-ours"><td>TransFuser-K1 (Ours)</td><td class="num">63.2</td><td class="num">0.65</td><td class="num">1.09</td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 4.</strong> AlpaSim E2E Challenge leaderboard<sup><a href="#ref-alpasim-challenge">[18]</a></sup>, Physical AI track, hidden test set, as of November 2, 2026 (161 entries from 47 teams): the reference entries of the host and our submission (TransFuser-K1, checkpoint <a href="https://huggingface.co/kesai-labs/py123d_garage_pretrained_checkpoints/tree/main/v0.2.0/ltf-base-joint32-68M/posttrain" target="_blank" rel="noopener">ltf-base-joint32-68M</a>, seed 2). Scene score: AlpaSim score, 0 to 100. km per incident: as in <a href="#tab-pai">Table 2</a>. Dist. to GT: mean distance to the recorded trajectory in m.</figcaption>
+        </figure>
+        <figure class="garage-figure" id="tab-lb-nuplan">
+          <div class="garage-table-title">AlpaSim leaderboard, nuPlan track</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th>Policy</th><th class="num">Scene score ↑</th><th class="num">km per incident ↑</th><th class="num">Dist. to GT ↓</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>OpenDriveLab: SimScale Latent TransFuser<sup><a href="#ref-simscale">[27]</a><a href="#ref-transfuser">[13]</a></sup></td><td class="num">74.1</td><td class="num">0.27</td><td class="num">2.27</td></tr>
+                <tr><td>OpenDriveLab: SimScale GTRS-Dense<sup><a href="#ref-simscale">[27]</a><a href="#ref-gtrs">[28]</a></sup></td><td class="num">76.2</td><td class="num">0.41</td><td class="num">2.17</td></tr>
+                <tr><td>OpenDriveLab: SimScale DiffusionDrive<sup><a href="#ref-simscale">[27]</a><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="num">77.8</td><td class="num">0.27</td><td class="num">2.16</td></tr>
+                <tr class="is-ours"><td>TransFuser-K1 (Ours)</td><td class="num">92.2</td><td class="num">0.68</td><td class="num">0.63</td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 5.</strong> AlpaSim E2E Challenge leaderboard, nuPlan track, hidden test set, as of November 2, 2026 (153 entries from 49 teams): the reference entries of OpenDriveLab and our submission (the seed of <a href="#tab-lb-pai">Table 4</a>). Columns as in <a href="#tab-lb-pai">Table 4</a>.</figcaption>
+        </figure>
+        <figure class="garage-figure" id="tab-odyssey">
+          <div class="garage-table-title">Odyssey</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th rowspan="2">Policy</th><th rowspan="2" class="mid">Navigation conditioning</th><th colspan="6" class="group">Non-reactive</th><th colspan="6" class="group">Reactive</th></tr>
+                <tr><th class="num">RouteDS ↑</th><th class="num">SDC ↑</th><th class="num">PLCA ↑</th><th class="num">PLCS ↑</th><th class="num">Eff.</th><th class="num">Comf. ↑</th><th class="num">RouteDS ↑</th><th class="num">SDC ↑</th><th class="num">PLCA ↑</th><th class="num">PLCS ↑</th><th class="num">Eff.</th><th class="num">Comf. ↑</th></tr>
+                </thead>
+                <tbody>
+                <tr><td rowspan="2">Latent TransFuser<sup><a href="#ref-transfuser">[13]</a><a href="#ref-navsim">[21]</a></sup></td><td class="mid">×</td><td class="num">16.2</td><td class="num">51</td><td class="num">66.0</td><td class="num">50.3</td><td class="num">63.9</td><td class="num"><b>100</b></td><td class="num">16.3</td><td class="num">54</td><td class="num">63.5</td><td class="num">49.1</td><td class="num">76.1</td><td class="num">99</td></tr>
+                <tr><td class="mid">SD route</td><td class="num">20.1</td><td class="num">95</td><td class="num">57.1</td><td class="num">56.1</td><td class="num">68.2</td><td class="num">96</td><td class="num">23.0</td><td class="num">93</td><td class="num">53.6</td><td class="num">52.6</td><td class="num">78.0</td><td class="num">93</td></tr>
+                <tr><td rowspan="2">ReCogDrive (VLA)<sup><a href="#ref-recogdrive" id="cite-recogdrive">[32]</a></sup></td><td class="mid">×</td><td class="num">15.4</td><td class="num">71</td><td class="num">75.7</td><td class="num">59.0</td><td class="num">76.9</td><td class="num"><b>100</b></td><td class="num">20.3</td><td class="num">62</td><td class="num">77.1</td><td class="num">58.7</td><td class="num">93.7</td><td class="num">99</td></tr>
+                <tr><td class="mid">SD route</td><td class="num">21.5</td><td class="num">83</td><td class="num">74.4</td><td class="num">55.8</td><td class="num">59.3</td><td class="num">98</td><td class="num">26.3</td><td class="num">84</td><td class="num">75.6</td><td class="num">56.7</td><td class="num">75.5</td><td class="num">98</td></tr>
+                <tr><td rowspan="2">DiffusionDrive<sup><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">×</td><td class="num">25.6</td><td class="num">59</td><td class="num">78.8</td><td class="num">63.7</td><td class="num">61.4</td><td class="num"><b>100</b></td><td class="num">24.2</td><td class="num">59</td><td class="num">77.0</td><td class="num">63.1</td><td class="num">75.7</td><td class="num"><b>100</b></td></tr>
+                <tr><td class="mid">SD route</td><td class="num">35.9</td><td class="num"><b>100</b></td><td class="num">82.0</td><td class="num"><b>80.5</b></td><td class="num">63.4</td><td class="num">99</td><td class="num">41.0</td><td class="num"><b>100</b></td><td class="num">81.2</td><td class="num"><b>80.2</b></td><td class="num">71.5</td><td class="num">99</td></tr>
+                <tr><td rowspan="2">DrivoR<sup><a href="#ref-drivor">[8]</a></sup></td><td class="mid">×</td><td class="num">20.6</td><td class="num">50</td><td class="num">75.5</td><td class="num">62.8</td><td class="num">104.7</td><td class="num">44</td><td class="num">25.5</td><td class="num">53</td><td class="num">76.6</td><td class="num">62.8</td><td class="num">133.4</td><td class="num">47</td></tr>
+                <tr><td class="mid">SD route</td><td class="num">36.5</td><td class="num">90</td><td class="num">72.8</td><td class="num">66.0</td><td class="num">84.5</td><td class="num">60</td><td class="num">41.4</td><td class="num">89</td><td class="num">71.8</td><td class="num">66.0</td><td class="num">107.4</td><td class="num">64</td></tr>
+                <tr class="is-ours"><td>TransFuser-K1 (Ours)</td><td class="mid">SD route</td><td class="num">43.3 ± 3.5</td><td class="num">87</td><td class="num"><b>83.7</b></td><td class="num">67.5</td><td class="num">78.0</td><td class="num">67</td><td class="num">43.3 ± 3.6</td><td class="num">86</td><td class="num"><b>84.3</b></td><td class="num">67.8</td><td class="num">87.4</td><td class="num">71</td></tr>
+                <tr><td rowspan="2">SafeDrive<sup><a href="#ref-safedrive">[29]</a></sup></td><td class="mid">×</td><td class="num">27.5</td><td class="num">41</td><td class="num">79.3</td><td class="num">63.7</td><td class="num">69.4</td><td class="num">47</td><td class="num">30.4</td><td class="num">45</td><td class="num">78.8</td><td class="num">62.8</td><td class="num">86.3</td><td class="num">40</td></tr>
+                <tr><td class="mid">SD route</td><td class="num"><b>44.4</b></td><td class="num">82</td><td class="num">75.0</td><td class="num">69.8</td><td class="num">68.3</td><td class="num">44</td><td class="num"><b>48.9</b></td><td class="num">79</td><td class="num">73.8</td><td class="num">69.5</td><td class="num">81.3</td><td class="num">49</td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 6.</strong> Odyssey<sup><a href="#ref-odyssey">[19]</a></sup>, 100 scenes, mean over three seeds; ± standard deviation for RouteDS only. Ours receives target points on the SD route. Baseline results from the Odyssey authors. RouteDS: route driving score. SDC: SD-route compliance. PLCA, PLCS: pre-lane-change accuracy and score. Eff.: median efficiency, 100 is the speed of the surrounding traffic. Comf.: share of episodes within all comfort limits. Odyssey commit <a href="https://github.com/SNU-ADR/Odyssey/commit/8c4a902ebfe242feb624d00e756c6c1ccc95555e" target="_blank" rel="noopener">8c4a902</a>.</figcaption>
+        </figure>
+        <figure class="garage-figure" id="tab-hugsim">
+          <div class="garage-table-title">HUGSIM</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th rowspan="2">Policy</th><th rowspan="2" class="mid">Navigation conditioning</th><th rowspan="2" class="mid">RL teacher</th><th colspan="5" class="group num">HD-Score ↑</th><th colspan="5" class="group num">RC ↑</th></tr>
+                <tr><th class="num">Avg.</th><th class="num">E</th><th class="num">M</th><th class="num">H</th><th class="num">X</th><th class="num">Avg.</th><th class="num">E</th><th class="num">M</th><th class="num">H</th><th class="num">X</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>VAD<sup><a href="#ref-vad" id="cite-vad">[33]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">13.4</td><td class="num">36.3</td><td class="num">9.5</td><td class="num">8.0</td><td class="num">11.5</td><td class="num">31.4</td><td class="num">51.3</td><td class="num">31.1</td><td class="num">25.3</td><td class="num">26.5</td></tr>
+                <tr><td>Latent TransFuser<sup><a href="#ref-transfuser">[13]</a><a href="#ref-navsim">[21]</a></sup></td><td class="mid">×</td><td class="mid">×</td><td class="num">23.7</td><td class="num">58.9</td><td class="num">18.0</td><td class="num">9.8</td><td class="num">25.9</td><td class="num">38.9</td><td class="num">67.8</td><td class="num">35.1</td><td class="num">26.2</td><td class="num">40.5</td></tr>
+                <tr><td>GTRS-Dense<sup><a href="#ref-gtrs">[28]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">28.2</td><td class="num">57.8</td><td class="num">35.2</td><td class="num">16.2</td><td class="num">5.8</td><td class="num">34.5</td><td class="num">62.0</td><td class="num">40.5</td><td class="num">23.9</td><td class="num">13.7</td></tr>
+                <tr><td>UniAD<sup><a href="#ref-uniad" id="cite-uniad">[34]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">32.7</td><td class="num">64.9</td><td class="num">45.8</td><td class="num">20.6</td><td class="num">6.6</td><td class="num">45.9</td><td class="num">78.4</td><td class="num">60.5</td><td class="num">33.6</td><td class="num">17.8</td></tr>
+                <tr><td>ZTRS<sup><a href="#ref-ztrs" id="cite-ztrs">[35]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">32.9</td><td class="num">66.9</td><td class="num">37.9</td><td class="num">21.1</td><td class="num">9.8</td><td class="num">42.0</td><td class="num">74.8</td><td class="num">46.1</td><td class="num">31.6</td><td class="num">20.0</td></tr>
+                <tr><td>DrivoR<sup><a href="#ref-drivor">[8]</a></sup></td><td class="mid">×</td><td class="mid">×</td><td class="num">35.7</td><td class="num">73.3</td><td class="num">34.6</td><td class="num">18.8</td><td class="num"><b>32.5</b></td><td class="num">49.8</td><td class="num">80.9</td><td class="num">50.5</td><td class="num">33.8</td><td class="num"><b>47.1</b></td></tr>
+                <tr><td>DrivoR-Scale<sup><a href="#ref-drivor">[8]</a></sup></td><td class="mid">×</td><td class="mid">×</td><td class="num">38.1</td><td class="num">64.8</td><td class="num">50.3</td><td class="num">16.8</td><td class="num">25.8</td><td class="num">46.4</td><td class="num">70.4</td><td class="num">54.4</td><td class="num">28.2</td><td class="num">39.2</td></tr>
+                <tr class="is-rl"><td>GigaPixel<sup><a href="#ref-gigapixel" id="cite-gigapixel">[36]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">38.5</td><td class="num">67.4</td><td class="num">51.9</td><td class="num">19.1</td><td class="num">21.6</td><td class="num">50.1</td><td class="num">78.6</td><td class="num">60.7</td><td class="num">32.7</td><td class="num">35.4</td></tr>
+                <tr class="is-ours"><td>TransFuser-K1 (Ours)</td><td class="mid">×</td><td class="mid">×</td><td class="num">38.5 ± 1.3</td><td class="num">73.1</td><td class="num">54.6</td><td class="num">23.3</td><td class="num">9.7</td><td class="num">46.7</td><td class="num">79.8</td><td class="num">61.8</td><td class="num">31.4</td><td class="num">20.6</td></tr>
+                <tr class="is-rl"><td>DriveZero<sup><a href="#ref-drivezero" id="cite-drivezero">[37]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">39.4</td><td class="num">78.5</td><td class="num">47.2</td><td class="num">16.0</td><td class="num">28.7</td><td class="num">53.9</td><td class="num">85.5</td><td class="num">63.7</td><td class="num">31.7</td><td class="num">43.3</td></tr>
+                <tr class="is-rl"><td>DriveZero-Scale<sup><a href="#ref-drivezero">[37]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">46.6</td><td class="num"><b>81.9</b></td><td class="num"><b>60.5</b></td><td class="num"><b>24.7</b></td><td class="num">27.6</td><td class="num"><b>54.5</b></td><td class="num"><b>87.5</b></td><td class="num"><b>64.9</b></td><td class="num"><b>34.6</b></td><td class="num">39.8</td></tr>
+                <tr class="is-rl"><td>TerraTransfer++<sup><a href="#ref-terratransfer" id="cite-terratransfer">[38]</a></sup></td><td class="mid">Goal</td><td class="mid">✓</td><td class="num"><b>51.8</b></td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 7.</strong> HUGSIM<sup><a href="#ref-hugsim">[20]</a></sup>, 345 pre-challenge scenarios, mean over three seeds; ± standard deviation for the average HD-Score only. Ours receives no navigation input. VAD, Latent TransFuser, UniAD, DrivoR: reruns with corrected HUGSIM code from the DrivoR paper. TerraTransfer++ reports only the average and trains on frames from the evaluation scenes. Gray rows imitate a teacher trained with reinforcement learning in closed loop. HD-Score: HUGSIM score times route completion. RC: route completion. E, M, H, X: easy, medium, hard, extreme. <a href="https://github.com/valeoai/HUGSIM_garage" target="_blank" rel="noopener">HUGSIM_garage</a> commit <a href="https://github.com/valeoai/HUGSIM_garage/commit/c18814c0ef2b1cfdeabe33506a5d345cfbb83cbc" target="_blank" rel="noopener">c18814c</a>.</figcaption>
+        </figure>
+
+        <figure class="garage-figure" id="tab-navsafe">
+          <div class="garage-table-title">NavSafe-∞</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th>Policy</th><th class="mid">Navigation conditioning</th><th class="num">DS ↑</th><th class="num">SR ↑</th><th class="num">DE</th><th class="num">Comfort ↑</th><th class="num">TC ↑</th><th class="num">VRUC ↑</th><th class="num">TV ↑</th><th class="num">TI ↑</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>DiffusionDrive<sup><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">Command</td><td class="num">44.8 ± 0.8</td><td class="num">21.0 ± 0.6</td><td class="num">165.1 ± 1.8</td><td class="num">97.7 ± 0.6</td><td class="num">21.3 ± 1.2</td><td class="num">11.7 ± 1.4</td><td class="num">23.6 ± 0.0</td><td class="num">22.2 ± 1.9</td></tr>
+                <tr><td>BeyondDrive DiffusionDrive<sup><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">Command</td><td class="num">46.6 ± 0.1</td><td class="num">21.8 ± 0.9</td><td class="num">172.8 ± 1.3</td><td class="num">97.2 ± 0.2</td><td class="num">22.7 ± 1.5</td><td class="num">10.0 ± 0.0</td><td class="num">25.2 ± 1.4</td><td class="num">22.2 ± 1.9</td></tr>
+                <tr><td>RAP<sup><a href="#ref-rap">[44]</a></sup></td><td class="mid">Command</td><td class="num">47.7 ± 0.7</td><td class="num">27.3 ± 0.4</td><td class="num">220.8 ± 3.8</td><td class="num">48.4 ± 0.6</td><td class="num">32.3 ± 1.2</td><td class="num">14.2 ± 6.3</td><td class="num">28.8 ± 0.5</td><td class="num">22.2 ± 3.9</td></tr>
+                <tr><td>MTDrive-SFT<sup><a href="#ref-mtdrive">[56]</a></sup></td><td class="mid">Command</td><td class="num">48.8 ± 0.9</td><td class="num">31.8 ± 1.4</td><td class="num">173.8 ± 0.8</td><td class="num">94.5 ± 1.3</td><td class="num">30.3 ± 1.2</td><td class="num">15.0 ± 6.6</td><td class="num">35.8 ± 1.4</td><td class="num">44.4 ± 1.9</td></tr>
+                <tr><td>ReCogDrive-2B-IL<sup><a href="#ref-recogdrive">[32]</a></sup></td><td class="mid">Command</td><td class="num">49.0 ± 1.0</td><td class="num">28.2 ± 1.4</td><td class="num">166.9 ± 3.2</td><td class="num">97.6 ± 0.1</td><td class="num">30.0 ± 1.0</td><td class="num">16.7 ± 3.8</td><td class="num">31.2 ± 0.5</td><td class="num">26.7 ± 3.3</td></tr>
+                <tr><td>AutoVLA<sup><a href="#ref-autovla">[55]</a></sup></td><td class="mid">Command</td><td class="num">51.1 ± 0.8</td><td class="num">29.5 ± 2.4</td><td class="num">186.0 ± 0.6</td><td class="num">65.4 ± 0.5</td><td class="num">33.0 ± 2.7</td><td class="num">15.0 ± 4.3</td><td class="num">29.7 ± 2.9</td><td class="num">36.7 ± 8.8</td></tr>
+                <tr><td>SimScale DiffusionDrive<sup><a href="#ref-simscale">[27]</a><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">Command</td><td class="num">52.2 ± 2.1</td><td class="num">35.2 ± 2.4</td><td class="num">189.7 ± 4.3</td><td class="num">96.9 ± 0.3</td><td class="num">38.3 ± 1.2</td><td class="num">18.3 ± 7.2</td><td class="num">36.7 ± 5.0</td><td class="num">42.2 ± 3.9</td></tr>
+                <tr><td>SimScale Latent TransFuser<sup><a href="#ref-simscale">[27]</a><a href="#ref-transfuser">[13]</a></sup></td><td class="mid">Command</td><td class="num">52.7 ± 0.9</td><td class="num">34.1 ± 0.2</td><td class="num">192.1 ± 0.9</td><td class="num">97.4 ± 0.5</td><td class="num">35.0 ± 1.7</td><td class="num">17.5 ± 2.5</td><td class="num">38.5 ± 0.5</td><td class="num">36.7 ± 0.0</td></tr>
+                <tr><td>Latent TransFuser<sup><a href="#ref-transfuser">[13]</a><a href="#ref-navsim">[21]</a></sup></td><td class="mid">Command</td><td class="num">53.0 ± 1.9</td><td class="num">27.7 ± 1.8</td><td class="num">163.7 ± 0.1</td><td class="num"><b>97.8 ± 0.2</b></td><td class="num">31.7 ± 0.6</td><td class="num">25.0 ± 7.5</td><td class="num">28.5 ± 1.9</td><td class="num">15.6 ± 1.9</td></tr>
+                <tr><td>ReCogDrive-2B-RL<sup><a href="#ref-recogdrive">[32]</a></sup></td><td class="mid">Command</td><td class="num">53.6 ± 1.4</td><td class="num">31.0 ± 2.1</td><td class="num">174.0 ± 1.9</td><td class="num">85.1 ± 0.5</td><td class="num">35.3 ± 2.3</td><td class="num">18.3 ± 6.3</td><td class="num">32.4 ± 1.4</td><td class="num">27.8 ± 5.1</td></tr>
+                <tr><td>MTDrive-mtGRPO<sup><a href="#ref-mtdrive">[56]</a></sup></td><td class="mid">Command</td><td class="num">55.9 ± 0.5</td><td class="num">40.6 ± 0.9</td><td class="num">277.6 ± 3.2</td><td class="num">93.9 ± 0.4</td><td class="num">40.3 ± 2.9</td><td class="num">16.7 ± 1.4</td><td class="num">46.4 ± 0.9</td><td class="num"><b>52.2 ± 3.9</b></td></tr>
+                <tr><td>SimWAM<sup><a href="#ref-simwam">[31]</a></sup></td><td class="mid">Command</td><td class="num">57.5 ± 2.7</td><td class="num">37.5 ± 1.6</td><td class="num">160.5 ± 1.6</td><td class="num">97.2 ± 0.3</td><td class="num">41.3 ± 0.6</td><td class="num">26.7 ± 7.2</td><td class="num">40.6 ± 0.5</td><td class="num">27.8 ± 5.1</td></tr>
+                <tr><td>SimScale DrivoR<sup><a href="#ref-simscale">[27]</a><a href="#ref-drivor">[8]</a></sup></td><td class="mid">Command</td><td class="num">57.7 ± 1.3</td><td class="num">42.5 ± 0.4</td><td class="num">176.7 ± 0.9</td><td class="num">85.9 ± 0.4</td><td class="num">44.0 ± 1.0</td><td class="num">17.5 ± 2.5</td><td class="num">48.2 ± 2.4</td><td class="num">50.0 ± 0.0</td></tr>
+                <tr><td>GTRS-Dense<sup><a href="#ref-gtrs">[28]</a></sup></td><td class="mid">Command</td><td class="num">64.3 ± 0.8</td><td class="num">49.5 ± 1.2</td><td class="num">163.9 ± 0.9</td><td class="num">95.9 ± 0.6</td><td class="num">52.0 ± 1.7</td><td class="num">40.0 ± 2.5</td><td class="num">54.2 ± 0.5</td><td class="num">36.7 ± 0.0</td></tr>
+                <tr><td>DrivoR<sup><a href="#ref-drivor">[8]</a></sup></td><td class="mid">Command</td><td class="num">64.7 ± 1.6</td><td class="num">50.7 ± 0.7</td><td class="num">188.0 ± 1.1</td><td class="num">87.9 ± 1.3</td><td class="num">58.7 ± 2.5</td><td class="num">31.7 ± 5.8</td><td class="num">52.4 ± 2.6</td><td class="num">43.3 ± 0.0</td></tr>
+                <tr><td>SparseDriveV2<sup><a href="#ref-sparsedrivev2">[54]</a></sup></td><td class="mid">Command</td><td class="num">65.3 ± 1.7</td><td class="num">48.8 ± 3.0</td><td class="num">168.0 ± 1.0</td><td class="num">93.4 ± 0.4</td><td class="num">54.0 ± 0.0</td><td class="num">43.3 ± 8.0</td><td class="num">48.2 ± 4.2</td><td class="num">41.1 ± 3.9</td></tr>
+                <tr class="is-ours"><td>TransFuser-K1 (Ours)</td><td class="mid">×</td><td class="num">72.1 ± 1.1</td><td class="num">54.0 ± 2.4</td><td class="num">185.5 ± 1.8</td><td class="num">93.3 ± 0.3</td><td class="num">59.6 ± 6.8</td><td class="num">42.5 ± 5.0</td><td class="num">57.9 ± 1.4</td><td class="num">35.6 ± 1.9</td></tr>
+                <tr><td>SimScale GTRS-Dense<sup><a href="#ref-simscale">[27]</a><a href="#ref-gtrs">[28]</a></sup></td><td class="mid">Command</td><td class="num"><b>73.5 ± 0.8</b></td><td class="num"><b>61.8 ± 1.6</b></td><td class="num">141.5 ± 1.3</td><td class="num">87.7 ± 1.7</td><td class="num"><b>69.3 ± 0.6</b></td><td class="num"><b>50.0 ± 2.5</b></td><td class="num"><b>64.2 ± 1.9</b></td><td class="num">43.3 ± 3.3</td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 8.</strong> NavSafe-∞<sup><a href="#ref-navsafe">[53]</a></sup>, 280 safety scenarios on reconstructed nuPlan logs, 66 of them with inserted actors, mean ± standard deviation over three seeds. Our policy receives no navigation input and replans at 2 Hz, and the cameras are rendered only at this rate. One scenario fails in the renderer of NavSafe-∞ in every run and is left out of our mean. The baselines receive the driving command of NavSafe-∞, and their results are taken from the <a href="https://navsafe-vail.github.io/#leaderboard" target="_blank" rel="noopener">NavSafe-∞ leaderboard</a>, mean over its three evaluation seeds. DS: driving score. SR: success rate. DE: driving efficiency, the ego speed relative to the surrounding traffic in percent. Comfort: compliance with the bounds on acceleration, jerk, yaw rate and yaw acceleration. TC, VRUC, TV, TI: success rate on traffic crashes, crashes with vulnerable road users, traffic violations and traffic incidents, the mean over their event types. NavSafe-∞ commit <a href="https://github.com/VAIL-UCLA/NavSafe-infty/commit/bd68458df1e2cc8e0f0dfcf62c06b71a86ae229c" target="_blank" rel="noopener">bd68458</a>.</figcaption>
+        </figure>
+
+        <h4 id="appendix-open-loop">Open loop</h4>
+        <p>On NAVSIM, our policy receives no navigation input. The baselines receive the driving command of NAVSIM (left, straight or right). Our policy has no input for this command, only for target points on the route, which contain more information than the command. To keep the scores comparable, we remove the target points, and the policy drives from the camera frames and the ego speed alone.</p>
+        <figure class="garage-figure" id="tab-navtest">
+          <div class="garage-table-title">NAVSIM v1, navtest</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th>Policy</th><th class="mid">Navigation conditioning</th><th class="mid">Metric training</th><th class="num">PDMS ↑</th><th class="num">NC ↑</th><th class="num">DAC ↑</th><th class="num">TTC ↑</th><th class="num">Comf. ↑</th><th class="num">EP ↑</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>UniAD<sup><a href="#ref-uniad">[34]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">83.4</td><td class="num">97.8</td><td class="num">91.9</td><td class="num">92.9</td><td class="num"><b>100</b></td><td class="num">78.8</td></tr>
+                <tr><td>PARA-Drive<sup><a href="#ref-paradrive" id="cite-paradrive">[39]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">84.0</td><td class="num">97.9</td><td class="num">92.4</td><td class="num">93.0</td><td class="num">99.8</td><td class="num">79.3</td></tr>
+                <tr><td>Latent TransFuser v6<sup><a href="#ref-lead">[12]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">86.4</td><td class="num">97.5</td><td class="num">95.4</td><td class="num">93.8</td><td class="num"><b>100</b></td><td class="num">80.9</td></tr>
+                <tr class="is-ours"><td>TransFuser-K1 (Ours)</td><td class="mid">×</td><td class="mid">×</td><td class="num">87.9 ± 0.1</td><td class="num">98.3</td><td class="num">96.6</td><td class="num">95.2</td><td class="num"><b>100</b></td><td class="num">81.2</td></tr>
+                <tr><td>DiffusionDrive<sup><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">88.1</td><td class="num">98.2</td><td class="num">96.2</td><td class="num">94.7</td><td class="num"><b>100</b></td><td class="num">82.2</td></tr>
+                <tr><td>ForeDrive<sup><a href="#ref-foredrive" id="cite-foredrive">[40]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">89.9</td><td class="num">98.6</td><td class="num">97.6</td><td class="num">95.6</td><td class="num"><b>100</b></td><td class="num">83.8</td></tr>
+                <tr><td>SimWAM<sup><a href="#ref-simwam">[31]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">90.3</td><td class="num">98.6</td><td class="num">98.0</td><td class="num">95.8</td><td class="num">&ndash;</td><td class="num">84.0</td></tr>
+                <tr><td>SUV<sup><a href="#ref-suv" id="cite-suv">[41]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">90.8</td><td class="num">99.1</td><td class="num">97.8</td><td class="num">96.7</td><td class="num"><b>100</b></td><td class="num">84.6</td></tr>
+                <tr><td>4D-WAM<sup><a href="#ref-wam4d" id="cite-wam4d">[42]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">90.9</td><td class="num">99.1</td><td class="num">97.9</td><td class="num">96.6</td><td class="num"><b>100</b></td><td class="num">84.6</td></tr>
+                <tr><td>ReDrive<sup><a href="#ref-redrive">[30]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">91.0</td><td class="num">99.1</td><td class="num">97.9</td><td class="num">97.2</td><td class="num"><b>100</b></td><td class="num">84.3</td></tr>
+                <tr class="is-metric"><td>DrivoR<sup><a href="#ref-drivor">[8]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">93.1</td><td class="num">98.9</td><td class="num">98.3</td><td class="num">96.2</td><td class="num"><b>100</b></td><td class="num">89.1</td></tr>
+                <tr class="is-metric"><td>DrivoR-Scale<sup><a href="#ref-drivor">[8]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">94.6</td><td class="num">99.1</td><td class="num">99.2</td><td class="num">96.9</td><td class="num"><b>100</b></td><td class="num">91.6</td></tr>
+                <tr class="is-metric"><td>DriveZero-Scale<sup><a href="#ref-drivezero">[37]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">95.3</td><td class="num"><b>99.2</b></td><td class="num">99.4</td><td class="num"><b>97.3</b></td><td class="num">99.9</td><td class="num">92.5</td></tr>
+                <tr class="is-metric"><td>TerraTransfer++<sup><a href="#ref-terratransfer">[38]</a></sup></td><td class="mid">Goal</td><td class="mid">✓</td><td class="num"><b>95.5</b></td><td class="num">98.9</td><td class="num"><b>99.5</b></td><td class="num">92.2</td><td class="num">99.9</td><td class="num"><b>96.9</b></td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 9.</strong> NAVSIM v1.1<sup><a href="#ref-navsim">[21]</a></sup>, official devkit, mean over three seeds; ± standard deviation for PDMS only. Ours receives no navigation input. SimWAM: before its reinforcement learning stage; comfort not reported. SimWAM and SUV: 5B-parameter video models. Latent TransFuser v6: LEAD-LTFv6 leaderboard entry, one seed. Gray rows train on the PDM score or its sub-scores. PDMS: PDM score. NC: no at-fault collision. DAC: drivable area compliance. TTC: time to collision. Comf.: comfort. EP: ego progress.</figcaption>
+        </figure>
+        <figure class="garage-figure" id="tab-navhard">
+          <div class="garage-table-title">NAVSIM v2, navhard two-stage</div>
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+                <thead>
+                <tr><th rowspan="2">Policy</th><th rowspan="2" class="mid">Navigation conditioning</th><th rowspan="2" class="mid">Metric training</th><th rowspan="2" class="num">EPDMS ↑</th><th colspan="9" class="group">Stage 1</th><th colspan="9" class="group">Stage 2</th></tr>
+                <tr><th class="num">NC</th><th class="num">DAC</th><th class="num">DDC</th><th class="num">TLC</th><th class="num">EP</th><th class="num">TTC</th><th class="num">LK</th><th class="num">HC</th><th class="num">EC</th><th class="num">NC</th><th class="num">DAC</th><th class="num">DDC</th><th class="num">TLC</th><th class="num">EP</th><th class="num">TTC</th><th class="num">LK</th><th class="num">HC</th><th class="num">EC</th></tr>
+                </thead>
+                <tbody>
+                <tr><td>CV<sup><a href="#ref-navsim">[21]</a><a href="#ref-pseudo-simulation">[22]</a></sup></td><td class="mid">×</td><td class="mid">×</td><td class="num">11.4</td><td class="num">88.8</td><td class="num">42.8</td><td class="num">70.6</td><td class="num">99.3</td><td class="num">77.5</td><td class="num">87.3</td><td class="num">78.6</td><td class="num">97.1</td><td class="num">60.4</td><td class="num">83.2</td><td class="num">59.1</td><td class="num">76.5</td><td class="num">98.0</td><td class="num">71.3</td><td class="num">81.1</td><td class="num">47.9</td><td class="num">97.1</td><td class="num">61.9</td></tr>
+                <tr><td>MLP<sup><a href="#ref-navsim">[21]</a><a href="#ref-pseudo-simulation">[22]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">14.1</td><td class="num">93.2</td><td class="num">55.7</td><td class="num">86.6</td><td class="num">99.3</td><td class="num">81.2</td><td class="num">92.2</td><td class="num">83.5</td><td class="num">97.5</td><td class="num">77.7</td><td class="num">77.2</td><td class="num">51.9</td><td class="num">74.4</td><td class="num">98.2</td><td class="num">77.1</td><td class="num">75.0</td><td class="num">40.8</td><td class="num">97.8</td><td class="num"><b>79.8</b></td></tr>
+                <tr><td>Latent TransFuser<sup><a href="#ref-transfuser">[13]</a><a href="#ref-navsim">[21]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">25.1</td><td class="num">96.2</td><td class="num">79.5</td><td class="num">99.1</td><td class="num">99.5</td><td class="num">84.1</td><td class="num">95.1</td><td class="num">94.2</td><td class="num">97.5</td><td class="num">79.1</td><td class="num">77.7</td><td class="num">70.2</td><td class="num">84.2</td><td class="num">98.0</td><td class="num">85.1</td><td class="num">75.6</td><td class="num">45.4</td><td class="num">95.7</td><td class="num">75.9</td></tr>
+                <tr><td>DiffusionDrive<sup><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">27.5</td><td class="num">96.8</td><td class="num">86.0</td><td class="num">98.8</td><td class="num">99.3</td><td class="num">84.0</td><td class="num">95.8</td><td class="num">96.7</td><td class="num">97.6</td><td class="num">79.6</td><td class="num">80.1</td><td class="num">72.8</td><td class="num">84.4</td><td class="num">98.4</td><td class="num">85.9</td><td class="num">76.6</td><td class="num">46.4</td><td class="num">96.3</td><td class="num">72.8</td></tr>
+                <tr class="is-metric"><td>SimScale Latent TransFuser<sup><a href="#ref-simscale">[27]</a><a href="#ref-transfuser">[13]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">30.2</td><td class="num">96.1</td><td class="num">85.3</td><td class="num">99.4</td><td class="num">99.3</td><td class="num">84.7</td><td class="num">94.7</td><td class="num">93.6</td><td class="num">97.6</td><td class="num">77.3</td><td class="num">85.5</td><td class="num">66.9</td><td class="num">91.6</td><td class="num">99.1</td><td class="num">93.0</td><td class="num">81.1</td><td class="num">58.3</td><td class="num">95.1</td><td class="num">42.9</td></tr>
+                <tr><td>Latent TransFuser v6<sup><a href="#ref-lead">[12]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">31.9</td><td class="num">96.5</td><td class="num">86.6</td><td class="num">99.2</td><td class="num">99.5</td><td class="num">84.4</td><td class="num">95.1</td><td class="num">94.4</td><td class="num">97.7</td><td class="num">76.4</td><td class="num">79.8</td><td class="num">75.5</td><td class="num">86.2</td><td class="num">97.8</td><td class="num">89.5</td><td class="num">76.0</td><td class="num">50.0</td><td class="num">95.2</td><td class="num">66.7</td></tr>
+                <tr class="is-metric"><td>SimScale DiffusionDrive<sup><a href="#ref-simscale">[27]</a><a href="#ref-diffusiondrive">[7]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">32.6</td><td class="num">97.2</td><td class="num">88.7</td><td class="num">99.3</td><td class="num">99.3</td><td class="num">82.8</td><td class="num">96.9</td><td class="num"><b>98.0</b></td><td class="num">97.3</td><td class="num">59.6</td><td class="num">82.4</td><td class="num">72.1</td><td class="num">92.9</td><td class="num">98.5</td><td class="num">92.1</td><td class="num">80.6</td><td class="num">60.8</td><td class="num">95.4</td><td class="num">31.9</td></tr>
+                <tr><td>ReDrive<sup><a href="#ref-redrive">[30]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">34.4</td><td class="num">97.9</td><td class="num">93.6</td><td class="num">99.4</td><td class="num">99.6</td><td class="num">84.2</td><td class="num">96.9</td><td class="num">97.8</td><td class="num"><b>97.8</b></td><td class="num">73.3</td><td class="num">82.2</td><td class="num">75.8</td><td class="num">84.3</td><td class="num">98.2</td><td class="num">87.3</td><td class="num">77.9</td><td class="num">47.8</td><td class="num">95.9</td><td class="num">54.2</td></tr>
+                <tr class="is-ours"><td>TransFuser-K1 (Ours)</td><td class="mid">×</td><td class="mid">×</td><td class="num">34.9 ± 0.4</td><td class="num">97.2</td><td class="num">90.7</td><td class="num">98.3</td><td class="num">99.6</td><td class="num">83.1</td><td class="num">96.3</td><td class="num">96.6</td><td class="num">97.6</td><td class="num">72.7</td><td class="num">82.6</td><td class="num">77.7</td><td class="num">87.4</td><td class="num">98.4</td><td class="num">86.9</td><td class="num">78.8</td><td class="num">49.3</td><td class="num">96.5</td><td class="num">58.7</td></tr>
+                <tr><td>DiffusionDrive-ViRA<sup><a href="#ref-diffusiondrive">[7]</a><a href="#ref-vira" id="cite-vira">[43]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">35.8</td><td class="num">96.4</td><td class="num">87.8</td><td class="num">99.2</td><td class="num">99.3</td><td class="num">98.5</td><td class="num">95.3</td><td class="num">96.4</td><td class="num">97.6</td><td class="num">78.7</td><td class="num">80.5</td><td class="num">74.1</td><td class="num">86.4</td><td class="num">98.4</td><td class="num">97.5</td><td class="num">77.2</td><td class="num">47.6</td><td class="num">95.8</td><td class="num">71.3</td></tr>
+                <tr><td>4D-WAM<sup><a href="#ref-wam4d">[42]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">35.9</td><td class="num">92.8</td><td class="num">89.6</td><td class="num">99.7</td><td class="num">99.3</td><td class="num"><b>98.6</b></td><td class="num">91.6</td><td class="num">86.9</td><td class="num">97.1</td><td class="num"><b>81.3</b></td><td class="num">82.6</td><td class="num">71.8</td><td class="num">86.9</td><td class="num">98.2</td><td class="num"><b>97.6</b></td><td class="num">78.8</td><td class="num">49.0</td><td class="num">95.8</td><td class="num">71.6</td></tr>
+                <tr><td>SUV<sup><a href="#ref-suv">[41]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">36.9</td><td class="num">96.9</td><td class="num">94.2</td><td class="num">99.3</td><td class="num">99.6</td><td class="num">84.1</td><td class="num">95.6</td><td class="num">96.7</td><td class="num"><b>97.8</b></td><td class="num">79.6</td><td class="num">82.7</td><td class="num">74.2</td><td class="num">85.9</td><td class="num">98.4</td><td class="num">86.0</td><td class="num">78.9</td><td class="num">47.2</td><td class="num">95.9</td><td class="num">69.1</td></tr>
+                <tr><td>SimWAM<sup><a href="#ref-simwam">[31]</a></sup></td><td class="mid">Command</td><td class="mid">×</td><td class="num">37.6</td><td class="num">98.0</td><td class="num">92.0</td><td class="num">99.7</td><td class="num">99.6</td><td class="num">83.8</td><td class="num">96.2</td><td class="num">97.3</td><td class="num"><b>97.8</b></td><td class="num">71.6</td><td class="num">81.8</td><td class="num">78.6</td><td class="num">87.3</td><td class="num">98.4</td><td class="num">86.3</td><td class="num">78.6</td><td class="num">49.5</td><td class="num">96.3</td><td class="num">69.9</td></tr>
+                <tr class="is-metric"><td>RAP<sup><a href="#ref-rap" id="cite-rap">[44]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">39.6</td><td class="num">97.1</td><td class="num">94.4</td><td class="num">98.7</td><td class="num">99.7</td><td class="num">83.8</td><td class="num">96.8</td><td class="num">94.6</td><td class="num">96.4</td><td class="num">66.2</td><td class="num">83.2</td><td class="num">83.8</td><td class="num">87.3</td><td class="num">98.0</td><td class="num">86.8</td><td class="num">80.3</td><td class="num">52.2</td><td class="num">95.1</td><td class="num">52.4</td></tr>
+                <tr class="is-metric"><td>GTRS-Dense<sup><a href="#ref-gtrs">[28]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">45.3</td><td class="num">98.9</td><td class="num">98.2</td><td class="num">99.8</td><td class="num">99.6</td><td class="num">73.9</td><td class="num">98.9</td><td class="num">95.3</td><td class="num">97.3</td><td class="num">40.0</td><td class="num">91.5</td><td class="num">90.8</td><td class="num">94.7</td><td class="num">98.5</td><td class="num">70.8</td><td class="num">90.1</td><td class="num">55.4</td><td class="num">97.2</td><td class="num">54.2</td></tr>
+                <tr class="is-metric"><td>SimScale GTRS-Dense<sup><a href="#ref-simscale">[27]</a><a href="#ref-gtrs">[28]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">48.0</td><td class="num">99.3</td><td class="num">97.6</td><td class="num">99.4</td><td class="num"><b>100.0</b></td><td class="num">71.5</td><td class="num"><b>99.6</b></td><td class="num">96.0</td><td class="num">95.8</td><td class="num">30.7</td><td class="num"><b>94.9</b></td><td class="num">94.3</td><td class="num">94.5</td><td class="num"><b>99.3</b></td><td class="num">79.0</td><td class="num">92.6</td><td class="num">57.8</td><td class="num">93.4</td><td class="num">30.9</td></tr>
+                <tr class="is-metric"><td>ZTRS<sup><a href="#ref-ztrs">[35]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">48.1</td><td class="num">98.8</td><td class="num">97.5</td><td class="num"><b>100.0</b></td><td class="num"><b>100.0</b></td><td class="num">66.6</td><td class="num">98.8</td><td class="num">96.2</td><td class="num">96.6</td><td class="num">44.0</td><td class="num">91.1</td><td class="num">90.4</td><td class="num">95.7</td><td class="num">99.0</td><td class="num">63.5</td><td class="num">89.7</td><td class="num">60.4</td><td class="num">97.6</td><td class="num">66.0</td></tr>
+                <tr class="is-metric"><td>GigaPixel<sup><a href="#ref-gigapixel">[36]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">50.1</td><td class="num">99.4</td><td class="num">95.8</td><td class="num">99.4</td><td class="num">99.8</td><td class="num">68.1</td><td class="num"><b>99.6</b></td><td class="num">91.8</td><td class="num">97.6</td><td class="num">49.8</td><td class="num">93.7</td><td class="num">92.9</td><td class="num">96.0</td><td class="num">98.9</td><td class="num">62.6</td><td class="num">90.7</td><td class="num">60.2</td><td class="num">98.2</td><td class="num">58.8</td></tr>
+                <tr class="is-metric"><td>SimScale<sup><a href="#ref-simscale">[27]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">53.2</td><td class="num"><b>99.5</b></td><td class="num">99.1</td><td class="num">99.8</td><td class="num"><b>100.0</b></td><td class="num">69.6</td><td class="num">99.5</td><td class="num">95.7</td><td class="num">95.5</td><td class="num">28.4</td><td class="num">94.5</td><td class="num">94.2</td><td class="num">95.7</td><td class="num">99.2</td><td class="num">75.8</td><td class="num"><b>92.8</b></td><td class="num">60.0</td><td class="num">96.0</td><td class="num">43.2</td></tr>
+                <tr class="is-metric"><td>DrivoR<sup><a href="#ref-drivor">[8]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">54.5</td><td class="num">99.1</td><td class="num">98.2</td><td class="num">99.3</td><td class="num">99.7</td><td class="num">75.4</td><td class="num">98.6</td><td class="num">94.8</td><td class="num">97.5</td><td class="num">70.2</td><td class="num">92.3</td><td class="num">91.6</td><td class="num">97.3</td><td class="num">99.0</td><td class="num">75.7</td><td class="num">90.5</td><td class="num">56.0</td><td class="num"><b>98.4</b></td><td class="num">44.7</td></tr>
+                <tr class="is-metric"><td>DriveZero-Scale<sup><a href="#ref-drivezero">[37]</a></sup></td><td class="mid">Command</td><td class="mid">✓</td><td class="num">57.1</td><td class="num">98.7</td><td class="num">99.3</td><td class="num"><b>100.0</b></td><td class="num">99.3</td><td class="num">76.5</td><td class="num">98.4</td><td class="num">95.3</td><td class="num">97.1</td><td class="num">44.4</td><td class="num">94.6</td><td class="num"><b>95.6</b></td><td class="num"><b>97.7</b></td><td class="num">98.4</td><td class="num">76.2</td><td class="num">92.7</td><td class="num">59.9</td><td class="num">96.1</td><td class="num">44.0</td></tr>
+                <tr class="is-metric"><td>TerraTransfer++<sup><a href="#ref-terratransfer">[38]</a></sup></td><td class="mid">Goal</td><td class="mid">✓</td><td class="num"><b>59.4</b></td><td class="num">98.9</td><td class="num"><b>100.0</b></td><td class="num"><b>100.0</b></td><td class="num">99.6</td><td class="num">84.9</td><td class="num">98.4</td><td class="num">97.8</td><td class="num"><b>97.8</b></td><td class="num">70.2</td><td class="num">94.0</td><td class="num">90.2</td><td class="num">93.6</td><td class="num">98.0</td><td class="num">85.2</td><td class="num">87.2</td><td class="num"><b>62.5</b></td><td class="num">95.4</td><td class="num">53.8</td></tr>
+                </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 10.</strong> NAVSIM v2.2<sup><a href="#ref-pseudo-simulation">[22]</a></sup>, official devkit, mean over three seeds; ± standard deviation for EPDMS only. Ours receives no navigation input. GigaPixel: the variant with a PDM-score head. GTRS-Dense: the ViT-L model. SimScale models: trained on simulated scenes whose PDM-Closed expert trajectories are selected with the EPDMS sub-scores, which we count as metric training. DiffusionDrive-ViRA: DiffusionDrive with ViRA representation alignment. SimWAM and Latent TransFuser v6 as in <a href="#tab-navtest">Table 9</a>. EPDMS: extended PDM score on real frames (stage 1) and on the synthetic frames that follow them (stage 2). CV: constant velocity. MLP: ego status MLP. DDC: driving direction compliance. TLC: traffic light compliance. LK: lane keeping. HC, EC: history and extended comfort. Other columns as in <a href="#tab-navtest">Table 9</a>.</figcaption>
+        </figure>
+        <h3 id="appendix-recipe-title">Appendix B: Recipe ablations and training data</h3>
+
+        <p>This appendix reports the experiments summarized in <a href="#fig-gains">Figure 4</a>, one section for each element of the recipe, and the training data. All results are the mean ± standard deviation over three seeds on the 441 Physical AI and 1,485 nuPlan scenes of AlpaSim. The experiments were run in different phases of development, with different settings and bug fixes. Their scores can therefore be compared within a table or within a block of a table, but not across tables or with <a href="#tab-pai">Tables 2</a> and <a href="#tab-nuplan">3</a>. <a href="#appendix-other-title">Appendix C</a> reports further experiments that are not discussed in the main text.</p>
+
+        <h4 id="appendix-planner">Diffusion planning loss</h4>
+        <p>We compare the L1 regression head of TransFuser with a diffusion transformer trained with flow matching (<a href="#tab-planner">Table 11</a>). The diffusion transformer scores 5.4 points higher on the Physical AI track and has fewer at-fault collisions. On nuPlan, the two differ by less than one standard deviation.</p>
+        <figure class="garage-figure" id="tab-planner">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th rowspan="2">Planner</th><th colspan="3" class="group">Physical AI</th><th colspan="3" class="group">nuPlan</th></tr>
+                <tr><th class="num">Score ↑</th><th class="num">At-fault collisions ↓</th><th class="num">Corridor exits ↓</th><th class="num">Score ↑</th><th class="num">At-fault collisions ↓</th><th class="num">Corridor exits ↓</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>L1 regression</td><td class="num">52.9 ± 1.4</td><td class="num">78</td><td class="num">59</td><td class="num">84.8 ± 0.5</td><td class="num">7</td><td class="num">18</td></tr>
+                <tr class="is-ours"><td>Diffusion transformer, flow matching</td><td class="num">58.3 ± 1.3</td><td class="num">49</td><td class="num">49</td><td class="num">84.0 ± 1.3</td><td class="num">5</td><td class="num">20</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 11.</strong> Midtrained policy without target points. Collisions and corridor exits: scenes per seed.</figcaption>
+        </figure>
+
+        <h4 id="appendix-stages">Training stages and target point dropout</h4>
+        <p>In our experiments, the target points are the shortcut that reduces the closed-loop score the most. Adding them only in posttraining, after the policy has learned to drive from the camera, improves both scores (<a href="#tab-stages">Table 12</a>, upper block). Without dropout, however, the policy loses much of this driving ability during posttraining and relies on the target points instead. We therefore drop the target points in a share of the posttraining samples and replace them with a learned placeholder token. Both scores increase with the share of samples without target points, up to the 75 % used for the released policy (<a href="#tab-stages">Table 12</a>, lower block), and the number of off-road scenes falls from 175 to 68 per seed. Dropout does not remove the target point bias. It only controls how strongly the policy relies on the target points, and the best rate depends on the model configuration, for example on the length of the predicted path (<a href="#appendix-path">Appendix C</a>). A method that makes the policy use the route only where the scene is ambiguous remains an open problem.</p>
+        <figure class="garage-figure" id="tab-stages">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th>Training</th><th class="num">Physical AI score ↑</th><th class="num">nuPlan score ↑</th></tr>
+              </thead>
+              <tbody>
+                <tr class="is-section"><td colspan="3">Development phase A</td></tr>
+                <tr><td>Baseline: two stages, target point from the start</td><td class="num">58.4 ± 1.2</td><td class="num">75.5 ± 0.1</td></tr>
+                <tr><td>Three stages, target point only in posttraining</td><td class="num">61.4 ± 0.9</td><td class="num">77.3 ± 0.2</td></tr>
+                <tr class="is-section"><td colspan="3">Development phase B</td></tr>
+                <tr><td>Baseline: three stages, no dropout</td><td class="num">71.3 ± 2.8</td><td class="num">77.6 ± 0.8</td></tr>
+                <tr><td>No target point in 25 % of samples</td><td class="num">71.8 ± 1.1</td><td class="num">79.7 ± 0.7</td></tr>
+                <tr><td>No target point in 50 % of samples</td><td class="num">72.6 ± 2.8</td><td class="num">81.8 ± 1.0</td></tr>
+                <tr class="is-ours"><td>No target point in 75 % of samples</td><td class="num">74.4 ± 2.4</td><td class="num">87.1 ± 0.6</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 12.</strong> Each experiment shares pretraining, data and schedule with the baseline of its block. The two blocks come from different phases of development.</figcaption>
+        </figure>
+
+        <h4 id="appendix-pastframe">Temporal input</h4>
+        <p>A single frame does not show whether the car ahead is braking, so a policy that sees only the current frame relies on the ego speed instead. In our earlier experiments in CARLA, temporal input rarely improved policies trained by imitation. On AlpaSim, it does. Stacking the front-camera frame from 1 s earlier with the current frame adds 7.3 points on the Physical AI track and reduces the at-fault collisions from 61 to 25 per seed (<a href="#tab-pastframe">Table 13</a>). On nuPlan, it adds 1.8 points.</p>
+        <figure class="garage-figure" id="tab-pastframe">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th rowspan="2">Camera input</th><th colspan="3" class="group">Physical AI</th><th colspan="3" class="group">nuPlan</th></tr>
+                <tr><th class="num">Score ↑</th><th class="num">At-fault collisions ↓</th><th class="num">Corridor exits ↓</th><th class="num">Score ↑</th><th class="num">At-fault collisions ↓</th><th class="num">Corridor exits ↓</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Current frame only</td><td class="num">54.7 ± 1.1</td><td class="num">61</td><td class="num">65</td><td class="num">86.6 ± 0.3</td><td class="num">9</td><td class="num">23</td></tr>
+                <tr class="is-ours"><td>Current and 1 s past frame</td><td class="num">62.0 ± 0.8</td><td class="num">25</td><td class="num">73</td><td class="num">88.4 ± 0.2</td><td class="num">6</td><td class="num">24</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 13.</strong> Midtrained policy without target points, front camera only. Collisions and corridor exits: scenes per seed.</figcaption>
+        </figure>
+
+        <h4 id="appendix-data">Training data</h4>
+        <p>The released policy is trained on three public datasets, and all three training stages use the same data (<a href="#tab-data">Table 14</a>). Training samples are drawn at a fixed frequency along each log. This frequency differs between datasets, so the share of samples from a dataset differs from its share of hours.</p>
+        <figure class="garage-figure" id="tab-data">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th>Dataset</th><th>Splits used</th><th class="num">Hours</th><th class="num">Sample frequency</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Physical AI AV<sup><a href="#ref-physical-ai-av">[14]</a></sup></td><td>train, val, test, except NuRec<sup><a href="#ref-nurec" id="cite-nurec">[45]</a><a href="#ref-3dgut" id="cite-3dgut">[46]</a></sup> clips</td><td class="num">about 1,650</td><td class="num">0.5 Hz</td></tr>
+                <tr><td>nuPlan<sup><a href="#ref-nuplan">[15]</a></sup>, logs with camera data only</td><td>train, val</td><td class="num">about 124</td><td class="num">5 Hz</td></tr>
+                <tr><td>NuRec (AlpaSim)</td><td>train, other</td><td class="num">about 7</td><td class="num">10 Hz</td></tr>
+                <tr class="is-ours"><td>Total</td><td></td><td class="num">about 1,800</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 14.</strong> Training data of the released checkpoints. Hours are the duration of the camera logs.</figcaption>
+        </figure>
+        <h3 id="appendix-other-title">Appendix C: Further experiments</h3>
+
+        <p>This appendix reports experiments that are not discussed in the main text: further temporal and speed inputs, the image encoder, the development of the flow-matching planner and the target point dropout for a longer path. The setup is the same as in <a href="#appendix-recipe-title">Appendix B</a>, and scores can only be compared within a table. The <a href="https://github.com/kesai-labs/py123d_garage/blob/main/docs/research_logs.md" target="_blank" rel="noopener">research log</a> lists all experiments, including those not shown here.</p>
+
+        <h4 id="appendix-history">Past frames and ego history</h4>
+        <p>A second past frame at 0.5 s does not improve the scores (<a href="#tab-pastframes">Table 15</a>). On nuPlan, the vehicle remains stationary in more rollouts, likely because the first plans of a rollout are computed before the oldest frame is available.</p>
+        <figure class="garage-figure" id="tab-pastframes">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th rowspan="2">Camera input</th><th colspan="3" class="group">Physical AI</th><th colspan="3" class="group">nuPlan</th></tr>
+                <tr><th class="num">Score ↑</th><th class="num">At-fault collisions ↓</th><th class="num">Corridor exits ↓</th><th class="num">Score ↑</th><th class="num">At-fault collisions ↓</th><th class="num">Corridor exits ↓</th></tr>
+              </thead>
+              <tbody>
+                <tr class="is-ours"><td>Current and 1 s past frame (<a href="#tab-pastframe">Table 13</a>)</td><td class="num">62.0 ± 0.8</td><td class="num">25</td><td class="num">73</td><td class="num">88.4 ± 0.2</td><td class="num">6</td><td class="num">24</td></tr>
+                <tr><td>Current, 0.5 s and 1 s past frames</td><td class="num">59.0 ± 0.9</td><td class="num">30</td><td class="num">84</td><td class="num">88.5 ± 0.3</td><td class="num">6</td><td class="num">27</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 15.</strong> Midtrained policy without target points, front camera only. Collisions and corridor exits: scenes per seed.</figcaption>
+        </figure>
+        <p>We also replaced the current speed with a token that encodes the past ego motion (<a href="#tab-egohistory">Table 16</a>). This raises the nuPlan score by about 4 points but reduces the Physical AI score by 7 to 17 points, with more off-road scenes and corridor exits for longer histories. A policy optimized only for the nuPlan track should therefore receive the past ego motion. Since we aim for one policy that drives well across benchmarks and data sources, the released policy receives only the current speed.</p>
+        <figure class="garage-figure" id="tab-egohistory">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th>Ego input</th><th class="num">Physical AI score ↑</th><th class="num">nuPlan score ↑</th></tr>
+              </thead>
+              <tbody>
+                <tr class="is-ours"><td>Current speed only</td><td class="num">60.9 ± 1.8</td><td class="num">79.6</td></tr>
+                <tr><td>Ego history of 0.1 s</td><td class="num">53.5 ± 1.0</td><td class="num">83.9</td></tr>
+                <tr><td>Ego history of 0.2 s</td><td class="num">53.7 ± 2.3</td><td class="num">84.0</td></tr>
+                <tr><td>Ego history of 0.5 s</td><td class="num">43.6 ± 0.2</td><td class="num">84.1</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 16.</strong> Physical AI: trained on all three datasets, mean ± standard deviation over three seeds. nuPlan: trained on nuPlan only, one seed.</figcaption>
+        </figure>
+
+        <h4 id="appendix-speed">Speed input</h4>
+        <p>Since the ego speed enables the inertia shortcut, we removed the speed input in a share of the training samples (<a href="#tab-speed">Table 17</a>). Dropout rates of 25 to 75 % do not reduce the number of front collisions on the Physical AI track and reduce the nuPlan score by up to 2 points. Without any speed input, the Physical AI score decreases from 63.4 to 40.1.</p>
+        <figure class="garage-figure" id="tab-speed">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th rowspan="2">Speed dropout</th><th colspan="2" class="group">Physical AI</th><th class="group">nuPlan</th></tr>
+                <tr><th class="num">Score ↑</th><th class="num">Front collisions ↓</th><th class="num">Score ↑</th></tr>
+              </thead>
+              <tbody>
+                <tr class="is-ours"><td>0 %</td><td class="num">63.4 ± 2.2</td><td class="num">22</td><td class="num">89.5 ± 0.7</td></tr>
+                <tr><td>25 %</td><td class="num">63.1 ± 2.0</td><td class="num">20</td><td class="num">88.9 ± 1.1</td></tr>
+                <tr><td>50 %</td><td class="num">65.6 ± 2.4</td><td class="num">22</td><td class="num">88.2 ± 1.0</td></tr>
+                <tr><td>75 %</td><td class="num">63.4 ± 4.5</td><td class="num">22</td><td class="num">87.5 ± 0.4</td></tr>
+                <tr><td>100 %, no speed input</td><td class="num">40.1</td><td class="num">19</td><td class="num">83.5 ± 0.5</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 17.</strong> Midtrained policy without target points. Speed dropout: share of training samples without the speed input. Front collisions: scenes per seed. The policy without speed input was evaluated with one seed on the Physical AI track.</figcaption>
+        </figure>
+
+        <h4 id="appendix-encoder">Image encoder</h4>
+        <p>Replacing the ResNet34 by a ConvNeXt-T pretrained on ImageNet-12k reduces the perception losses of pretraining by 10 to 24 %, but does not improve the closed-loop scores (<a href="#tab-encoder">Table 18</a>). In our setting, the closed-loop score therefore appears to be limited by factors other than the perception quality that these losses measure. DINOv3<sup><a href="#ref-dinov3" id="cite-dinov3">[47]</a></sup> weights and the RegNetY-3.2GF<sup><a href="#ref-regnet" id="cite-regnet">[48]</a></sup> of the original TransFuser do not improve the scores either.</p>
+        <figure class="garage-figure" id="tab-encoder">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th>Image encoder</th><th class="num">Pretraining perception losses</th><th class="num">Physical AI score ↑</th><th class="num">nuPlan score ↑</th></tr>
+              </thead>
+              <tbody>
+                <tr class="is-ours"><td>ResNet34<sup><a href="#ref-resnet" id="cite-resnet">[49]</a></sup>, ImageNet<sup><a href="#ref-imagenet" id="cite-imagenet">[50]</a></sup></td><td class="num">reference</td><td class="num">63.4 ± 2.2</td><td class="num">89.5 ± 0.7</td></tr>
+                <tr><td>ConvNeXt-T<sup><a href="#ref-convnext" id="cite-convnext">[51]</a></sup>, ImageNet-12k<sup><a href="#ref-imagenet">[50]</a><a href="#ref-timm" id="cite-timm">[52]</a></sup></td><td class="num">−10 to −24 %</td><td class="num">61.9 ± 0.6</td><td class="num">89.3 ± 0.4</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 18.</strong> Midtrained policy without target points. Perception losses: BEV semantic segmentation and the heatmap, size, heading and velocity of the boxes, relative to ResNet34.</figcaption>
+        </figure>
+
+        <h4 id="appendix-flow">Development of the flow-matching planner</h4>
+        <p><a href="#tab-flow">Table 19</a> lists the steps from the first flow-matching planner to the released one. The most important step was deterministic sampling. Sampling can be made deterministic in two ways: with a fixed random seed or with zero temperature. A fixed seed reuses the same noise sample at every replanning step. With the seed we used, this noise sample biased every plan toward acceleration. Zero temperature starts every plan from the mean of the noise distribution and does not have this bias. With zero temperature, replacing the MSE loss on the flow field with an L1 loss on the denoised trajectory brings the planner to the same score as the regression planner. A horizon of 6.4 s and QK normalization in the attention (QK-norm) raise its score above that of the regression planner.</p>
+        <figure class="garage-figure" id="tab-flow">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th>Planner</th><th class="num">Physical AI score ↑</th><th class="num">nuPlan score ↑</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>Baseline: L1 regression (<a href="#tab-planner">Table 11</a>)</td><td class="num">52.9 ± 1.4</td><td class="num">84.8 ± 0.5</td></tr>
+                <tr class="is-section"><td colspan="3">Flow matching, MSE loss on the flow field (noise-to-trajectory direction)</td></tr>
+                <tr><td>Same seed at every replanning step, temperature 1</td><td class="num">34.8 ± 1.5</td><td class="num">87.2 ± 0.6</td></tr>
+                <tr><td>Same seed at every replanning step, temperature 0.5</td><td class="num">40.2 ± 2.0</td><td class="num">86.5 ± 0.3</td></tr>
+                <tr><td>Mean of 16 plans, each from new noise</td><td class="num">45.8 ± 0.3</td><td class="num">86.8 ± 0.8</td></tr>
+                <tr><td>Temperature 0 (zero noise)</td><td class="num">47.7 ± 0.7</td><td class="num">85.0 ± 0.9</td></tr>
+                <tr class="is-section"><td colspan="3">Flow matching, temperature 0</td></tr>
+                <tr><td>L1 loss on the denoised trajectory, in meters</td><td class="num">53.8 ± 0.3</td><td class="num">84.3 ± 0.4</td></tr>
+                <tr><td>+ 6.4 s horizon and QK-norm</td><td class="num">58.3 ± 1.3</td><td class="num">84.0 ± 1.3</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 19.</strong> Development of the flow-matching planner. Midtrained policy without target points.</figcaption>
+        </figure>
+
+        <h4 id="appendix-path">Path output and target point dropout</h4>
+        <p>In addition to the waypoints, the planner predicts the path ahead as points 1 m apart, and actions derived from inverse kinematics. These additional outputs improve the scores slightly. The path is supervised with the recorded route, so a longer path can copy more of its shape from the target points instead of inferring it from the camera. A longer path therefore requires more target point dropout (<a href="#tab-path-dropout">Table 20</a>). With a 64 m path, the policy trained with 75 % of the samples without target points has about twice as many off-road scenes on the Physical AI track as the policy trained with 95 % (55 compared with 27 per seed). The released checkpoint <a href="https://huggingface.co/kesai-labs/py123d_garage_pretrained_checkpoints/tree/main/v0.2.0/ltf-base-joint32-68M/posttrain" target="_blank" rel="noopener">ltf-base-joint32-68M</a> therefore uses a 32 m path with 75 %, and <a href="https://huggingface.co/kesai-labs/py123d_garage_pretrained_checkpoints/tree/main/v0.2.0/ltf-base-joint64-68M/posttrain" target="_blank" rel="noopener">ltf-base-joint64-68M</a> uses a 64 m path with 95 %.</p>
+        <figure class="garage-figure" id="tab-path-dropout">
+          <div class="garage-table-wrap">
+            <table class="garage-table">
+              <thead>
+                <tr><th rowspan="2">Samples without target point</th><th colspan="2" class="group">Physical AI</th><th colspan="2" class="group">nuPlan</th></tr>
+                <tr><th class="num">Score ↑</th><th class="num">Off-road ↓</th><th class="num">Score ↑</th><th class="num">Off-road ↓</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>75 %</td><td class="num">68.3 ± 2.2</td><td class="num">55</td><td class="num">88.3 ± 1.7</td><td class="num">79</td></tr>
+                <tr><td>85 %</td><td class="num">74.6 ± 1.6</td><td class="num">31</td><td class="num">90.8 ± 0.1</td><td class="num">49</td></tr>
+                <tr><td>95 %</td><td class="num">74.6 ± 2.4</td><td class="num">27</td><td class="num">91.2 ± 0.7</td><td class="num">49</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <figcaption><strong>Table 20.</strong> Policy with a 64 m path, posttrained with different shares of samples without target points. Off-road: scenes per seed.</figcaption>
+        </figure>
+        </details>
+      </section>
+    </article>
+  </main>
+
+  <footer id="site-footer"></footer>
+</body>
+</html>
